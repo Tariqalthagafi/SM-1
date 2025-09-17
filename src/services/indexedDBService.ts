@@ -1,0 +1,151 @@
+import { openDB } from 'idb'
+
+const DB_NAME = 'menuDB'
+const DB_VERSION = 7
+
+export const dbPromise = openDB(DB_NAME, DB_VERSION, {
+  upgrade(db) {
+    // 🛒 منتجات
+    if (!db.objectStoreNames.contains('products')) {
+      db.createObjectStore('products', { keyPath: 'id' })
+    }
+
+    // 🗂️ أقسام
+    if (!db.objectStoreNames.contains('sections')) {
+      db.createObjectStore('sections', { keyPath: 'id' })
+    }
+
+    // 🎁 عروض
+    if (!db.objectStoreNames.contains('offers')) {
+      db.createObjectStore('offers', { keyPath: 'id' })
+    }
+
+    // 📡 إعدادات التواصل
+    if (!db.objectStoreNames.contains('social')) {
+      db.createObjectStore('social', { keyPath: 'id' })
+    }
+
+    // ⚙️ إعدادات عامة
+    if (!db.objectStoreNames.contains('settings')) {
+      db.createObjectStore('settings', { keyPath: 'id' })
+    }
+
+    // 🧱 خيارات التخصيص (template_options)
+    if (!db.objectStoreNames.contains('template_options')) {
+    db.createObjectStore('template_options', { keyPath: 'id' })
+   }
+
+    // 🧱 إعدادات المستخدم أو القالب (template_settings)
+    if (!db.objectStoreNames.contains('template_settings')) {
+    db.createObjectStore('template_settings', { keyPath: 'id' })
+   }
+ // 🎨 جدول الألوان الثابتة
+if (!db.objectStoreNames.contains('menu_colors')) {
+  db.createObjectStore('menu_colors', { keyPath: 'id' })
+}
+
+// 📐 جدول نماذج التخطيط المثبتة
+if (!db.objectStoreNames.contains('layout_templates')) {
+  db.createObjectStore('layout_templates', { keyPath: 'id' })
+}
+
+// 🧩 جدول تخصيص المستخدم النهائي
+if (!db.objectStoreNames.contains('menu_customization')) {
+  db.createObjectStore('menu_customization', { keyPath: 'id' })
+}
+
+}
+})
+
+export const indexedDBService = {
+  // جلب كل العناصر من store معين
+  async getAll(storeName: string) {
+    const db = await dbPromise
+    return db.getAll(storeName)
+  },
+
+  // جلب عنصر محدد حسب id
+  async get(storeName: string, id: string | number) {
+    const db = await dbPromise
+    return db.get(storeName, id)
+  },
+
+  // حفظ أو تحديث عنصر
+  async put(storeName: string, value: any) {
+    const db = await dbPromise
+    return db.put(storeName, value)
+  },
+
+  // حذف عنصر حسب id
+  async delete(storeName: string, id: string | number) {
+    const db = await dbPromise
+    return db.delete(storeName, id)
+  },
+
+  // تفريغ store بالكامل
+  async clear(storeName: string) {
+    const db = await dbPromise
+    return db.clear(storeName)
+  },
+  // جلب إعداد معين
+async getSetting(key: string) {
+  const db = await dbPromise
+  const settings = await db.get('template_settings', 'template')
+  return settings?.[key] ?? null
+},
+
+// حفظ إعداد معين
+async saveSetting(key: string, value: any) {
+  const db = await dbPromise
+  const current = (await db.get('template_settings', 'template')) || { id: 'template' }
+  current[key] = value
+  await db.put('template_settings', current)
+},
+
+// جلب الخيارات المتاحة لنوع معين
+async getOptions(key: string) {
+  const db = await dbPromise
+  const all = await db.getAll('template_options')
+  return all.filter(opt => opt.key === key && opt.is_active)
+},
+
+// حفظ خيار جديد (للاستخدام الإداري لاحقًا)
+async saveOption(option: any) {
+  const db = await dbPromise
+  await db.put('template_options', option)
+},
+async getColors(id = 'default') {
+  const db = await dbPromise
+  return db.get('menu_colors', id)
+},
+
+async saveColors(colors: any, id = 'default') {
+  const db = await dbPromise
+  await db.put('menu_colors', { id, ...colors })
+},
+async getLayoutTemplate(id: string) {
+  const db = await dbPromise
+  return db.get('layout_templates', id)
+},
+
+async getActiveLayoutTemplates() {
+  const db = await dbPromise
+  const all = await db.getAll('layout_templates')
+  return all.filter(template => template.is_active)
+},
+
+async saveLayoutTemplate(template: any) {
+  const db = await dbPromise
+  await db.put('layout_templates', template)
+},
+async getCustomization(id = 'template') {
+  const db = await dbPromise
+  return db.get('menu_customization', id)
+},
+
+async saveCustomization(data: any, id = 'template') {
+  const db = await dbPromise
+  await db.put('menu_customization', { id, ...data })
+},
+
+}
