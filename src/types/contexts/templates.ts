@@ -7,11 +7,15 @@ export type ExpiredStyle =
   | 'strike'              // شطب السعر
   | 'dimmed'              // تظليل المنتج بلون رمادي
   | 'hide'                // إخفاء المنتج بالكامل
+  | 'badge'
 
 export type OfferStyle =
   | 'oldNewStacked'
   | 'badgeWithNewPrice'
-  | 'inlineStrikeThrough'
+  | 'inlineStrikeThrough' 
+  | 'strike' 
+  | 'badge' 
+  | 'priceOnly'
 
 export type CardShape = 'rounded' | 'flat' | 'shadowed'
 export type FontSize = 'small' | 'medium' | 'large'
