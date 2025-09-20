@@ -27,29 +27,49 @@ export const useCurrencyStore = defineStore('currencyStore', () => {
     const existing = await indexedDBService.getOptions('currencySymbol')
     if (existing.length > 0) return
 
-    const seedOptions = [
-      {
-        id: 'currency-symbol-text',
-        key: 'currencySymbol',
-        value: 'ر.س',
-        label: 'ر.س',
-        type: 'string',
-        context: 'template',
-        group: 'currencySymbol',
-        is_active: true
-      },
-      {
-        id: 'currency-symbol-image',
-        key: 'currencySymbol',
-        value: 'SAR_IMAGE',
-        label: 'صورة',
-        image: '/images/SRS1.svg',
-        type: 'string',
-        context: 'template',
-        group: 'currencySymbol',
-        is_active: true
-      }
-    ]
+const seedOptions = [
+  {
+    id: 'currency-symbol-text',
+    key: 'currencySymbol',
+    value: 'ر.س',
+    label: 'ر.س',
+    type: 'string',
+    context: 'template',
+    group: 'currencySymbol',
+    is_active: true
+  },
+  {
+    id: 'currency-symbol-riyal-text',
+    key: 'currencySymbol',
+    value: 'ريال',
+    label: 'ريال',
+    type: 'string',
+    context: 'template',
+    group: 'currencySymbol',
+    is_active: true
+  },
+  {
+    id: 'currency-symbol-sar-text',
+    key: 'currencySymbol',
+    value: 'SAR',
+    label: 'SAR',
+    type: 'string',
+    context: 'template',
+    group: 'currencySymbol',
+    is_active: true
+  },
+  {
+    id: 'currency-symbol-image',
+    key: 'currencySymbol',
+    value: 'SAR_IMAGE',
+    label: 'صورة',
+    image: '/images/SRS1.svg',
+    type: 'string',
+    context: 'template',
+    group: 'currencySymbol',
+    is_active: true
+  }
+]
 
     for (const option of seedOptions) {
       await indexedDBService.saveOption(option)

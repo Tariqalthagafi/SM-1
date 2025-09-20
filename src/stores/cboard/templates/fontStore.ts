@@ -1,15 +1,22 @@
-// 📁 المسار: src/stores/cboard/templates/fontStore.ts
-
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
+import { ref, watchEffect } from 'vue'
 import { indexedDBService } from '@/services/indexedDBService'
 
 export const useFontStore = defineStore('fontStore', () => {
   const fontFamily = ref('Cairo') // القيمة الافتراضية
   const fontOptions = ref<{ value: string; label?: string }[]>([])
 
+  // ✅ تطبيق الخط مباشرة على مستوى الصفحة
+  watchEffect(() => {
+    document.documentElement.style.setProperty('--font-family', fontFamily.value)
+  })
+
   function setFont(font: string) {
     fontFamily.value = font
+  }
+
+  async function saveFont() {
+    await indexedDBService.saveSetting('fontFamily', fontFamily.value)
   }
 
   async function loadFont() {
@@ -19,65 +26,16 @@ export const useFontStore = defineStore('fontStore', () => {
     }
   }
 
-  async function saveFont() {
-    await indexedDBService.saveSetting('fontFamily', fontFamily.value)
-  }
-
   async function seedFontOptions() {
     const existing = await indexedDBService.getOptions('fontFamily')
-    if (existing.length > 0) return // لا حاجة للإدخال
+    if (existing.length > 0) return
 
     const seedFonts = [
-      {
-        id: 'fontFamily-Cairo',
-        key: 'fontFamily',
-        value: 'Cairo',
-        label: 'خط Cairo',
-        type: 'string',
-        context: 'template',
-        group: 'fonts',
-        is_active: true
-      },
-      {
-        id: 'fontFamily-Tajawal',
-        key: 'fontFamily',
-        value: 'Tajawal',
-        label: 'خط Tajawal',
-        type: 'string',
-        context: 'template',
-        group: 'fonts',
-        is_active: true
-      },
-      {
-        id: 'fontFamily-NotoSansArabic',
-        key: 'fontFamily',
-        value: 'Noto Sans Arabic',
-        label: 'خط Noto Sans Arabic',
-        type: 'string',
-        context: 'template',
-        group: 'fonts',
-        is_active: true
-      },
-      {
-        id: 'fontFamily-Almarai',
-        key: 'fontFamily',
-        value: 'Almarai',
-        label: 'خط Almarai',
-        type: 'string',
-        context: 'template',
-        group: 'fonts',
-        is_active: true
-      },
-      {
-        id: 'fontFamily-Roboto',
-        key: 'fontFamily',
-        value: 'Roboto',
-        label: 'خط Roboto (لاتيني)',
-        type: 'string',
-        context: 'template',
-        group: 'fonts',
-        is_active: true
-      }
+      { id: 'fontFamily-Tajawal', value: 'Tajawal', label: 'خط Tajawal', key: 'fontFamily', type: 'string', context: 'template', group: 'fonts', is_active: true },
+      { id: 'fontFamily-Amiri', value: 'Amiri', label: 'خط Amiri', key: 'fontFamily', type: 'string', context: 'template', group: 'fonts', is_active: true },
+      { id: 'fontFamily-Cairo', value: 'Cairo', label: 'خط Cairo', key: 'fontFamily', type: 'string', context: 'template', group: 'fonts', is_active: true },
+      { id: 'fontFamily-NotoKufiArabic', value: 'Noto Kufi Arabic', label: 'خط Noto Kufi Arabic', key: 'fontFamily', type: 'string', context: 'template', group: 'fonts', is_active: true },
+      { id: 'fontFamily-Almarai', value: 'Almarai', label: 'خط Almarai', key: 'fontFamily', type: 'string', context: 'template', group: 'fonts', is_active: true }
     ]
 
     for (const font of seedFonts) {
@@ -89,6 +47,8 @@ export const useFontStore = defineStore('fontStore', () => {
     await seedFontOptions()
     fontOptions.value = await indexedDBService.getOptions('fontFamily')
     await loadFont()
+
+    // ✅ تأكيد أن الخط المحفوظ موجود ضمن الخيارات
     if (!fontOptions.value.find(f => f.value === fontFamily.value)) {
       fontFamily.value = fontOptions.value[0]?.value || 'Cairo'
     }
@@ -102,8 +62,8 @@ export const useFontStore = defineStore('fontStore', () => {
     fontFamily,
     fontOptions,
     setFont,
-    loadFont,
     saveFont,
+    loadFont,
     initFontOptions,
     resetFont
   }

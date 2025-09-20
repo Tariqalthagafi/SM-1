@@ -1,6 +1,6 @@
 <template>
   <div class="linker-page">
-    <h2>🔗 ربط المنتجات بالأقسام</h2>
+<h2>🔗 إدارة تسعير المنتجات وربطها بالأقسام</h2>
 
     <div v-if="productsStore.products.length">
       <ProductlinkerRow

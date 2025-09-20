@@ -23,6 +23,7 @@ export const useHomeStore = defineStore('homeStore', () => {
   const restaurantName = ref('')
   const logoUrl = ref<string | null>(null)
   const logoBlob = ref<Blob | null>(null)
+  const businessType = ref<string>('مطعم') // ✅ النشاط التجاري
 
   // 📌 تحميل البيانات من IndexedDB أو إنشاؤها إذا لم تكن موجودة
   async function initStore() {
@@ -46,6 +47,12 @@ export const useHomeStore = defineStore('homeStore', () => {
     if (savedLogo) {
       logoUrl.value = savedLogo.value
     }
+
+    // النشاط التجاري
+    const savedType = await indexedDBService.get('settings', 'businessType')
+    if (savedType) {
+      businessType.value = savedType.value
+    }
   }
 
   // 🖼️ ضبط الشعار من ملف
@@ -65,6 +72,12 @@ export const useHomeStore = defineStore('homeStore', () => {
   async function setRestaurantName(name: string) {
     restaurantName.value = name
     await indexedDBService.put('settings', { id: 'restaurantName', value: name })
+  }
+
+  // 🏷️ ضبط النشاط التجاري
+  async function setBusinessType(type: string) {
+    businessType.value = type
+    await indexedDBService.put('settings', { id: 'businessType', value: type })
   }
 
   // 📅 تسجيل الزيارة
@@ -102,12 +115,14 @@ export const useHomeStore = defineStore('homeStore', () => {
     restaurantName,
     logoUrl,
     logoBlob,
+    businessType, // ✅ مضاف
 
     // الدوال
     initStore,
     setRestaurantName,
     setLogoUrl,
     setLogoBlob,
+    setBusinessType, // ✅ مضاف
     markVisit,
     logActivity,
     toggleTips,

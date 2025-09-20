@@ -21,7 +21,16 @@ export interface ColorSettings {
   titleText: string
   priceText: string
   descriptionText: string
+  sectionTitleText: string
   allergenIcon: string
+  offerLabel: string
+  currencyIcon: string         // ✅ جديد
+  expiredProductIcon: string   // ✅ جديد
+  bodyBackground: string
+  productBackground: string
+  priceBackground: string
+  currencyBackground: string
+  
 }
 
 // 🧠 إعدادات التصميم الكاملة (تجميع)

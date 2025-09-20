@@ -1,84 +1,73 @@
 <template>
   <div class="color-editor">
     <h5>{{ t('colorsSection') }}</h5>
-    <div
-      v-for="(label, key, index) in colorKeys"
-      :key="String(key)"
-      class="color-row"
-    >
-      <label class="color-label">
-        {{ label }}:
-        <input
-          type="color"
-          :value="colors[key]"
-          @input="updateColor(key, $event)"
-        />
-      </label>
-      <hr v-if="index < Object.keys(colorKeys).length - 1" />
+
+    <!-- اختيار نوع التخصيص -->
+    <div class="group-selector">
+      <button
+        :class="{ active: selectedGroup === 'text' }"
+        @click="selectedGroup = 'text'"
+      >
+        🎨 النصوص
+      </button>
+      <button
+        :class="{ active: selectedGroup === 'icons' }"
+        @click="selectedGroup = 'icons'"
+      >
+        🧩 الرموز
+      </button>
+      <button
+        :class="{ active: selectedGroup === 'backgrounds' }"
+        @click="selectedGroup = 'backgrounds'"
+      >
+        🖼️ الخلفيات
+      </button>
     </div>
+
+    <!-- عرض المكون المناسب حسب الاختيار -->
+    <TextColors v-if="selectedGroup === 'text'" />
+    <IconColors v-if="selectedGroup === 'icons'" />
+    <BackgroundColors v-if="selectedGroup === 'backgrounds'" />
   </div>
 </template>
 
 <script setup lang="ts">
+import { ref } from 'vue'
 import { t } from '@/translations'
-import { computed, onMounted } from 'vue'
-import { useColorEditorStore } from '@/stores/cboard/MenuDesign/ColorEditorStore'
-import type { ColorSettings } from '@/types/contexts/MenuDesign'
 
-const store = useColorEditorStore()
-const colors = computed(() => store.colors)
+import TextColors from './TextColors.vue'
+import IconColors from './IconColors.vue'
+import BackgroundColors from './BackgroundColors.vue'
 
-onMounted(() => {
-  store.loadColors()
-})
-
-const colorKeys: Record<keyof ColorSettings, string> = {
-  headerBackground: 'خلفية العنوان',
-  sectionBackground: 'خلفية القسم',
-  cardBackground: 'خلفية البطاقة',
-  titleText: 'لون عنوان المنتج',
-  priceText: 'لون السعر',
-  descriptionText: 'لون الوصف',
-  allergenIcon: 'لون رمز الحساسية'
-}
-
-function updateColor(key: keyof ColorSettings, event: Event) {
-  const target = event.target as HTMLInputElement
-  store.setColor(key, target.value)
-  store.saveColors()
-}
+const selectedGroup = ref<'text' | 'icons' | 'backgrounds'>('text')
 </script>
 
 <style scoped>
 .color-editor {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 1.5rem;
 }
 
-.color-row {
+.group-selector {
   display: flex;
-  flex-direction: column;
   gap: 0.5rem;
+  margin-bottom: 1rem;
 }
 
-.color-label {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  font-size: 1rem;
-}
-
-input[type="color"] {
-  width: 50px;
-  height: 28px;
-  border: none;
+.group-selector button {
+  padding: 0.4rem 0.8rem;
+  border: 1px solid #ccc;
+  background: #f9f9f9;
+  border-radius: 6px;
   cursor: pointer;
+  font-size: 0.9rem;
+  transition: background-color 0.2s ease;
 }
 
-hr {
-  border: none;
-  border-top: 1px solid #ccc;
-  margin: 0.5rem 0;
+.group-selector button.active {
+  background: #007bff;
+  color: white;
+  border-color: #007bff;
 }
 </style>

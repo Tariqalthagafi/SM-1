@@ -13,7 +13,18 @@ export const useColorEditorStore = defineStore('colorEditorStore', () => {
     titleText: '#000000',
     priceText: '#333333',
     descriptionText: '#666666',
-    allergenIcon: '#ff0000'
+    allergenIcon: '#ff0000',
+    offerLabel: '#007bff',
+    sectionTitleText: '#222222', // ✅ جديد
+    currencyIcon: '#009688',         // ✅ لون العملة
+    expiredProductIcon: '#9e9e9e',   // ✅ لون المنتج المنتهي
+    bodyBackground: '#f0f0f0',
+productBackground: '#ffffff',
+priceBackground: '#fff8e1',
+currencyBackground: '#e0f7fa',
+
+
+
   })
 
   function setColor(key: keyof ColorSettings, value: string) {
@@ -43,7 +54,18 @@ export const useColorEditorStore = defineStore('colorEditorStore', () => {
       titleText: '#000000',
       priceText: '#333333',
       descriptionText: '#666666',
-      allergenIcon: '#ff0000'
+      allergenIcon: '#ff0000',
+       offerLabel: '#007bff',
+       sectionTitleText: '#222222', // ✅ جديد
+       currencyIcon: '#009688',
+       expiredProductIcon: '#9e9e9e',
+       bodyBackground: '#f0f0f0',
+productBackground: '#ffffff',
+priceBackground: '#fff8e1',
+currencyBackground: '#e0f7fa',
+
+
+
     }
   }
 

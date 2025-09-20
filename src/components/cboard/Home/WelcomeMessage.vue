@@ -1,8 +1,7 @@
 <template>
   <div class="welcome-message">
-    <h2>مرحبًا بك يا {{ homeStore.username }} 👋</h2>
-    <p class="menu-id">معرّف المنيو: {{ homeStore.menuId }}</p>
-    
+    <h2>مرحبًا بك 👋</h2>
+    <p class="account-id">رقم الحساب: {{ homeStore.menuId }}</p>
   </div>
 </template>
 
@@ -11,7 +10,7 @@ import { useHomeStore } from '@/stores/cboard/homeStore'
 
 const homeStore = useHomeStore()
 
-// تحميل البيانات من IndexedDB إذا ما كانت محملة
+// تحميل البيانات من IndexedDB إذا لم تكن محملة مسبقًا
 homeStore.initStore()
 
 // تسجيل وقت الزيارة
@@ -21,7 +20,11 @@ homeStore.markVisit()
 <style scoped>
 .welcome-message {
   text-align: start;
-  padding-bottom: 1rem;
+  padding: 1rem 2rem;
+  background-color: #f5f5f5;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  margin-bottom: 1rem;
 }
 
 .welcome-message h2 {
@@ -30,14 +33,8 @@ homeStore.markVisit()
   margin-bottom: 0.5rem;
 }
 
-.menu-id {
-  font-size: 0.9rem;
-  color: #666;
-  margin-bottom: 0.5rem;
-}
-
-.welcome-message p {
-  font-size: 1rem;
+.account-id {
+  font-size: 0.95rem;
   color: #555;
 }
 </style>

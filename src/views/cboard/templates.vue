@@ -1,6 +1,9 @@
 <template>
   <div class="template-editor-page">
+
     <div class="template-editor-container">
+          <h1 class="page-title">خصص شكل المنيو بإضافة رموز بصرية ديناميكية</h1>
+
       <TemplateCustomizer />
     </div>
   </div>
@@ -8,6 +11,7 @@
 
 <script setup lang="ts">
 import TemplateCustomizer from '@/components/cboard/Templates/Customizer/TemplateCustomizer.vue'
+
 </script>
 
 <style scoped>
@@ -24,4 +28,12 @@ import TemplateCustomizer from '@/components/cboard/Templates/Customizer/Templat
   /* ✅ أزلنا البطاقة الزائدة */
   padding: 0;
 }
+.page-title {
+  font-size: 2rem;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 2rem;
+  color: #333;
+}
+
 </style>

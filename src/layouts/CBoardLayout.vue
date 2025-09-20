@@ -8,57 +8,18 @@
       </div>
 
       <nav class="sidebar-links">
-        <RouterLink to="/cboard" active-class="" exact-active-class="active">
-          <i class="icon">🏠</i>
-          <span v-if="!isCollapsed">الرئيسية</span>
-        </RouterLink>
-
-        <RouterLink to="/cboard/sections" active-class="active">
-          <i class="icon">📋</i>
-          <span v-if="!isCollapsed">الاقسام</span>
-        </RouterLink>
-
-        <RouterLink to="/cboard/Products" active-class="active">
-          <i class="icon">🍽️</i>
-          <span v-if="!isCollapsed">المنتجات</span>
-        </RouterLink>
-
-        <RouterLink to="/cboard/Offers" active-class="active">
-          <i class="icon">🎁</i>
-          <span v-if="!isCollapsed">العروض</span>
-        </RouterLink>
-
-        <RouterLink to="/cboard/linker" active-class="active">
-          <i class="icon">🧩</i>
-          <span v-if="!isCollapsed">ربط المنتجات</span>
-        </RouterLink>
-
-        <RouterLink to="/cboard/Social" active-class="active">
-          <i class="icon">📱</i>
-          <span v-if="!isCollapsed">التواصل</span>
-        </RouterLink>
-
-        <RouterLink to="/cboard/templates" active-class="active">
-          <i class="icon">🎨</i>
-          <span v-if="!isCollapsed">الثيمات</span>
-        </RouterLink>
-
-        <RouterLink to="/cboard/MenuDesign" active-class="active">
-          <i class="icon">🖌️</i>
-          <span v-if="!isCollapsed">تصميم المنيو</span>
-        </RouterLink>
-
-        <RouterLink to="/cboard/MenuPreview" active-class="active">
-          <i class="icon">🧾</i>
-          <span v-if="!isCollapsed">معاينة المنيو</span>
-        </RouterLink>
-
-        <RouterLink to="/cboard/settings" active-class="active">
-          <i class="icon">⚙️</i>
-          <span v-if="!isCollapsed">الإعدادات</span>
-        </RouterLink>
-
-        <button @click="logout" title="خروج" class="icon">⏻</button>
+        <component
+          v-for="item in sidebarItems"
+          :key="item.name"
+          :is="item.route.startsWith('#') ? 'button' : 'RouterLink'"
+          :to="!item.route.startsWith('#') ? item.route : undefined"
+          @click="handleAction(item.route)"
+          class="sidebar-link"
+        >
+          <i class="icon">{{ item.icon }}</i>
+          <span v-if="!isCollapsed">{{ item.name }}</span>
+          <span v-else class="tooltip">{{ item.name }}</span>
+        </component>
       </nav>
     </aside>
 
@@ -83,12 +44,43 @@ const toggleSidebar = () => {
 const router = useRouter()
 const route = useRoute()
 
-// غيّر 'menu-preview' ليطابق اسم الراوت في ملف الراوتر
-const hideSidebar = computed(() => route.name === 'MenuPreview')
 
-function logout() {
-  router.push('/') // أو أي مسار رئيسي مثل "/home"
+// اللغة الحالية (شكليًا فقط)
+const currentLang = ref('ar')
+function toggleLang() {
+  currentLang.value = currentLang.value === 'ar' ? 'en' : 'ar'
 }
+
+// تسجيل الخروج
+function logout() {
+  router.push('/')
+}
+
+// التعامل مع العناصر الوظيفية
+function handleAction(route) {
+  if (route === '#lang') toggleLang()
+  else if (route === '#logout') logout()
+}
+
+// القائمة الجانبية كـ computed لتحديث اللغة ديناميكيًا
+const sidebarItems = computed(() => [
+  { name: 'الرئيسية', icon: '🏠', route: '/cboard' },
+  { name: 'الاقسام', icon: '📋', route: '/cboard/sections' },
+  { name: 'المنتجات', icon: '🍽️', route: '/cboard/Products' },
+  { name: 'العروض', icon: '🎁', route: '/cboard/Offers' },
+  { name: 'ربط المنتجات', icon: '🧩', route: '/cboard/linker' },
+  { name: 'التواصل', icon: '📱', route: '/cboard/Social' },
+  { name: 'الثيمات', icon: '🎨', route: '/cboard/templates' },
+  { name: 'تصميم المنيو', icon: '🖌️', route: '/cboard/MenuDesign' },
+  { name: 'معاينة المنيو', icon: '🧾', route: '/cboard/MenuPreview' },
+  { name: 'الإعدادات', icon: '⚙️', route: '/cboard/settings' },
+  {
+    name: currentLang.value === 'ar' ? 'English' : 'العربية',
+    icon: currentLang.value === 'ar' ? 'En' : 'ع',
+    route: '#lang'
+  },
+  { name: 'خروج', icon: '⏻', route: '#logout' }
+])
 </script>
 
 <style scoped>
@@ -124,67 +116,6 @@ function logout() {
   margin-bottom: 2rem;
 }
 
-.logo {
-  font-size: 1.6rem;
-  font-weight: bold;
-}
-
-.sidebar-links {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-
-.sidebar-links a {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  text-decoration: none;
-  color: #444;
-  font-weight: 500;
-  padding: 0.6rem 0.75rem;
-  border-radius: 6px;
-  transition: background-color 0.2s ease, color 0.2s ease;
-}
-
-.sidebar-links a:hover {
-  background-color: #f0f8ff;
-  color: #007bff;
-}
-
-.sidebar-links a.active {
-  background-color: #e6f0ff;
-  color: #007bff;
-}
-
-.icon {
-  font-size: 1.2rem;
-}
-
-.main-content {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  z-index: 0;
-}
-
-.topbar {
-  background-color: #ffffff;
-  padding: 1rem 2rem;
-  border-bottom: 1px solid #e0e0e0;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.04);
-  position: relative;
-  z-index: 0;
-}
-
-.page-content {
-  padding: 2rem;
-  background-color: #f9f9f9;
-  flex: 1;
-  overflow-y: auto;
-  border-top: 1px solid #eee;
-}
-
 .sidebar-actions {
   display: flex;
   gap: 0.5rem;
@@ -201,5 +132,77 @@ function logout() {
 
 .sidebar-header button:hover {
   color: #007bff;
+}
+
+.sidebar-links {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.sidebar-link {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  text-decoration: none;
+  color: #444;
+  font-weight: 500;
+  padding: 0.6rem 0.75rem;
+  border-radius: 6px;
+  transition: background-color 0.2s ease, color 0.2s ease;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.sidebar-link:hover {
+  background-color: #f0f8ff;
+  color: #007bff;
+}
+
+.sidebar-link.active {
+  background-color: #e6f0ff;
+  color: #007bff;
+}
+
+.icon {
+  font-size: 1.2rem;
+}
+
+.tooltip {
+  position: absolute;
+  right: -10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background-color: #333;
+  color: #fff;
+  padding: 0.3rem 0.6rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+  z-index: 10;
+}
+
+.sidebar-link:hover .tooltip {
+  opacity: 1;
+}
+
+.main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  z-index: 0;
+}
+
+.page-content {
+  padding: 2rem;
+  background-color: #f9f9f9;
+  flex: 1;
+  overflow-y: auto;
+  border-top: 1px solid #eee;
 }
 </style>

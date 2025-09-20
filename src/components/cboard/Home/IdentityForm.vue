@@ -1,5 +1,6 @@
 <template>
   <div class="identity-form">
+    <!-- اسم المنشأة -->
     <div class="field">
       <label for="restaurantName">اسم المنشأة التجاري:</label>
       <input
@@ -10,10 +11,20 @@
       />
     </div>
 
+    <!-- النشاط التجاري -->
+    <div class="field">
+      <label for="businessType">النشاط التجاري:</label>
+      <select id="businessType" v-model="businessType">
+        <option value="مطعم">مطعم</option>
+        <option value="لاونج">لاونج</option>
+        <option value="مقهى">مقهى</option>
+      </select>
+    </div>
+
+    <!-- الشعار -->
     <div class="field logo-field">
       <label>الشعار:</label>
 
-      <!-- زر رفع الشعار -->
       <input
         v-if="!logoUrl"
         type="file"
@@ -21,7 +32,6 @@
         @change="handleLogoUpload"
       />
 
-      <!-- عرض المعاينة + أزرار التحكم -->
       <div v-else class="logo-preview-container">
         <img :src="logoUrl" alt="شعار المطعم" class="logo-preview" />
 
@@ -30,7 +40,6 @@
           <button type="button" class="remove-btn" @click="removeLogo">إزالة الشعار</button>
         </div>
 
-        <!-- input مخفي لتغيير الشعار -->
         <input
           ref="fileInput"
           type="file"
@@ -54,6 +63,11 @@ const restaurantName = computed<string>({
   set: (val: string) => home.setRestaurantName(val)
 })
 
+const businessType = computed<string>({
+  get: () => home.businessType,
+  set: (val: string) => home.setBusinessType(val)
+})
+
 const logoUrl = computed(() => home.logoUrl)
 const fileInput = ref<HTMLInputElement | null>(null)
 
@@ -73,7 +87,6 @@ function removeLogo() {
   home.setLogoUrl(null)
 }
 </script>
-
 <style scoped>
 .identity-form {
   padding: 1.5rem;
@@ -92,12 +105,14 @@ label {
   margin-bottom: 0.4rem;
 }
 
-input[type="text"] {
+input[type="text"],
+select {
   width: 100%;
   padding: 0.5rem;
   border: 1px solid #ccc;
   border-radius: 6px;
   font-size: 0.9rem;
+  background-color: #fff;
 }
 
 .logo-field {
