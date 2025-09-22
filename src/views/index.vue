@@ -1,11 +1,12 @@
 <template>
   <main class="home">
-
     <!-- 🔼 القسم الرابع: الشعار وزر اللغة وتسجيل الدخول -->
     <nav class="top-nav">
       <div class="logo">أداة المنيو</div>
       <div class="actions">
-        <button class="lang-toggle">EN</button>
+        <button class="lang-toggle" @click="toggleLang">
+          {{ currentLang === 'ar' ? 'EN' : 'AR' }}
+        </button>
         <button @click="fakeLogin">تسجيل الدخول</button>
       </div>
     </nav>
@@ -40,11 +41,11 @@
     <footer class="footer">
       <p>© 2025 أداة المنيو. جميع الحقوق محفوظة.</p>
     </footer>
-
   </main>
 </template>
 
 <script setup lang="ts">
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { Swiper, SwiperSlide } from 'swiper/vue'
 import 'swiper/css'
@@ -52,10 +53,20 @@ import 'swiper/css/pagination'
 import { Pagination, Autoplay } from 'swiper/modules'
 
 const router = useRouter()
-
 function fakeLogin() {
   router.push('/cboard')
 }
+
+const currentLang = ref<'ar' | 'en'>('ar')
+
+function toggleLang() {
+  currentLang.value = currentLang.value === 'ar' ? 'en' : 'ar'
+  document.documentElement.setAttribute('dir', currentLang.value === 'ar' ? 'rtl' : 'ltr')
+}
+
+onMounted(() => {
+  document.documentElement.setAttribute('dir', currentLang.value === 'ar' ? 'rtl' : 'ltr')
+})
 
 const features = [
   'تخصيص كامل للمنيو حسب هوية العميل',
@@ -67,7 +78,6 @@ const features = [
 </script>
 
 <style scoped>
-/* ✅ ضبط الهيكل العام */
 html, body {
   margin: 0;
   padding: 0;
@@ -153,8 +163,10 @@ html, body {
 
 .swiper-container {
   width: 100%;
-  max-width: 100vw;
+max-width: 100vw;
+  overflow: hidden;
 }
+
 
 .slide {
   font-size: 1.5rem;

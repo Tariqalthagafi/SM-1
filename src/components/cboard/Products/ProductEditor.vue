@@ -23,11 +23,13 @@
     <div class="field">
       <label>رفع صورة</label>
       <input type="file" accept="image/*" @change="handleUpload" />
-      <div v-if="localProduct.imageBlob">
-        <ProductImagePreview
-          :imageUrl="previewUrl"
-          :altText="localProduct.name"
-        />
+<div v-if="localProduct.imageBase64">
+  <ProductImagePreview
+    :imageUrl="previewUrl"
+    :altText="localProduct.name"
+  />
+</div>
+
       </div>
     </div>
 
@@ -35,7 +37,7 @@
       <button @click="saveProduct">💾 حفظ</button>
       <button @click="emit('cancel')">❌ إلغاء</button>
     </div>
-  </div>
+  
 </template>
 
 <script setup lang="ts">
@@ -47,44 +49,51 @@ import AllergensPicker from './AllergensPicker.vue'
 const props = defineProps<{ edit: Product }>()
 const emit = defineEmits(['save', 'cancel'])
 
-// 🔹 دالة لتطبيع allergens إلى string[] عادية
 function normalizeAllergens(value: unknown): string[] {
   if (Array.isArray(value)) return [...value].map(String)
   if (typeof value === 'string' && value.trim() !== '') return [value]
   return []
 }
 
-// ✅ تهيئة المنتج المحلي مع ضمان allergens كمصفوفة نصوص عادية
 const localProduct = ref<Product>({
   ...props.edit,
-  allergens: normalizeAllergens(props.edit.allergens)
+  allergens: normalizeAllergens(props.edit.allergens),
+  imageBase64: props.edit.imageBase64 || ''
 })
 
-const previewUrl = computed(() => {
-  return localProduct.value.imageBlob
-    ? URL.createObjectURL(localProduct.value.imageBlob)
-    : ''
-})
+// ✅ رابط المعاينة
+const previewUrl = computed(() => localProduct.value.imageBase64 || '')
 
-// ✅ تحديث المنتج المحلي عند تغيير الـ props
+// ✅ تحويل الصورة إلى base64
+function fileToBase64(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onloadend = () => resolve(reader.result as string)
+    reader.onerror = reject
+    reader.readAsDataURL(file)
+  })
+}
+
+// ✅ تحديث المنتج عند تغيير الـ props
 watch(
   () => props.edit,
   (newVal) => {
     localProduct.value = {
       ...newVal,
-      allergens: normalizeAllergens(newVal.allergens)
+      allergens: normalizeAllergens(newVal.allergens),
+      imageBase64: newVal.imageBase64 || ''
     }
   }
 )
 
-// 📌 رفع صورة
-function handleUpload(event: Event) {
+// ✅ رفع الصورة وتوليد base64
+async function handleUpload(event: Event) {
   const file = (event.target as HTMLInputElement).files?.[0]
   if (!file) return
-  localProduct.value.imageBlob = file
+  localProduct.value.imageBase64 = await fileToBase64(file)
 }
 
-// 📌 حفظ المنتج مع ضمان id و order
+// ✅ حفظ المنتج
 function saveProduct() {
   if (!localProduct.value.id) {
     localProduct.value.id = crypto.randomUUID()
@@ -92,13 +101,14 @@ function saveProduct() {
   if (localProduct.value.order === undefined) {
     localProduct.value.order = 0
   }
-  // 🔹 تطبيع قبل الإرسال
+
   emit('save', {
     ...localProduct.value,
     allergens: normalizeAllergens(localProduct.value.allergens)
   })
 }
 </script>
+
 
 <style scoped>
 .product-editor-row {

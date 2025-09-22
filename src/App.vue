@@ -9,7 +9,7 @@
 </script>
 
 <style>
-/* ✅ ضبط الهيكل العام */
+/* ✅ ضبط الهيكل العام بدون اتجاه */
 html, body, #app {
   height: 100%;
   width: 100%;
@@ -17,9 +17,5 @@ html, body, #app {
   padding: 0;
   box-sizing: border-box;
   font-family: 'Segoe UI', sans-serif;
-  direction: ltr; /* إذا كنت تستخدم اللغة العربية */
 }
-
-
-
 </style>

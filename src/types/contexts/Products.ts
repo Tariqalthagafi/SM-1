@@ -13,4 +13,7 @@ export interface Product {
   selectedOfferTitle?: string // لو حابين نخزن اسم العرض أيضًا
   basePrice?: number      // 💰 السعر الأساسي
   finalPrice?: number     // 💰 السعر بعد الخصم
+  imageUrl?: string
+  imageBase64?: string
+
 }

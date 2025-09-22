@@ -14,7 +14,7 @@
           :is="item.route.startsWith('#') ? 'button' : 'RouterLink'"
           :to="!item.route.startsWith('#') ? item.route : undefined"
           @click="handleAction(item.route)"
-          class="sidebar-link"
+          :class="['sidebar-link', route.path === item.route ? 'active' : '']"
         >
           <i class="icon">{{ item.icon }}</i>
           <span v-if="!isCollapsed">{{ item.name }}</span>
@@ -33,7 +33,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 
 const isCollapsed = ref(true)
@@ -44,12 +44,19 @@ const toggleSidebar = () => {
 const router = useRouter()
 const route = useRoute()
 
-
 // اللغة الحالية (شكليًا فقط)
 const currentLang = ref('ar')
+
+// ضبط الاتجاه عند التبديل
 function toggleLang() {
   currentLang.value = currentLang.value === 'ar' ? 'en' : 'ar'
+  document.documentElement.setAttribute('dir', currentLang.value === 'ar' ? 'rtl' : 'ltr')
 }
+
+// ضبط الاتجاه عند أول تحميل
+onMounted(() => {
+  document.documentElement.setAttribute('dir', currentLang.value === 'ar' ? 'rtl' : 'ltr')
+})
 
 // تسجيل الخروج
 function logout() {
@@ -64,6 +71,11 @@ function handleAction(route) {
 
 // القائمة الجانبية كـ computed لتحديث اللغة ديناميكيًا
 const sidebarItems = computed(() => [
+  {
+    name: currentLang.value === 'ar' ? 'English' : 'العربية',
+    icon: currentLang.value === 'ar' ? 'En' : 'ع',
+    route: '#lang'
+  },
   { name: 'الرئيسية', icon: '🏠', route: '/cboard' },
   { name: 'الاقسام', icon: '📋', route: '/cboard/sections' },
   { name: 'المنتجات', icon: '🍽️', route: '/cboard/Products' },
@@ -74,11 +86,6 @@ const sidebarItems = computed(() => [
   { name: 'تصميم المنيو', icon: '🖌️', route: '/cboard/MenuDesign' },
   { name: 'معاينة المنيو', icon: '🧾', route: '/cboard/MenuPreview' },
   { name: 'الإعدادات', icon: '⚙️', route: '/cboard/settings' },
-  {
-    name: currentLang.value === 'ar' ? 'English' : 'العربية',
-    icon: currentLang.value === 'ar' ? 'En' : 'ع',
-    route: '#lang'
-  },
   { name: 'خروج', icon: '⏻', route: '#logout' }
 ])
 </script>
@@ -95,7 +102,6 @@ const sidebarItems = computed(() => [
 .sidebar {
   width: 220px;
   background-color: #ffffff;
-  border-right: 1px solid #e0e0e0;
   padding: 1rem;
   transition: width 0.3s ease;
   display: flex;
@@ -172,7 +178,6 @@ const sidebarItems = computed(() => [
 
 .tooltip {
   position: absolute;
-  right: -10px;
   top: 50%;
   transform: translateY(-50%);
   background-color: #333;
@@ -204,5 +209,31 @@ const sidebarItems = computed(() => [
   flex: 1;
   overflow-y: auto;
   border-top: 1px solid #eee;
+}
+
+/* دعم RTL */
+[dir="rtl"] .sidebar {
+  border-left: 1px solid #e0e0e0;
+  border-right: none;
+}
+[dir="rtl"] .sidebar-link {
+  flex-direction: row-reverse;
+}
+[dir="rtl"] .tooltip {
+  left: -10px;
+  right: auto;
+}
+
+/* دعم LTR */
+[dir="ltr"] .sidebar {
+  border-right: 1px solid #e0e0e0;
+  border-left: none;
+}
+[dir="ltr"] .sidebar-link {
+  flex-direction: row;
+}
+[dir="ltr"] .tooltip {
+  right: -10px;
+  left: auto;
 }
 </style>

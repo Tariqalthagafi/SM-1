@@ -1,7 +1,11 @@
 <template>
   <div v-if="sections.length && products.length">
     <div class="menu-preview-frame">
-      <div v-for="section in sections" :key="section.id" class="menu-section">
+      <div
+        v-for="section in sections"
+        :key="section.id"
+        class="menu-section"
+      >
         <h5 class="section-title">{{ section.name }}</h5>
 
         <div class="products" :class="layoutClass">
@@ -11,8 +15,8 @@
             class="product-item"
           >
             <img
-              v-if="product.imageUrl"
-              :src="product.imageUrl"
+              v-if="product.imageBase64"
+              :src="product.imageBase64"
               alt="صورة المنتج"
               class="product-image"
             />
@@ -23,7 +27,10 @@
               </span>
 
               <span class="product-price">
-                <span v-if="product.finalPrice !== product.basePrice" class="old-price">
+                <span
+                  v-if="product.finalPrice !== product.basePrice"
+                  class="old-price"
+                >
                   {{ product.basePrice }} {{ currencySymbol }}
                 </span>
                 <span class="final-price">
@@ -65,23 +72,35 @@ function applyFinalSettings(settings: any, colors: Record<string, string>) {
     root.style.setProperty('--font-family', settings.fontFamily)
   }
 
-  currencySymbol.value = settings.currencySymbol === 'svg-riyal' ? '﷼' : settings.currencySymbol || 'ر.س'
+  currencySymbol.value =
+    settings.currencySymbol === 'svg-riyal'
+      ? '﷼'
+      : settings.currencySymbol || 'ر.س'
+
   layout.value = settings.layout_id || 'grid'
 }
 
 const layoutClass = computed(() => {
   switch (layout.value) {
-    case 'grid': return 'layout-grid'
-    case 'vertical': return 'layout-vertical'
-    case 'cards': return 'layout-cards'
-    case 'sectioned': return 'layout-sectioned'
-    default: return 'layout-default'
+    case 'grid':
+      return 'layout-grid'
+    case 'vertical':
+      return 'layout-vertical'
+    case 'cards':
+      return 'layout-cards'
+    case 'sectioned':
+      return 'layout-sectioned'
+    default:
+      return 'layout-default'
   }
 })
 
 async function loadFinalData() {
-  const customization = await indexedDBService.getCustomization('template') || {}
-  const colors = await indexedDBService.getColors(customization.colors_ref ?? 'default') || {}
+  const customization =
+    (await indexedDBService.getCustomization('template')) || {}
+  const colors =
+    (await indexedDBService.getColors(customization.colors_ref ?? 'default')) ||
+    {}
 
   applyFinalSettings(customization, colors)
 
@@ -90,7 +109,12 @@ async function loadFinalData() {
   const allProducts = await indexedDBService.getAll('products')
 
   products.value = allProducts.map((p: any) => {
-    const offer = offers.find((o: any) => o.id === p.selectedOfferId && o.isActive)
+    p.imageBase64 = typeof p.imageBase64 === 'string' ? p.imageBase64 : ''
+
+    const offer = offers.find(
+      (o: any) => o.id === p.selectedOfferId && o.isActive
+    )
+
     if (offer) {
       if (offer.type === 'percentage') {
         p.finalPrice = Math.round((p.basePrice ?? 0) * (1 - offer.discount / 100))
@@ -152,24 +176,26 @@ onMounted(loadFinalData)
 }
 
 .product-item {
-  background: var(--cardBackground-bg, #f9f9f9);
+  display: flex;
+  flex-direction: row;
+  gap: 0.75rem;
+  align-items: flex-start;
+  text-align: start;
+  background-color: var(--cardBackground-bg, #f9f9f9);
   color: var(--titleText-color, #000);
   padding: 0.6rem;
   border-radius: 6px;
-  text-align: center;
   font-size: 0.85rem;
   font-family: var(--font-family, 'Cairo');
-  display: flex;
-  flex-direction: column;
-  align-items: center;
 }
 
 .product-image {
-  width: 100%;
-  max-height: 100px;
+  flex-shrink: 0;
+  width: 60px;
+  height: 60px;
   object-fit: cover;
-  border-radius: 4px;
-  margin-bottom: 0.4rem;
+  border-radius: 6px;
+  background-color: #eee;
 }
 
 .product-info {
@@ -184,7 +210,7 @@ onMounted(loadFinalData)
 .allergen-icon {
   color: red;
   font-size: 0.9rem;
-  margin-left: 0.3rem;
+  margin-inline-start: 0.3rem;
 }
 
 .product-price {
@@ -196,7 +222,7 @@ onMounted(loadFinalData)
 .old-price {
   text-decoration: line-through;
   color: red;
-  margin-right: 0.3rem;
+  margin-inline-end: 0.3rem;
 }
 
 .final-price {
