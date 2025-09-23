@@ -7,7 +7,8 @@ import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
 import App from './App.vue'
 import router from './router'
 import { injectSpeedInsights } from '@vercel/speed-insights'
-
+import { inject } from "@vercel/analytics"
+inject()
 injectSpeedInsights()
 
 const app = createApp(App)
