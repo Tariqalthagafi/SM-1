@@ -13,7 +13,6 @@ const routes = [
     component: HomePage,
   },
 
-  // لوحة التحكم تحت مسار /cboard
   {
     path: '/cboard',
     component: CBoardLayout,
@@ -24,11 +23,11 @@ const routes = [
         component: () => import('@/views/cboard/Home.vue'),
       },
       {
-        path: '/cboard/Sections',
+        path: 'Sections',
         name: 'Sections',
         component: () => import('@/views/cboard/Sections.vue'),
       },
-       {
+      {
         path: 'Products',
         name: 'Products',
         component: () => import('@/views/cboard/Products.vue'),
@@ -41,7 +40,7 @@ const routes = [
       {
         path: 'linker',
         name: 'linker',
-        component: () => import('@/views/cboard/linker.vue')
+        component: () => import('@/views/cboard/linker.vue'),
       },
       {
         path: 'Social',
@@ -49,32 +48,25 @@ const routes = [
         component: () => import('@/views/cboard/Social.vue'),
       },
       {
-        path: '/cboard/templates',
+        path: 'templates',
         name: 'templates',
-        component: () => import('@/views/cboard/templates.vue')
-      },
-            {
-        path: '/cboard/MenuDesign',
-        name: 'MenuDesign',
-        component: () => import('@/views/cboard/MenuDesign.vue')
+        component: () => import('@/views/cboard/templates.vue'),
       },
       {
-        path: '/cboard/MenuPreview',
+        path: 'MenuDesign',
+        name: 'MenuDesign',
+        component: () => import('@/views/cboard/MenuDesign.vue'),
+      },
+      {
+        path: 'MenuPreview',
         name: 'MenuPreview',
-        component: () => import('@/views/cboard/MenuPreview.vue')
+        component: () => import('@/views/cboard/MenuPreview.vue'),
       },
       {
         path: 'settings',
         name: 'Settings',
         component: () => import('@/views/cboard/Settings.vue'),
-      },
-      {
-       path: '/cboard/menupreview',
-       name: 'MenuPreview',
-       component: () => import('@/views/cboard/MenuPreview.vue')
-      },  
-      
-   
+      }
     ],
   },
 ]
