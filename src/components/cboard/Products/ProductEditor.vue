@@ -1,126 +1,170 @@
 <template>
   <div class="product-editor-row">
+    <!-- أدوات التحكم -->
+    <div class="action-group">
+      <button class="drag-handle" title="اسحب لتحريك">⠿</button>
+      <button class="delete-btn" @click="deleteProduct" title="حذف المنتج">🗑️</button>
+    </div>
+
+    <!-- اسم المنتج -->
     <div class="field">
       <label>اسم المنتج</label>
-      <input v-model="localProduct.name" required />
+      <input
+        v-model="localProduct.name"
+        @blur="saveField('name')"
+        @keyup.enter="saveField('name')"
+        required
+      />
     </div>
 
+    <!-- الوصف -->
     <div class="field">
       <label>الوصف</label>
-      <input v-model="localProduct.description" />
+      <input
+        v-model="localProduct.description"
+        @blur="saveField('description')"
+        @keyup.enter="saveField('description')"
+      />
     </div>
 
+    <!-- السعرات -->
     <div class="field">
       <label>السعرات الحرارية</label>
-      <input v-model.number="localProduct.calories" type="number" min="0" />
+      <input
+        v-model.number="localProduct.calories"
+        type="number"
+        min="0"
+        @blur="saveField('calories')"
+        @keyup.enter="saveField('calories')"
+      />
     </div>
 
+    <!-- مسببات الحساسية -->
     <div class="field">
       <label>مسببات الحساسية</label>
-      <AllergensPicker v-model="localProduct.allergens" />
+      <AllergensPicker
+        v-model="localProduct.allergens"
+        @change="saveField('allergens')"
+      />
     </div>
 
-    <div class="field">
-      <label>رفع صورة</label>
-      <input type="file" accept="image/*" @change="handleUpload" />
-<div v-if="localProduct.imageBase64">
-  <ProductImagePreview
-    :imageUrl="previewUrl"
-    :altText="localProduct.name"
-  />
-</div>
-
+    <!-- رفع صورة -->
+    <div class="field image-upload">
+      <label>الصورة</label>
+      <div class="upload-row">
+        <button class="upload-btn" @click="triggerUpload" title="رفع صورة جديدة">➕</button>
+        <ProductImagePreview
+          v-if="localProduct.imageBase64"
+          :imageUrl="localProduct.imageBase64"
+          :altText="localProduct.name"
+        />
       </div>
+      <input
+        ref="fileInput"
+        type="file"
+        accept="image/*"
+        @change="handleUpload"
+        style="display: none"
+      />
     </div>
-
-    <div class="action-buttons">
-      <button @click="saveProduct">💾 حفظ</button>
-      <button @click="emit('cancel')">❌ إلغاء</button>
-    </div>
-  
+  </div>
 </template>
 
 <script setup lang="ts">
-import { ref, watch, computed } from 'vue'
+import { ref, onMounted } from 'vue'
 import type { Product } from '@/types/contexts/Products'
 import ProductImagePreview from './ProductImagePreview.vue'
 import AllergensPicker from './AllergensPicker.vue'
+import { useProductsStore } from '@/stores/cboard/products'
 
 const props = defineProps<{ edit: Product }>()
-const emit = defineEmits(['save', 'cancel'])
-
-function normalizeAllergens(value: unknown): string[] {
-  if (Array.isArray(value)) return [...value].map(String)
-  if (typeof value === 'string' && value.trim() !== '') return [value]
-  return []
-}
+const productsStore = useProductsStore()
+const emit = defineEmits(['delete'])
 
 const localProduct = ref<Product>({
   ...props.edit,
-  allergens: normalizeAllergens(props.edit.allergens),
+  allergens: Array.isArray(props.edit.allergens) ? [...props.edit.allergens] : [],
   imageBase64: props.edit.imageBase64 || ''
 })
 
-// ✅ رابط المعاينة
-const previewUrl = computed(() => localProduct.value.imageBase64 || '')
+const fileInput = ref<HTMLInputElement | null>(null)
 
-// ✅ تحويل الصورة إلى base64
-function fileToBase64(file: File): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader()
-    reader.onloadend = () => resolve(reader.result as string)
-    reader.onerror = reject
-    reader.readAsDataURL(file)
+onMounted(() => {
+  localProduct.value = {
+    ...props.edit,
+    allergens: Array.isArray(props.edit.allergens) ? [...props.edit.allergens] : [],
+    imageBase64: props.edit.imageBase64 || ''
+  }
+})
+
+function saveField(field: keyof Product) {
+  productsStore.updateProduct(localProduct.value.id, {
+    ...localProduct.value,
+    allergens: [...(localProduct.value.allergens ?? [])] // ✅ منع خطأ TypeScript
   })
 }
 
-// ✅ تحديث المنتج عند تغيير الـ props
-watch(
-  () => props.edit,
-  (newVal) => {
-    localProduct.value = {
-      ...newVal,
-      allergens: normalizeAllergens(newVal.allergens),
-      imageBase64: newVal.imageBase64 || ''
-    }
-  }
-)
+function deleteProduct() {
+  productsStore.deleteProduct(localProduct.value.id)
+  emit('delete')
+}
 
-// ✅ رفع الصورة وتوليد base64
+function triggerUpload() {
+  fileInput.value?.click()
+}
+
 async function handleUpload(event: Event) {
   const file = (event.target as HTMLInputElement).files?.[0]
   if (!file) return
-  localProduct.value.imageBase64 = await fileToBase64(file)
-}
-
-// ✅ حفظ المنتج
-function saveProduct() {
-  if (!localProduct.value.id) {
-    localProduct.value.id = crypto.randomUUID()
+  const reader = new FileReader()
+  reader.onloadend = () => {
+    localProduct.value.imageBase64 = reader.result as string
+    saveField('imageBase64')
   }
-  if (localProduct.value.order === undefined) {
-    localProduct.value.order = 0
-  }
-
-  emit('save', {
-    ...localProduct.value,
-    allergens: normalizeAllergens(localProduct.value.allergens)
-  })
+  reader.readAsDataURL(file)
 }
 </script>
-
 
 <style scoped>
 .product-editor-row {
   display: flex;
   flex-wrap: wrap;
+  align-items: flex-start;
   gap: 1rem;
+  padding: 0.5rem 0;
+  font-family: 'Tajawal', sans-serif;
+}
+
+.action-group {
+  display: flex;
+  gap: 0.25rem;
   align-items: center;
-  padding: 0.75rem;
-  border: 1px solid #ddd;
-  border-radius: 10px;
-  background-color: #fff;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+}
+
+.drag-handle {
+  cursor: grab;
+  background-color: #F0F0F0;
+  border: none;
+  padding: 0.3rem;
+  border-radius: 6px;
+  font-size: 1.1rem;
+}
+.drag-handle:hover {
+  background-color: #E0E0E0;
+}
+.drag-handle:active {
+  cursor: grabbing;
+}
+
+.delete-btn {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  color: #f44336;
+}
+.delete-btn:hover {
+  color: #d32f2f;
 }
 
 .field {
@@ -133,52 +177,35 @@ function saveProduct() {
   font-weight: bold;
   font-size: 0.85rem;
   margin-bottom: 0.25rem;
-  color: #444;
+  color: #1C1C1C;
 }
 
-.field input,
-.field select {
+.field input {
   padding: 0.4rem 0.6rem;
-  border: 1px solid #ccc;
+  border: 1px solid #E0E0E0;
   border-radius: 6px;
-  background-color: #f9f9f9;
+  background-color: #FFFFFF;
   font-size: 0.85rem;
+  color: #1C1C1C;
 }
 
-.image-preview {
+.image-upload .upload-row {
   display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-}
-
-.image-preview label {
-  font-weight: bold;
-  font-size: 0.85rem;
-  color: #444;
-}
-
-.action-buttons {
-  margin-left: auto;
-  display: flex;
+  align-items: center;
   gap: 0.5rem;
 }
 
-button {
-  padding: 0.4rem 0.8rem;
-  font-size: 0.85rem;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  font-weight: 600;
-}
-
-button:first-of-type {
-  background-color: #007acc;
+.upload-btn {
+  background-color: #FF7A00;
   color: white;
+  border: none;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  font-size: 1.2rem;
+  cursor: pointer;
 }
-
-button:last-of-type {
-  background-color: #f5f5f5;
-  color: #333;
+.upload-btn:hover {
+  background-color: #e96c00;
 }
 </style>

@@ -1,32 +1,27 @@
 <template>
   <li class="list-item">
-    <span class="drag-handle" title="اسحب لإعادة الترتيب">
-      ↕️ <small class="priority-number">{{ index + 1 }}</small>
-    </span>
+    <div class="item-row">
+      <!-- أدوات التحكم أولاً -->
+      <span class="drag-handle" title="اسحب لإعادة الترتيب">⠿</span>
 
-    <!-- وضع التعديل -->
-    <template v-if="isEditing">
-      <input
-        v-model="editedName"
-        type="text"
-        class="edit-input"
-        @keyup.enter="saveEdit"
-        @keyup.esc="cancelEdit"
-      />
-      <div class="actions">
+      <template v-if="isEditing">
         <button @click="saveEdit" title="حفظ">💾</button>
         <button @click="cancelEdit" title="إلغاء">❌</button>
-      </div>
-    </template>
+        <input
+          v-model="editedName"
+          type="text"
+          class="edit-input"
+          @keyup.enter="saveEdit"
+          @keyup.esc="cancelEdit"
+        />
+      </template>
 
-    <!-- وضع العرض -->
-    <template v-else>
-      <span class="section-name">{{ section.name }}</span>
-      <div class="actions">
+      <template v-else>
         <button @click="startEdit" title="تعديل">✏️</button>
         <button @click="$emit('delete', section.id)">🗑️</button>
-      </div>
-    </template>
+        <span class="section-name">{{ section.name }}</span>
+      </template>
+    </div>
   </li>
 </template>
 
@@ -69,56 +64,63 @@ function cancelEdit() {
 
 <style scoped>
 .list-item {
-  display: flex;
+  padding: 0.4rem 0.6rem;
+  font-family: 'Tajawal', sans-serif;
+  background-color: transparent;
+  border: none;
+  border-radius: 0;
+}
+
+.item-row {
+  display: inline-flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 0.5rem 0.75rem;
-  border: 1px solid #ddd;
-  border-radius: 6px;
-  background-color: #fafafa;
-  margin-bottom: 0.5rem;
+  gap: 0.5rem;
+  flex-wrap: wrap;
 }
 
 .drag-handle {
   cursor: grab;
-  font-size: 1.2rem;
   display: flex;
   align-items: center;
-  gap: 0.3rem;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  background-color: #F0F0F0;
+  transition: background-color 0.2s ease;
 }
 
-.priority-number {
-  font-size: 0.75rem;
-  color: #888;
+.drag-handle:hover {
+  background-color: #E0E0E0;
 }
+
 
 .section-name {
-  flex: 1;
-  padding: 0 1rem;
   font-size: 1rem;
-  color: #333;
+  color: #1C1C1C;
+  white-space: nowrap;
 }
 
 .edit-input {
-  flex: 1;
-  padding: 0.3rem;
-  font-size: 1rem;
+  width: 220px;
+  padding: 0.3rem 0.5rem;
+  font-size: 0.95rem;
+  border: 1px solid #E0E0E0;
+  border-radius: 6px;
+  background-color: #FFFFFF;
+  color: #1C1C1C;
 }
 
-.actions {
-  display: flex;
-  gap: 0.25rem;
-}
-
-.actions button {
+button {
   background: none;
   border: none;
   font-size: 1.2rem;
   cursor: pointer;
   padding: 0.2rem;
+  color: #1C1C1C;
 }
 
-.actions button:hover {
-  color: #007bff;
+button:hover {
+  color: #FF7A00;
 }
 </style>

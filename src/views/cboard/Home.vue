@@ -16,8 +16,6 @@ homeStore.initStore()
       <WelcomeMessage />
       <IdentityForm />
       <HomeSummary />
-
-
     </div>
   </div>
 </template>
@@ -26,33 +24,31 @@ homeStore.initStore()
 .page-wrapper {
   display: flex;
   justify-content: center;
-  align-items: center;
-  min-height: calc(100vh - 3rem);
-  padding: 1rem;
-  background-color: #f0f2f5;
+  align-items: flex-start;
+  min-height: max-content;
+  padding: 2rem 1rem;
+  background-color: #FFFFFF; /* ✅ خلفية بيضاء موحدة */
+  overflow-x: hidden;
 }
 
 .home-dashboard {
   width: 100%;
-  padding: 2rem;
-  background-color: #f9f9f9;
-  border-radius: 12px;
+  max-width: 1000px;
   display: grid;
-  row-gap: 1.5rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  row-gap: 2rem;
+  padding: 0; /* ✅ إزالة الحواف الداخلية */
+  background-color: transparent; /* ✅ إزالة الخلفية البيضاء */
+  border-radius: 0; /* ✅ إزالة الزوايا */
+  box-shadow: none; /* ✅ إزالة الظل */
+  box-sizing: border-box;
 }
 
-.menu-id {
-  padding: 0.5rem;
-  background: #fff;
-  border-radius: 6px;
-  border: 1px solid #ddd;
-  font-size: 0.9rem;
-}
-
+/* دعم الجوال */
 @media (max-width: 768px) {
   .home-dashboard {
     padding: 1rem;
+    border-radius: 0;
   }
 }
+
 </style>

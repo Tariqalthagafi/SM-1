@@ -12,33 +12,32 @@
       <SectionSelector
         :selectedId="product.sectionId ?? ''"
         @select="handleSectionChange"
-        :disabled="!isEditing"
       />
     </div>
 
     <!-- السعر الأساسي -->
     <div class="field">
-      <label>السعر الأساسي:</label>
+      <label>السعر الأساسي</label>
       <input
         type="number"
         v-model.number="localBasePrice"
-        :disabled="!isEditing"
         min="0"
+        @blur="save"
       />
     </div>
 
     <!-- العرض المطبق -->
     <div class="field">
-      <label>العرض المطبق:</label>
+      <label>العرض المطبق</label>
       <OfferSelector
         v-model="localSelectedOfferId"
-        :disabled="!isEditing"
+        @change="save"
       />
     </div>
 
     <!-- السعر بعد العرض -->
     <div class="field">
-      <label>السعر بعد العرض:</label>
+      <label>السعر بعد العرض</label>
       <PricePreview
         :basePrice="localBasePrice || 0"
         :offerId="localSelectedOfferId ?? ''"
@@ -47,19 +46,12 @@
 
     <!-- الحالة -->
     <div class="field">
-      <label>الحالة:</label>
-      <select v-model="localStatus" :disabled="!isEditing">
+      <label>الحالة</label>
+      <select v-model="localStatus" @change="save">
         <option value="visible">ظاهر</option>
         <option value="hidden">مخفي</option>
         <option value="expired">منتهي</option>
       </select>
-    </div>
-
-    <!-- أزرار -->
-    <div class="actions">
-      <button @click="toggleEdit">
-        {{ isEditing ? '💾 حفظ' : '✏️ تعديل' }}
-      </button>
     </div>
   </div>
 </template>
@@ -78,17 +70,14 @@ import PricePreview from './PricePreview.vue'
 
 const props = defineProps<{ product: Product }>()
 
-const isEditing = ref(false)
 const productsStore = useProductsStore()
 const sectionsStore = useSectionStore()
 const offersStore = useOffersStore()
 
-// نسخ محلية للتحرير قبل الحفظ
 const localBasePrice = ref(props.product.basePrice ?? 0)
 const localSelectedOfferId = ref(props.product.selectedOfferId ?? '')
 const localStatus = ref(props.product.status ?? 'visible')
 
-// تغيير القسم
 function handleSectionChange(newSectionId: string) {
   const section = sectionsStore.sections.find((s: Section) => s.id === newSectionId)
   productsStore.updateProduct(props.product.id, {
@@ -97,53 +86,39 @@ function handleSectionChange(newSectionId: string) {
   })
 }
 
-// حفظ أو تفعيل التحرير
-function toggleEdit() {
-  if (isEditing.value) {
-    const offer = offersStore.offers.find(o => o.id === localSelectedOfferId.value)
-
-    productsStore.updateProduct(props.product.id, {
-      basePrice: localBasePrice.value,
-      selectedOfferId: localSelectedOfferId.value || undefined,
-      selectedOfferTitle: offer?.title || '',
-      status: localStatus.value
-    })
-  }
-  isEditing.value = !isEditing.value
+function save() {
+  const offer = offersStore.offers.find(o => o.id === localSelectedOfferId.value)
+  productsStore.updateProduct(props.product.id, {
+    basePrice: localBasePrice.value,
+    selectedOfferId: localSelectedOfferId.value || undefined,
+    selectedOfferTitle: offer?.title || '',
+    status: localStatus.value
+  })
 }
 </script>
 
 <style scoped>
 .product-section-row {
   display: flex;
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
   align-items: center;
   gap: 1rem;
-  padding: 1rem 1.25rem;
-  border-radius: 10px;
-  background-color: #fff;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-  border: 1px solid #eee;
-  transition: box-shadow 0.3s ease;
-  overflow-x: auto;
-}
-
-.product-section-row:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  padding: 0.75rem 0;
+  border-bottom: 1px solid #E0E0E0;
+  font-family: 'Tajawal', sans-serif;
 }
 
 .field {
   display: flex;
   flex-direction: column;
-  min-width: 160px;
-  max-width: 200px;
+  width: 180px;
   flex-shrink: 0;
 }
 
 .field label {
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: #555;
+  font-size: 0.85rem;
+  font-weight: bold;
+  color: #1C1C1C;
   margin-bottom: 0.25rem;
 }
 
@@ -151,51 +126,27 @@ function toggleEdit() {
 .field select {
   padding: 0.4rem 0.6rem;
   font-size: 0.85rem;
-  border: 1px solid #ccc;
+  border: 1px solid #E0E0E0;
   border-radius: 6px;
-  background-color: #fdfdfd;
-  transition: border-color 0.2s ease;
-  width: 100%;
-}
-
-.field input[type="number"] {
-  max-width: 120px;
+  background-color: #FFFFFF;
+  color: #1C1C1C;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .field input:focus,
 .field select:focus {
-  border-color: #007bff;
+  border-color: #FF7A00;
+  box-shadow: 0 0 0 2px rgba(255, 122, 0, 0.2);
   outline: none;
 }
 
 .field strong {
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   font-weight: 600;
   color: #222;
-}
-
-.actions {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  margin-left: auto;
-  flex-shrink: 0;
-}
-
-.actions button {
-  padding: 0.4rem 0.8rem;
-  font-size: 0.85rem;
-  font-weight: 600;
-  border: none;
+  padding: 0.4rem 0.6rem;
+  background-color: #f9f9f9;
   border-radius: 6px;
-  cursor: pointer;
-  background-color: #007bff;
-  color: white;
-  transition: background-color 0.2s ease;
-  white-space: nowrap;
-}
-
-.actions button:hover {
-  background-color: #0056b3;
+  border: 1px solid #E0E0E0;
 }
 </style>

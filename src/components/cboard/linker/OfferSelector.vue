@@ -25,11 +25,26 @@ function onChange(event: Event) {
 <style scoped>
 select {
   padding: 0.4rem 0.6rem;
-  border: 1px solid #ccc;
+  border: 1px solid #E0E0E0;
   border-radius: 6px;
   font-size: 0.85rem;
-  background-color: #fff;
-  color: #333;
+  background-color: #FFFFFF;
+  color: #1C1C1C;
   width: 100%;
+  font-family: 'Tajawal', sans-serif;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
+
+select:focus {
+  border-color: #FF7A00;
+  box-shadow: 0 0 0 2px rgba(255, 122, 0, 0.2);
+  outline: none;
+}
+
+select:disabled {
+  background-color: #f5f5f5;
+  color: #999;
+  cursor: not-allowed;
+}
+
 </style>

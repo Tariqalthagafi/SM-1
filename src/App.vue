@@ -9,13 +9,5 @@
 </script>
 
 <style>
-/* ✅ ضبط الهيكل العام بدون اتجاه */
-html, body, #app {
-  height: 100%;
-  width: 100%;
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: 'Segoe UI', sans-serif;
-}
+/* لا يوجد أي ستايل هنا، كل مكون مسؤول عن شكله */
 </style>

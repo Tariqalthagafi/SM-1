@@ -40,4 +40,27 @@ function handleChange(event: Event) {
   background-color: #fff;
   cursor: pointer;
 }
+.section-selector select:focus {
+  border-color: #FF7A00;
+  box-shadow: 0 0 0 2px rgba(255, 122, 0, 0.2);
+  outline: none;
+}
+
+.section-selector select {
+  padding: 0.4rem 0.6rem;
+  border: 1px solid #E0E0E0;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  background-color: #FFFFFF;
+  color: #1C1C1C;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  font-family: 'Tajawal', sans-serif;
+}
+
+.section-selector select:disabled {
+  background-color: #f5f5f5;
+  color: #999;
+  cursor: not-allowed;
+}
+
 </style>

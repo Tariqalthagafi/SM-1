@@ -1,6 +1,10 @@
 <template>
-  <div class="allergens-picker">
-    <!-- الحقل مع الـ Tags -->
+  <div
+    class="allergens-picker"
+    ref="wrapper"
+    tabindex="0"
+    @blur="dropdownOpen = false"
+  >
     <div class="input-wrapper" @click="dropdownOpen = true">
       <div class="tags">
         <span v-for="tag in localValue" :key="tag" class="tag">
@@ -12,11 +16,11 @@
           v-model="search"
           placeholder="اختر مسببات الحساسية"
           @focus="dropdownOpen = true"
+          @blur="dropdownOpen = false"
         />
       </div>
     </div>
 
-    <!-- القائمة المنسدلة -->
     <ul v-if="dropdownOpen && filteredList.length" class="dropdown">
       <li
         v-for="item in filteredList"
@@ -49,27 +53,28 @@ const allergensList = [
   'الرخويات'
 ]
 
-// ✅ السماح بأن تكون undefined
 const props = defineProps<{ modelValue?: string[] }>()
 const emit = defineEmits<{ (e: 'update:modelValue', value: string[]): void }>()
 
-// ✅ تهيئة آمنة
 const localValue = ref<string[]>(Array.isArray(props.modelValue) ? props.modelValue : [])
 const search = ref('')
 const dropdownOpen = ref(false)
+const wrapper = ref<HTMLElement | null>(null)
 
-// ✅ تحديث عند تغير القيمة من الأب
 watch(
   () => props.modelValue,
   (newVal) => {
-    localValue.value = Array.isArray(newVal) ? newVal : []
+    if (JSON.stringify(newVal) !== JSON.stringify(localValue.value)) {
+      localValue.value = Array.isArray(newVal) ? [...newVal] : []
+    }
   },
   { immediate: true }
 )
 
-// ✅ إرسال التحديث للأب
-watch(localValue, (val) => {
-  emit('update:modelValue', val)
+watch(localValue, (val, oldVal) => {
+  if (JSON.stringify(val) !== JSON.stringify(oldVal)) {
+    emit('update:modelValue', [...val])
+  }
 })
 
 const filteredList = computed(() => {
@@ -92,11 +97,11 @@ function removeTag(tag: string) {
 }
 </script>
 
-
 <style scoped>
 .allergens-picker {
   position: relative;
   width: 100%;
+  outline: none;
 }
 
 .input-wrapper {
@@ -111,6 +116,7 @@ function removeTag(tag: string) {
   display: flex;
   flex-wrap: wrap;
   gap: 0.3rem;
+  align-items: center;
 }
 
 .tag {
@@ -121,6 +127,7 @@ function removeTag(tag: string) {
   align-items: center;
   gap: 0.3rem;
   font-size: 0.85rem;
+  white-space: nowrap;
 }
 
 .tag button {
@@ -133,8 +140,11 @@ function removeTag(tag: string) {
 .tags input {
   border: none;
   outline: none;
-  flex: 1;
-  min-width: 120px;
+  width: auto;
+  min-width: 60px;
+  max-width: 100%;
+  flex-grow: 1;
+  font-size: 0.85rem;
 }
 
 .dropdown {
@@ -154,6 +164,7 @@ function removeTag(tag: string) {
 .dropdown li {
   padding: 0.4rem;
   cursor: pointer;
+  font-size: 0.85rem;
 }
 
 .dropdown li:hover {

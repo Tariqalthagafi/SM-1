@@ -13,8 +13,13 @@ defineProps<{ title: string }>()
 
 <style scoped>
 .social-group {
-  margin-bottom: 1.5rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1rem 2rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #E0E0E0;
 }
+
 .group-fields {
   display: flex;
   flex-direction: column;

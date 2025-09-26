@@ -118,31 +118,45 @@ watch(() => props.edit, (newVal) => {
   display: flex;
   flex-wrap: wrap;
   gap: 1rem;
-  padding: 1rem;
-  border-radius: 12px;
-  background-color: #fdfdfd;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  padding: 0.5rem 0;
+  background-color: transparent; /* إزالة الخلفية */
+  box-shadow: none;              /* إزالة الظل */
+  border-radius: 0;
+  font-family: 'Tajawal', sans-serif;
 }
 
 /* الحقول */
 .form-group {
   display: flex;
   flex-direction: column;
-  min-width: 180px;
-  flex: 1;
+  width: 180px;
 }
 
 .form-group label {
   font-weight: bold;
+  font-size: 0.85rem;
   margin-bottom: 0.25rem;
+  color: #1C1C1C;
 }
 
 .form-group input,
 .form-group select {
-  padding: 0.5rem;
-  border: 1px solid #ccc;
+  padding: 0.4rem 0.6rem;
+  border: 1px solid #E0E0E0;
   border-radius: 6px;
+  background-color: #FFFFFF;
   font-size: 0.85rem;
+  color: #1C1C1C;
+}
+
+/* العرض فقط */
+.form-group span {
+  font-size: 0.85rem;
+  color: #333;
+  padding: 0.4rem 0.6rem;
+  background-color: #f9f9f9;
+  border-radius: 6px;
+  border: 1px solid #E0E0E0;
 }
 
 /* أزرار الحفظ والإلغاء */
@@ -151,32 +165,21 @@ watch(() => props.edit, (newVal) => {
   flex-direction: row;
   gap: 0.5rem;
   align-items: center;
-  margin-left: auto;
+  margin-top: 0.5rem;
 }
 
 .action-buttons button {
   padding: 0.4rem 0.8rem;
   font-size: 0.85rem;
-  line-height: 1;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
   border: none;
   border-radius: 6px;
   cursor: pointer;
   font-weight: 600;
-  background-color: #007bff;
+  background-color: #FF7A00;
   color: white;
-  transition: background-color 0.2s ease;
 }
-
 .action-buttons button:hover {
-  background-color: #0056b3;
+  background-color: #e96c00;
 }
 
-.action-buttons button svg,
-.action-buttons button span,
-.action-buttons button i {
-  font-size: 1em;
-}
 </style>

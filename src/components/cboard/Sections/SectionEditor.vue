@@ -22,7 +22,6 @@ import { useSectionStore } from '@/stores/cboard/sections'
 import type { Section } from '@/types/contexts/Sections'
 
 const sectionStore = useSectionStore()
-
 const form = reactive<{ name: string }>({ name: '' })
 
 function handleAdd() {
@@ -48,21 +47,21 @@ function handleAdd() {
 
 <style scoped>
 .section-editor-card {
-  background: #fff;
-  border-radius: 12px;
-  padding: 1.5rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  background: transparent;
+  border-radius: 0;
+  padding: 0;
+  box-shadow: none;
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  font-family: 'Tajawal', sans-serif;
 }
 
 .card-title {
   margin: 0;
   font-size: 1.2rem;
   font-weight: bold;
-  color: #2c3e50;
-  border-bottom: 1px solid #eee;
+  color: #FF7A00;
   padding-bottom: 0.5rem;
 }
 
@@ -73,17 +72,19 @@ function handleAdd() {
 }
 
 .form-row input {
-  flex: 1;
-  padding: 0.5rem 0.6rem;
-  border: 1px solid #ccc;
-  border-radius: 6px;
+  width: 220px;
+  padding: 0.4rem 0.6rem;
   font-size: 0.9rem;
+  border: 1px solid #E0E0E0;
+  border-radius: 6px;
+  background-color: #FFFFFF;
+  color: #1C1C1C;
 }
 
 .add-btn {
-  padding: 0.5rem 0.8rem;
+  padding: 0.4rem 0.8rem;
   font-size: 0.9rem;
-  background-color: #007bff;
+  background-color: #FF7A00;
   color: #fff;
   border: none;
   border-radius: 6px;
@@ -92,6 +93,6 @@ function handleAdd() {
 }
 
 .add-btn:hover {
-  background-color: #0056b3;
+  background-color: #e96c00;
 }
 </style>

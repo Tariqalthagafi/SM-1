@@ -19,7 +19,6 @@
       :key="offer.id"
       class="offer-row"
     >
-      <!-- نموذج التعديل -->
       <OfferEditor
         v-if="editingId === offer.id"
         :edit="offer"
@@ -28,22 +27,17 @@
         @cancel="cancelEdit"
       />
 
-      <!-- عرض التفاصيل مع الأزرار بجانبه -->
       <template v-else>
-        <OfferEditor
-          :edit="offer"
-          mode="view"
-        />
+        <OfferEditor :edit="offer" mode="view" />
         <div class="row-actions">
-          <button @click="startEdit(offer)">✏️ </button>
-          <button @click="deleteOffer(offer.id)">🗑️ </button>
+          <button @click="startEdit(offer)">✏️</button>
+          <button @click="deleteOffer(offer.id)">🗑️</button>
           <button
-  @click="toggleOfferActive(offer.id)"
-  :class="offer.isActive ? 'btn-disable' : 'btn-enable'"
->
-  {{ offer.isActive ? '🔕 تعطيل' : '🔔 تفعيل' }}
-</button>
-
+            @click="toggleOfferActive(offer.id)"
+            :class="offer.isActive ? 'btn-disable' : 'btn-enable'"
+          >
+            {{ offer.isActive ? '🔕 تعطيل' : '🔔 تفعيل' }}
+          </button>
         </div>
       </template>
     </div>
@@ -54,7 +48,6 @@
 import { ref, onMounted } from 'vue'
 import { useOffersStore } from '@/stores/cboard/offers'
 import type { Offer } from '@/types/contexts/Offers'
-
 import OfferEditor from './OfferEditor.vue'
 
 const offersStore = useOffersStore()
@@ -110,19 +103,17 @@ function toggleOfferActive(id: string) {
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  font-family: 'Tajawal', sans-serif;
 }
 
-/* البطاقة الموحدة */
+/* صف العرض */
 .offer-row {
   display: flex;
-  justify-content: space-between; /* توزيع النموذج والأزرار */
+  justify-content: space-between;
   align-items: flex-start;
   gap: 1rem;
-  border: 1px solid #ddd;
-  border-radius: 10px;
-  padding: 0.75rem;
-  background-color: #fff;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  padding: 0.75rem 0;
+  border-bottom: 1px solid #E0E0E0;
 }
 
 /* إزالة أي بطاقة داخلية من OfferEditor */
@@ -137,8 +128,7 @@ function toggleOfferActive(id: string) {
 .add-button {
   align-self: flex-start;
   padding: 0.5rem 1rem;
-  margin-bottom: 1rem;
-  background-color: #007acc;
+  background-color: #FF7A00;
   color: white;
   border: none;
   border-radius: 6px;
@@ -146,10 +136,10 @@ function toggleOfferActive(id: string) {
   font-weight: bold;
 }
 .add-button:hover {
-  background-color: #005fa3;
+  background-color: #e96c00;
 }
 
-/* الأزرار بجانب النموذج في صف واحد */
+/* أزرار بجانب العرض */
 .row-actions {
   display: flex;
   flex-direction: row;
@@ -169,37 +159,36 @@ function toggleOfferActive(id: string) {
 
 /* تعديل */
 .row-actions button:nth-child(1) {
-  background-color: #007bff;
+  background-color: #1C1C1C;
   color: white;
 }
 .row-actions button:nth-child(1):hover {
-  background-color: #0056b3;
+  background-color: #000;
 }
 
 /* حذف */
 .row-actions button:nth-child(2) {
-  background-color: #dc3545;
+  background-color: #f44336;
   color: white;
 }
 .row-actions button:nth-child(2):hover {
-  background-color: #a71d2a;
+  background-color: #d32f2f;
 }
 
 /* تفعيل/تعطيل ديناميكي */
 .btn-disable {
-  background-color: #dc3545; /* أحمر */
+  background-color: #f44336;
   color: white;
 }
 .btn-disable:hover {
-  background-color: #a71d2a;
+  background-color: #d32f2f;
 }
 
 .btn-enable {
-  background-color: #28a745; /* أخضر */
+  background-color: #28a745;
   color: white;
 }
 .btn-enable:hover {
   background-color: #218838;
 }
-
 </style>

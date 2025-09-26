@@ -24,19 +24,22 @@ onMounted(() => {
 <style scoped>
 .sections-wrapper {
   padding: 2rem;
-  background-color: #f9f9f9;
+  background-color: transparent; /* ✅ إزالة الخلفية الرمادية */
 }
 
 .page-title {
   font-size: 1.8rem;
   font-weight: bold;
   margin-bottom: 1rem;
-  color: #333;
+  color: #FF7A00; /* ✅ برتقالي للتمييز */
+  font-family: 'Tajawal', sans-serif;
 }
 
 .section-count {
   font-size: 1rem;
   margin-bottom: 2rem;
-  color: #666;
+  color: #1C1C1C; /* ✅ توحيد النصوص بالأسود */
+  font-family: 'Tajawal', sans-serif;
 }
+
 </style>

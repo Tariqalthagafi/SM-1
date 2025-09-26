@@ -1,7 +1,7 @@
 <template>
-  <div class="card">
-    <h3>{{ title }}</h3>
-    <p>{{ value }}</p>
+  <div class="summary-card">
+    <h3 class="card-title">{{ title }}</h3>
+    <p class="card-value">{{ value }}</p>
   </div>
 </template>
 
@@ -13,30 +13,29 @@ defineProps<{
 </script>
 
 <style scoped>
-.card {
-  background-color: #ffffff;
-  border: 1px solid #e0e0e0;
-  padding: 1.2rem;
-  border-radius: 10px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-  cursor: default;
+.summary-card {
+  background-color: transparent; /* ✅ إزالة الخلفية */
+  border-radius: 0;              /* ✅ إزالة الزوايا */
+  padding: 0;                    /* ✅ إزالة الحواف */
+  box-shadow: none;              /* ✅ إزالة الظل */
+  border: none;                  /* ✅ إزالة الحدود */
+  font-family: 'Tajawal', sans-serif;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
 }
 
-.card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+.card-title {
+  font-size: 1.1rem;
+  color: #FF7A00; /* ✅ برتقالي للتمييز */
+  font-weight: bold;
+  margin: 0;
 }
 
-.card h3 {
-  margin-bottom: 0.5rem;
-  font-size: 1.2rem;
-  color: #2c3e50;
-}
-
-.card p {
-  font-size: 1rem;
-  color: #555;
+.card-value {
+  font-size: 1.6rem;
+  color: #1C1C1C; /* ✅ أسود للنص الأساسي */
+  font-weight: 600;
   margin: 0;
 }
 </style>

@@ -1,9 +1,12 @@
 <template>
   <div class="product-row">
-    <div class="field">
-      <label>اسم المنتج:</label>
-      <input :value="product.name || 'بدون اسم'" readonly />
+    <div class="action-group">
+      <button class="drag-handle" title="اسحب لتحريك">⠿</button>
+      <button @click="emit('edit', product)" title="تعديل">✏️</button>
+      <button @click="emit('delete', product.id)" title="حذف">🗑️</button>
     </div>
+
+    <span class="product-name">{{ product.name || 'بدون اسم' }}</span>
 
     <div class="field">
       <label>الوصف:</label>
@@ -37,15 +40,6 @@
         <span v-else>لا يوجد صورة</span>
       </div>
     </div>
-
-    <div class="action-buttons">
-      <!-- زر السحب -->
-      <button class="drag-handle" title="اسحب لتحريك">⠿</button>
-
-      <!-- أزرار التعديل والحذف -->
-      <button @click="emit('edit', product)">✏️</button>
-      <button @click="emit('delete', product.id)">🗑️</button>
-    </div>
   </div>
 </template>
 
@@ -65,12 +59,55 @@ function previewImage(blob: Blob) {
 .product-row {
   display: flex;
   flex-wrap: wrap;
-  gap: 1rem;
   align-items: center;
-  padding: 0.75rem;
-  border: 1px solid #ddd;
-  border-radius: 10px;
-  background-color: #fff;
+  gap: 1rem;
+  padding: 0.5rem 0;
+  border: none;
+  border-radius: 0;
+  background-color: transparent;
+  font-family: 'Tajawal', sans-serif;
+}
+
+.action-group {
+  display: inline-flex;
+  gap: 0.25rem;
+  align-items: center;
+}
+
+.drag-handle {
+  cursor: grab;
+  background-color: #F0F0F0;
+  border: none;
+  padding: 0.3rem;
+  border-radius: 6px;
+  font-size: 1.1rem;
+  transition: background-color 0.2s ease;
+}
+.drag-handle:hover {
+  background-color: #E0E0E0;
+}
+.drag-handle:active {
+  cursor: grabbing;
+}
+
+button {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 0.2rem;
+  color: #1C1C1C;
+}
+button:hover {
+  color: #FF7A00;
+}
+
+.product-name {
+  font-size: 1rem;
+  font-weight: bold;
+  color: #1C1C1C;
+  margin-inline-start: 0.5rem;
+  white-space: nowrap;
 }
 
 .field {
@@ -83,15 +120,16 @@ function previewImage(blob: Blob) {
   font-weight: bold;
   font-size: 0.85rem;
   margin-bottom: 0.25rem;
-  color: #444;
+  color: #1C1C1C;
 }
 
 .field input {
   padding: 0.4rem 0.6rem;
-  border: 1px solid #ccc;
+  border: 1px solid #E0E0E0;
   border-radius: 6px;
-  background-color: #f9f9f9;
+  background-color: #FFFFFF;
   font-size: 0.85rem;
+  color: #1C1C1C;
 }
 
 .image-preview {
@@ -103,24 +141,6 @@ function previewImage(blob: Blob) {
 .image-preview label {
   font-weight: bold;
   font-size: 0.85rem;
-  color: #444;
-}
-
-.action-buttons {
-  margin-left: auto;
-  display: flex;
-  gap: 0.5rem;
-}
-
-/* زر السحب */
-.drag-handle {
-  cursor: grab;
-  background: #f0f0f0;
-  border: none;
-  padding: 0.3rem 0.5rem;
-  border-radius: 4px;
-}
-.drag-handle:active {
-  cursor: grabbing;
+  color: #1C1C1C;
 }
 </style>

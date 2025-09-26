@@ -3,15 +3,13 @@
     <!-- زر إضافة منتج جديد -->
     <button class="add-button" @click="startNewProduct">➕ إضافة منتج جديد</button>
 
-    <!-- 🆕 نموذج إضافة منتج -->
+    <!-- نموذج إضافة منتج -->
     <ProductEditor
-      v-if="!editingId && showNewForm"
+      v-if="showNewForm"
       :edit="tempProduct"
-      @save="saveProduct"
-      @cancel="cancelEdit"
     />
 
-    <!-- 📦 قائمة المنتجات مع السحب والإفلات -->
+    <!-- قائمة المنتجات مع السحب والإفلات -->
     <draggable
       v-model="productsStore.products"
       item-key="id"
@@ -20,21 +18,7 @@
     >
       <template #item="{ element }">
         <div class="product-container">
-          <!-- ✏️ نموذج تعديل منتج -->
-          <ProductEditor
-            v-if="editingId === element.id"
-            :edit="element"
-            @save="saveProduct"
-            @cancel="cancelEdit"
-          />
-
-          <!-- 👁️ صف عرض منتج -->
-          <ProductRow
-            v-else
-            :product="element"
-            @edit="startEdit"
-            @delete="deleteProduct"
-          />
+          <ProductEditor :edit="element" />
         </div>
       </template>
     </draggable>
@@ -48,10 +32,8 @@ import type { Product } from '@/types/contexts/Products'
 import draggable from 'vuedraggable'
 
 import ProductEditor from './ProductEditor.vue'
-import ProductRow from './ProductRow.vue'
 
 const productsStore = useProductsStore()
-const editingId = ref<string | null>(null)
 const tempProduct = ref<Product>(productsStore.createEmptyProduct())
 const showNewForm = ref(false)
 
@@ -60,69 +42,55 @@ onMounted(() => {
 })
 
 function startNewProduct() {
-  tempProduct.value = productsStore.createEmptyProduct()
-  editingId.value = null
-  showNewForm.value = true
-}
-
-function startEdit(product: Product) {
-  editingId.value = product.id
-  showNewForm.value = false
-}
-
-function cancelEdit() {
-  editingId.value = null
-  tempProduct.value = productsStore.createEmptyProduct()
-  showNewForm.value = false
-}
-
-function saveProduct(updated: Product) {
-  if (editingId.value) {
-    productsStore.updateProduct(editingId.value, updated)
-  } else {
-    const newProduct = {
-      ...updated,
-      id: crypto.randomUUID(),
-      order: productsStore.products.length
-    }
-    productsStore.addProduct(newProduct)
+  const newProduct = {
+    ...productsStore.createEmptyProduct(),
+    id: crypto.randomUUID(),
+    order: 0
   }
-  cancelEdit()
+  productsStore.products.unshift(newProduct)
+  productsStore.directSave(newProduct)
+  showNewForm.value = false
 }
-
-function deleteProduct(id: string) {
-  productsStore.deleteProduct(id)
-}
-
-// 📌 حفظ الترتيب الجديد بعد السحب
+  
 async function saveOrder() {
   await Promise.all(
     productsStore.products.map((p, i) => {
       p.order = i
-      return productsStore.directSave(p) // دالة جديدة في الـ store تحفظ بدون إعادة تحميل
+      return productsStore.directSave(p)
     })
   )
-  // ترتيب المصفوفة في الواجهة
   productsStore.products.sort((a, b) => a.order - b.order)
 }
-
 </script>
 
 <style scoped>
-
+.product-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  font-family: 'Tajawal', sans-serif;
+}
 
 .add-button {
   align-self: flex-start;
-  padding: 0.5rem 1rem;
-  margin-bottom: 1rem;
-  background-color: #007acc;
-  color: white;
+  padding: 0.4rem 0.8rem;
+  font-size: 0.95rem;
+  background-color: #FF7A00;
+  color: #fff;
   border: none;
   border-radius: 6px;
   cursor: pointer;
-  font-weight: bold;
+  transition: background-color 0.2s ease;
 }
+
 .add-button:hover {
-  background-color: #005fa3;
+  background-color: #e96c00;
 }
+
+.product-container {
+  margin-bottom: 0.5rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #E0E0E0; /* ✅ خط رمادي بسيط */
+}
+
 </style>

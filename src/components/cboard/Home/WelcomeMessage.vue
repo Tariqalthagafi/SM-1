@@ -1,7 +1,7 @@
 <template>
   <div class="welcome-message">
-    <h2>مرحبًا بك 👋</h2>
-    <p class="account-id">رقم الحساب: {{ homeStore.menuId }}</p>
+    <h2 class="title">مرحبًا بك 👋</h2>
+    <p class="account-id">رقم الحساب: <span class="id-value">{{ homeStore.menuId }}</span></p>
   </div>
 </template>
 
@@ -10,31 +10,37 @@ import { useHomeStore } from '@/stores/cboard/homeStore'
 
 const homeStore = useHomeStore()
 
-// تحميل البيانات من IndexedDB إذا لم تكن محملة مسبقًا
 homeStore.initStore()
-
-// تسجيل وقت الزيارة
 homeStore.markVisit()
 </script>
 
 <style scoped>
 .welcome-message {
-  text-align: start;
-  padding: 1rem 2rem;
-  background-color: #f5f5f5;
-  border-radius: 8px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-  margin-bottom: 1rem;
+  background-color: transparent; /* ✅ إزالة الخلفية */
+  border-radius: 0;              /* ✅ إزالة الزوايا */
+  padding: 0;                    /* ✅ إزالة الحواف الداخلية */
+  box-shadow: none;             /* ✅ إزالة الظل */
+  font-family: 'Tajawal', sans-serif;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
 }
 
-.welcome-message h2 {
-  font-size: 1.6rem;
-  color: #2c3e50;
-  margin-bottom: 0.5rem;
+.title {
+  font-size: 1.8rem;
+  color: #FF7A00; /* ✅ برتقالي للتمييز */
+  font-weight: bold;
+  margin: 0;
 }
 
 .account-id {
-  font-size: 0.95rem;
-  color: #555;
+  font-size: 1rem;
+  color: #1C1C1C;
 }
+
+.id-value {
+  font-weight: bold;
+  color: #1C1C1C; /* ✅ توحيد اللون مع النص الأساسي */
+}
+
 </style>

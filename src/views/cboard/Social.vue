@@ -98,20 +98,47 @@ const placeholders: Record<SocialKey, string> = {
 .social-page {
   padding: 2rem;
   background-color: #fff;
-  border-radius: 10px;
-  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.05);
+  border-radius: 0;
+  box-shadow: none;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  font-family: 'Tajawal', sans-serif;
 }
 
 h2 {
-  margin-bottom: 1.5rem;
-  font-size: 1.5rem;
-  color: #333;
+  font-size: 1.6rem;
+  font-weight: 600;
+  color: #1C1C1C;
+  border-bottom: 1px solid #E0E0E0;
+  padding-bottom: 0.5rem;
+  margin-bottom: 0.5rem;
 }
 
 .social-group {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 1rem 2rem;
-  margin-bottom: 2rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #E0E0E0;
 }
+
+
+.social-field input {
+  padding: 0.4rem 0.6rem;
+  font-size: 0.85rem;
+  border: 1px solid #E0E0E0;
+  border-radius: 6px;
+  background-color: #FFFFFF;
+  color: #1C1C1C;
+  width: 100%;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.social-field input:focus {
+  border-color: #FF7A00;
+  box-shadow: 0 0 0 2px rgba(255, 122, 0, 0.2);
+  outline: none;
+}
+
 </style>

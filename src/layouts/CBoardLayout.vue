@@ -44,32 +44,26 @@ const toggleSidebar = () => {
 const router = useRouter()
 const route = useRoute()
 
-// اللغة الحالية (شكليًا فقط)
 const currentLang = ref('ar')
 
-// ضبط الاتجاه عند التبديل
 function toggleLang() {
   currentLang.value = currentLang.value === 'ar' ? 'en' : 'ar'
   document.documentElement.setAttribute('dir', currentLang.value === 'ar' ? 'rtl' : 'ltr')
 }
 
-// ضبط الاتجاه عند أول تحميل
 onMounted(() => {
   document.documentElement.setAttribute('dir', currentLang.value === 'ar' ? 'rtl' : 'ltr')
 })
 
-// تسجيل الخروج
 function logout() {
   router.push('/')
 }
 
-// التعامل مع العناصر الوظيفية
 function handleAction(route) {
   if (route === '#lang') toggleLang()
   else if (route === '#logout') logout()
 }
 
-// القائمة الجانبية كـ computed لتحديث اللغة ديناميكيًا
 const sidebarItems = computed(() => [
   {
     name: currentLang.value === 'ar' ? 'English' : 'العربية',
@@ -93,15 +87,16 @@ const sidebarItems = computed(() => [
 <style scoped>
 .cboard-layout {
   display: flex;
-  max-height: 100vh;
   width: 100vw;
-  background-color: #f0f2f5;
+  height: 100vh;
+  background-color: #FFFFFF; /* ✅ خلفية موحدة */
   font-family: 'Segoe UI', sans-serif;
+  overflow: hidden;
 }
 
 .sidebar {
   width: 220px;
-  background-color: #ffffff;
+  background-color: #FFFFFF;
   padding: 1rem;
   transition: width 0.3s ease;
   display: flex;
@@ -204,11 +199,11 @@ const sidebarItems = computed(() => [
 }
 
 .page-content {
-  padding: 2rem;
-  background-color: #f9f9f9;
   flex: 1;
   overflow-y: auto;
-  border-top: 1px solid #eee;
+  padding: 0; /* ✅ إزالة الحواف */
+  background-color: transparent; /* ✅ إزالة الخلفية الرمادية */
+  border-top: none; /* ✅ إزالة الخط الفاصل */
 }
 
 /* دعم RTL */

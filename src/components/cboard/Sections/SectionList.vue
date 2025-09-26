@@ -1,6 +1,5 @@
 <template>
   <section class="section-list-card">
-    <h2 class="card-title">📦 قائمة الأقسام</h2>
 
     <draggable
       v-model="sectionStore.sections"
@@ -9,7 +8,6 @@
       handle=".drag-handle"
     >
       <template #header>
-        <div class="list-header">↕️ اسحب لإعادة ترتيب الأقسام</div>
       </template>
 
       <template #item="{ element, index }">
@@ -37,21 +35,21 @@ function deleteSection(id: string) {
 
 <style scoped>
 .section-list-card {
-  background: #fff;
-  border-radius: 12px;
-  padding: 1.5rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  background: transparent; /* ✅ إزالة الخلفية */
+  border-radius: 0;         /* ✅ إزالة الزوايا */
+  padding: 0;               /* ✅ إزالة الحواف */
+  box-shadow: none;         /* ✅ إزالة الظل */
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  font-family: 'Tajawal', sans-serif;
 }
 
 .card-title {
   margin: 0;
   font-size: 1.2rem;
   font-weight: bold;
-  color: #2c3e50;
-  border-bottom: 1px solid #eee;
+  color: #FF7A00; /* ✅ برتقالي للتمييز */
   padding-bottom: 0.5rem;
 }
 
@@ -64,10 +62,10 @@ function deleteSection(id: string) {
 .list-header {
   font-weight: bold;
   font-size: 0.95rem;
-  color: #555;
+  color: #1C1C1C;
   margin-bottom: 0.5rem;
-  background: #f8f9fa;
+  background: transparent; /* ✅ إزالة الخلفية الرمادية */
   padding: 0.4rem 0.6rem;
-  border-radius: 6px;
+  border-radius: 0;
 }
 </style>
