@@ -158,8 +158,8 @@ export const classicGold: TemplateConfig = {
     font: true,
     offerStyles: ['priceOnly', 'badge'],
     expiredStyles: ['strike', 'badge'],
-    imageShapes: ['circle', 'square', 'rectangle', 'none'],
-    allergenIconStyles: ['colored', 'outline', 'flat'],
+    imageShapes: ['circle', 'roundedSquare', 'rectangle', 'none'],
+    allergenIconStyles: ['colored', 'outlined', 'monochrome'],
     allergenIconColor: '#ff0000'
   }
 }

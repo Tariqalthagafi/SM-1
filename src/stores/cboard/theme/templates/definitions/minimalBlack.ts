@@ -66,7 +66,7 @@ export const minimalBlack: TemplateConfig = {
     fontFamily: 'Roboto',
     offerStyle: 'badge',
     expiredStyle: 'strike',
-    imageShape: 'square',
+    imageShape: 'roundedSquare',
     allergens: [],
     allergenIconStyle: 'colored',
     allergenIconColor: '#ff0000'
@@ -78,8 +78,8 @@ export const minimalBlack: TemplateConfig = {
     font: true,
     offerStyles: ['priceOnly', 'badge'],
     expiredStyles: ['strike', 'badge'],
-    imageShapes: ['circle', 'square', 'rectangle', 'none'],
-    allergenIconStyles: ['colored', 'outline', 'flat'],
+    imageShapes: ['circle', 'roundedSquare', 'rectangle', 'none'],
+    allergenIconStyles: ['colored', 'outlined', 'monochrome'],
     allergenIconColor: '#ff0000'
   }
 }

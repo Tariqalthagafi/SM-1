@@ -14,6 +14,9 @@ export type OfferStyle =
   | 'stackedPrice'
   | 'badgeDiscount'
   | 'strikeInline'
+  | 'badge'
+  | 'priceOnly'
+
 
 
 export type CardShape = 'rounded' | 'flat' | 'shadowed'
