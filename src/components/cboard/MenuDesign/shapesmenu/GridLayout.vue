@@ -5,9 +5,25 @@
       :key="product.id"
       class="product-card"
     >
+      <!-- ✅ صورة المنتج -->
+      <div class="product-image-wrapper" v-if="imageShape !== 'none'">
+        <img
+          v-if="product.imageBase64"
+          :src="product.imageBase64"
+          :class="['product-image', imageShape]"
+          alt="صورة المنتج"
+        />
+        <div v-else class="product-image placeholder" :class="imageShape"></div>
+      </div>
+
       <div class="product-name">{{ product.name }}</div>
+
       <div class="product-price">
-        {{ product.finalPrice }} {{ currencySymbol }}
+        <span class="final-price">
+          {{ product.finalPrice }}
+          <span v-if="currencyKey !== 'svg-riyal'">{{ currencySymbol }}</span>
+          <span v-else v-html="currencySymbol"></span>
+        </span>
       </div>
     </div>
   </div>
@@ -15,12 +31,18 @@
 
 <script setup lang="ts">
 defineProps<{
-  products: any[]
-  sections: any[]
-  colors: Record<string, string>
+  products: {
+    id: string
+    name: string
+    basePrice: number
+    finalPrice: number
+    imageBase64?: string
+  }[]
+  sections?: any[]
+  currencySymbol: string
+  currencyKey: string
+  imageShape: 'circle' | 'roundedSquare' | 'rectangle' | 'none'
 }>()
-
-const currencySymbol = 'ر.س'
 </script>
 
 <style scoped>
@@ -50,6 +72,43 @@ const currencySymbol = 'ر.س'
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 
+/* ✅ صورة المنتج */
+.product-image-wrapper {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 0.5rem;
+}
+
+.product-image {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  background-color: #eee;
+}
+
+/* الأشكال */
+.product-image.circle {
+  border-radius: 50%;
+}
+
+.product-image.roundedSquare {
+  border-radius: 12px;
+}
+
+.product-image.rectangle {
+  width: 120px;
+  height: 80px;
+  border-radius: 6px;
+}
+
+.product-image.none {
+  display: none;
+}
+
+.product-image.placeholder {
+  background-color: #ddd;
+}
+
 /* ✅ اسم المنتج */
 .product-name {
   margin-bottom: 0.3rem;
@@ -63,5 +122,9 @@ const currencySymbol = 'ر.س'
   padding: 0.3rem 0.5rem;
   border-radius: 4px;
   display: inline-block;
+}
+
+.final-price {
+  font-weight: bold;
 }
 </style>

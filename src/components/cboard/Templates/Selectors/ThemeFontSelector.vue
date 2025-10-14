@@ -68,32 +68,52 @@ function emitFont() {
 
 <style scoped>
 .font-selector {
-  padding: 1rem 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  font-family: 'Tajawal', sans-serif;
+}
+
+label {
+  font-size: 0.85rem;
+  font-weight: bold;
+  color: #1C1C1C;
 }
 
 .row {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 1rem;
 }
 
 .font-dropdown {
   flex: 0 0 200px;
-  padding: 0.5rem;
-  font-size: 1rem;
+  padding: 0.4rem 0.6rem;
+  font-size: 0.85rem;
   border-radius: 6px;
-  border: 1px solid #ccc;
-  background-color: #fff;
+  border: 1px solid #E0E0E0;
+  background-color: #FFFFFF;
+  color: #1C1C1C;
   font-family: inherit;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.font-dropdown:focus {
+  border-color: #FF7A00;
+  box-shadow: 0 0 0 2px rgba(255, 122, 0, 0.2);
+  outline: none;
 }
 
 .font-preview {
   flex: 1;
   padding: 0.6rem;
-  background: #f9f9f9;
+  background-color: #FFFFFF;
   border-radius: 6px;
-  border: 1px dashed #ccc;
+  border: 1px dashed #E0E0E0;
   text-align: center;
   font-size: 1.2rem;
+  color: #1C1C1C;
 }
+
 </style>

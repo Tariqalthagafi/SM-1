@@ -61,34 +61,55 @@ function emitShape() {
 
 <style scoped>
 .image-shape-selector {
-  padding: 1rem 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  font-family: 'Tajawal', sans-serif;
+}
+
+label {
+  font-size: 0.85rem;
+  font-weight: bold;
+  color: #1C1C1C;
 }
 
 .row {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 1rem;
 }
 
 .image-shape-dropdown {
-  flex: 0 0 160px;
-  padding: 0.5rem;
-  font-size: 1rem;
+  flex: 0 0 180px;
+  padding: 0.4rem 0.6rem;
+  font-size: 0.85rem;
   border-radius: 6px;
-  border: 1px solid #ccc;
-  background-color: #fff;
+  border: 1px solid #E0E0E0;
+  background-color: #FFFFFF;
+  color: #1C1C1C;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.image-shape-dropdown:focus {
+  border-color: #FF7A00;
+  box-shadow: 0 0 0 2px rgba(255, 122, 0, 0.2);
+  outline: none;
 }
 
 .image-preview {
   flex: 1;
-  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 120px;
 }
 
 .preview-image {
   width: 80px;
   height: 80px;
-  background-color: #ddd;
-  margin: 0 auto 0.5rem;
+  background-color: #E0E0E0;
+  margin-bottom: 0.5rem;
 }
 
 /* الأشكال */
@@ -109,4 +130,5 @@ function emitShape() {
 .preview-image.none {
   display: none;
 }
+
 </style>

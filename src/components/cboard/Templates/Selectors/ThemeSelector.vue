@@ -70,14 +70,33 @@ function onTemplateChange() {
 <style scoped>
 .theme-selector-dropdown {
   display: flex;
-  align-items: center;
+  flex-direction: column;
   gap: 0.5rem;
+  font-family: 'Tajawal', sans-serif;
+  width: 100%;
+}
+
+label {
+  font-size: 0.85rem;
+  font-weight: bold;
+  color: #1C1C1C;
 }
 
 select {
   padding: 0.4rem 0.6rem;
   border-radius: 6px;
-  border: 1px solid #ccc;
-  font-size: 0.95rem;
+  border: 1px solid #E0E0E0;
+  font-size: 0.85rem;
+  background-color: #FFFFFF;
+  color: #1C1C1C;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  width: 100%;
 }
+
+select:focus {
+  border-color: #FF7A00;
+  box-shadow: 0 0 0 2px rgba(255, 122, 0, 0.2);
+  outline: none;
+}
+
 </style>

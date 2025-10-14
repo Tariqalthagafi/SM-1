@@ -2,21 +2,37 @@
   <div v-if="sections.length && products.length">
     <h4>معاينة القالب</h4>
 
-    <!-- ✅ عرض بالقسم تفاعلي -->
+    <!-- ✅ عرض بالقسم التفاعلي -->
     <SectionedLayout
       v-if="layoutStore.layout === 'sectioned'"
       :products="products"
       :sections="sections"
       :colors="colorStore.colors"
+      :currency-symbol="currencySymbol"
+      :currency-key="currencyKey"
+      :image-shape="imageShape"
     />
 
-    <!-- ✅ باقي النماذج كمكونات مستقلة -->
+    <!-- ✅ باقي النماذج -->
     <component
       v-else
       :is="layoutComponent"
-      :products="products"
-      :sections="sections"
-      :colors="colorStore.colors"
+      v-bind="isCategoryLayout
+        ? {
+            categories,
+            colors: colorStore.colors,
+            currencySymbol,
+            currencyKey,
+            imageShape
+          }
+        : {
+            products,
+            sections,
+            colors: colorStore.colors,
+            currencySymbol,
+            currencyKey,
+            imageShape
+          }"
     />
   </div>
 
@@ -28,20 +44,30 @@ import { ref, computed, onMounted, watchEffect } from 'vue'
 import { indexedDBService } from '@/services/indexedDBService'
 import { useColorEditorStore } from '@/stores/cboard/MenuDesign/ColorEditorStore'
 import { useLayoutEditorStore } from '@/stores/cboard/MenuDesign/LayoutEditor'
+import { useCurrencyStore } from '@/stores/cboard/templates/currencyStore'
+import { useImageShapeStore } from '@/stores/cboard/templates/imageShapeStore'
 
 // ✅ استيراد مكونات العرض
 import GridLayout from './GridLayout.vue'
 import CardsLayout from './CardsLayout.vue'
 import VerticalLayout from './VerticalLayout.vue'
 import SectionedLayout from './SectionedLayout.vue'
+import SidebarView from './SidebarView.vue'
+import GridView from './GridView.vue'
+import PagedView from './PagedView.vue'
 
 const sections = ref<any[]>([])
 const products = ref<any[]>([])
+const categories = ref<any[]>([])
 
 const colorStore = useColorEditorStore()
 const layoutStore = useLayoutEditorStore()
+const currencyStore = useCurrencyStore()
+const imageShapeStore = useImageShapeStore()
 
-const currencySymbol = ref('ر.س')
+const currencySymbol = computed(() => currencyStore.displayedSymbol)
+const currencyKey = computed(() => currencyStore.currencySymbol)
+const imageShape = computed(() => imageShapeStore.imageShape)
 
 // ✅ تطبيق الألوان على CSS Variables
 function applySettingsToCSS(colors: Record<string, string>) {
@@ -56,26 +82,32 @@ function applySettingsToCSS(colors: Record<string, string>) {
 // ✅ تحميل البيانات من indexedDB
 async function loadStaticData() {
   const offers = await indexedDBService.getAll('offers')
-  sections.value = await indexedDBService.getAll('sections')
+  const rawSections = await indexedDBService.getAll('sections')
   const allProducts = await indexedDBService.getAll('products')
 
-  products.value = allProducts.map((p: any) => {
+  const enrichedProducts = allProducts.map((p: any) => {
     const offer = offers.find((o: any) => o.id === p.selectedOfferId && o.isActive)
-    if (offer) {
-      if (offer.type === 'percentage') {
-        p.finalPrice = Math.round((p.basePrice ?? 0) * (1 - offer.discount / 100))
-      } else if (offer.type === 'unifiedPrice') {
-        p.finalPrice = offer.discount
-      }
-    } else {
-      p.finalPrice = p.basePrice ?? 0
-    }
+    p.finalPrice = offer
+      ? offer.type === 'percentage'
+        ? Math.round((p.basePrice ?? 0) * (1 - offer.discount / 100))
+        : offer.discount
+      : p.basePrice ?? 0
     return p
   })
+
+  sections.value = rawSections
+  products.value = enrichedProducts
+
+  categories.value = rawSections.map((section: any) => ({
+    id: section.id,
+    name: section.name,
+    products: enrichedProducts.filter((p: any) => p.sectionId === section.id)
+  }))
 }
 
 // ✅ تحميل أولي
 onMounted(() => {
+  currencyStore.initCurrencyOptions()
   loadStaticData()
   applySettingsToCSS(colorStore.colors)
 })
@@ -91,9 +123,17 @@ const layoutComponent = computed(() => {
     case 'grid': return GridLayout
     case 'cards': return CardsLayout
     case 'vertical': return VerticalLayout
+    case 'sidebarCategories': return SidebarView
+    case 'gridCategories': return GridView
+    case 'pagedCategories': return PagedView
     default: return GridLayout
   }
 })
+
+// ✅ تحديد ما إذا كان التخطيط يعتمد على الأقسام كـ categories
+const isCategoryLayout = computed(() =>
+  ['sidebarCategories', 'gridCategories', 'pagedCategories'].includes(layoutStore.layout)
+)
 </script>
 
 <style scoped>

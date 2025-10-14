@@ -2,13 +2,14 @@
   <div class="social-page">
     <h2>📡 إعدادات التواصل والسوشيال ميديا</h2>
 
-    <SocialGroup title="بيانات التواصل">
+    <div class="social-group">
+      <!-- ✅ بيانات أساسية -->
       <SocialField
         label="البريد الإلكتروني"
         :value="store.links.email.value"
         :isPublic="store.links.email.isPublic"
         placeholder="your@email.com"
-        @update="val => store.updateLinkValue('email', val)"
+        @update="(val: string) => store.updateLinkValue('email', val)"
         @toggle-visibility="() => store.toggleLinkVisibility('email')"
       />
       <SocialField
@@ -16,7 +17,7 @@
         :value="store.links.phone.value"
         :isPublic="store.links.phone.isPublic"
         placeholder="05xxxxxxxx"
-        @update="val => store.updateLinkValue('phone', val)"
+        @update="(val: string) => store.updateLinkValue('phone', val)"
         @toggle-visibility="() => store.toggleLinkVisibility('phone')"
       />
       <SocialField
@@ -24,23 +25,30 @@
         :value="store.links.website.value"
         :isPublic="store.links.website.isPublic"
         placeholder="https://example.com"
-        @update="val => store.updateLinkValue('website', val)"
+        @update="(val: string) => store.updateLinkValue('website', val)"
         @toggle-visibility="() => store.toggleLinkVisibility('website')"
       />
-    </SocialGroup>
+      <SocialField
+        label="الموقع الجغرافي"
+        :value="store.links.location.value"
+        :isPublic="store.links.location.isPublic"
+        :placeholder="placeholders.location"
+        @update="(val: string) => store.updateLinkValue('location', val)"
+        @toggle-visibility="() => store.toggleLinkVisibility('location')"
+      />
 
-    <SocialGroup title="منصات التواصل الاجتماعي">
+      <!-- ✅ منصات التواصل -->
       <template v-for="platform in platforms" :key="platform">
         <SocialField
           :label="labels[platform]"
           :value="store.links[platform].value"
           :isPublic="store.links[platform].isPublic"
           :placeholder="placeholders[platform]"
-          @update="val => store.updateLinkValue(platform, val)"
+          @update="(val: string) => store.updateLinkValue(platform, val)"
           @toggle-visibility="() => store.toggleLinkVisibility(platform)"
         />
       </template>
-    </SocialGroup>
+    </div>
   </div>
 </template>
 
@@ -77,7 +85,8 @@ const labels: Record<SocialKey, string> = {
   snapchat: 'Snapchat',
   tiktok: 'TikTok',
   youtube: 'YouTube',
-  whatsapp: 'WhatsApp'
+  whatsapp: 'WhatsApp',
+  location: 'الموقع الجغرافي'
 }
 
 const placeholders: Record<SocialKey, string> = {
@@ -90,7 +99,8 @@ const placeholders: Record<SocialKey, string> = {
   snapchat: 'yourname',
   tiktok: '@yourname',
   youtube: 'رابط القناة أو اسم المستخدم',
-  whatsapp: 'رابط أو رقم واتساب'
+  whatsapp: 'رابط أو رقم واتساب',
+  location: 'https://maps.google.com/?q=...'
 }
 </script>
 

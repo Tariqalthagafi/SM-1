@@ -64,27 +64,48 @@ function emitSelection() {
 
 <style scoped>
 .expired-style-selector {
-  padding: 1rem 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  font-family: 'Tajawal', sans-serif;
+}
+
+label {
+  font-size: 0.85rem;
+  font-weight: bold;
+  color: #1C1C1C;
 }
 
 .row {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 1rem;
 }
 
 .expired-style-dropdown {
-  flex: 0 0 160px;
-  padding: 0.5rem;
-  font-size: 1rem;
+  flex: 0 0 180px;
+  padding: 0.4rem 0.6rem;
+  font-size: 0.85rem;
   border-radius: 6px;
-  border: 1px solid #ccc;
-  background-color: #fff;
+  border: 1px solid #E0E0E0;
+  background-color: #FFFFFF;
+  color: #1C1C1C;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.expired-style-dropdown:focus {
+  border-color: #FF7A00;
+  box-shadow: 0 0 0 2px rgba(255, 122, 0, 0.2);
+  outline: none;
 }
 
 .expired-preview {
   flex: 1;
-  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 160px;
 }
 
 .preview-box {
@@ -92,22 +113,28 @@ function emitSelection() {
   border-radius: 6px;
   text-align: center;
   font-size: 0.9rem;
-  border: 1px dashed #ccc;
+  border: 1px dashed #E0E0E0;
   position: relative;
   display: flex;
   flex-direction: column;
   gap: 0.3rem;
+  background-color: #fff;
+  color: #1C1C1C;
 }
 
-/* أنماط المعاينة */
-.preview-box.strike .product-name {
-  text-decoration: line-through;
-  color: #999;
+/* ✅ نمط الإخفاء الكامل */
+.preview-box.hide {
+  visibility: hidden;
+  height: 0;
+  padding: 0;
+  margin: 0;
+  overflow: hidden;
 }
 
+/* ✅ نمط الشارة الصغيرة */
 .preview-box.badge .product-name::after {
   content: 'منتهي';
-  background: #ff5252;
+  background: #FF7A00;
   color: white;
   font-size: 0.7rem;
   padding: 0.2rem 0.4rem;
@@ -115,17 +142,10 @@ function emitSelection() {
   margin-left: 0.5rem;
 }
 
-.preview-box.overlay::before {
-  content: 'منتهي';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  background: rgba(255, 82, 82, 0.8);
-  color: white;
-  font-weight: bold;
-  padding: 0.2rem;
-  border-top-left-radius: 6px;
-  border-top-right-radius: 6px;
+/* ✅ نمط الشطب */
+.preview-box.strike .product-name,
+.preview-box.strike .product-price {
+  text-decoration: line-through;
+  color: #999;
 }
 </style>

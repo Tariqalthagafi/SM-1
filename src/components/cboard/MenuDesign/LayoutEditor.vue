@@ -37,8 +37,12 @@ const layoutOptions: { value: MenuLayout; label?: string }[] = [
   { value: 'vertical', label: 'عمودي' },
   { value: 'grid', label: 'شبكي' },
   { value: 'cards', label: 'بطاقات' },
-  { value: 'sectioned', label: 'عرض بالقسم' }
+  { value: 'sectioned', label: 'عرض بالقسم' },
+  { value: 'sidebarCategories', label: 'قائمة جانبية للأقسام' },
+  { value: 'gridCategories', label: 'مربعات الأقسام' },
+  { value: 'pagedCategories', label: 'صفحات قابلة للسحب' }
 ]
+
 </script>
 
 <style scoped>

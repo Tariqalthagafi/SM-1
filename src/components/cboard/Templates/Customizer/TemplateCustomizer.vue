@@ -52,23 +52,29 @@
 <CurrencySelector
   :options="currencyStore.currencyOptions"
   :selected="currencyStore.currencySymbol"
-  @update:selected="val => {
+  @update:selected="(val: string) => {
     currencyStore.setCurrency(val)
     currencyStore.saveCurrency()
   }"
 />
 
+
     </div>
 
     <div class="card">
 <AllergenStyle
-  :options="allergenStyleStore.allergenStyleOptions"
-  :selected="allergenStyleStore.allergenIconStyle"
-  @update:selected="val => {
-    allergenStyleStore.setAllergenStyle(val)
-    allergenStyleStore.saveAllergenStyle()
-  }"
+  :selected="'boxedA'"
+  :options="[
+    { value: 'boxedA', label: '🅰 مربع' },
+    { value: 'boldA', label: 'A تقيل' },
+    { value: 'warningTriangle', label: '⚠ مثلث تحذير' },
+    { value: 'colored', label: '🅰 ملون' },
+    { value: 'outlined', label: '🅰 بإطار' },
+    { value: 'monochrome', label: 'A رمادي' },
+    { value: 'hidden', label: 'بدون رمز' }
+  ]"
 />
+
 
     </div>
   </div>
@@ -112,18 +118,21 @@ onMounted(async () => {
 
 <style scoped>
 .template-customizer {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  padding: 1rem;
-  background: #f5f5f5;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem 2rem;
+  padding: 1rem 0;
+  background-color: #fff;
+  font-family: 'Tajawal', sans-serif;
 }
 
+/* إزالة البطاقة، كل مكون مسؤول عن تنسيقه */
 .card {
-  background: #fff;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  padding: 1rem;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+  padding: 0;
+  border: none;
+  background: transparent;
+  box-shadow: none;
+  border-radius: 0;
 }
+
 </style>

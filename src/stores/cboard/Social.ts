@@ -18,7 +18,9 @@ export const useSocialStore = defineStore('socialStore', () => {
     snapchat: { value: '', isPublic: true },
     tiktok: { value: '', isPublic: true },
     youtube: { value: '', isPublic: true },
-    whatsapp: { value: '', isPublic: true }
+    whatsapp: { value: '', isPublic: true },
+    location: { value: '', isPublic: true},
+
   })
 
   async function load() {

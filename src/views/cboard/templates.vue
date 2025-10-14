@@ -19,21 +19,26 @@ import TemplateCustomizer from '@/components/cboard/Templates/Customizer/Templat
   display: flex;
   justify-content: center;
   padding: 2rem;
-  background: #f5f5f5;
+  background-color: #fff; /* خلفية بيضاء ناعمة */
+  font-family: 'Tajawal', sans-serif;
 }
 
 .template-editor-container {
   width: 100%;
-  max-width: 800px;
-  /* ✅ أزلنا البطاقة الزائدة */
-  padding: 0;
+  max-width: 960px;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
 }
+
 .page-title {
-  font-size: 2rem;
-  font-weight: bold;
-  text-align: center;
-  margin-bottom: 2rem;
-  color: #333;
+  font-size: 1.6rem;
+  font-weight: 600;
+  color: #1C1C1C;
+  border-bottom: 1px solid #E0E0E0;
+  padding-bottom: 0.5rem;
+  margin-bottom: 0.5rem;
+  text-align: start;
 }
 
 </style>

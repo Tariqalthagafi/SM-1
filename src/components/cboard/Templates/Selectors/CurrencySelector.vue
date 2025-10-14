@@ -1,3 +1,32 @@
+<script setup lang="ts">
+import { ref, watch, computed, onMounted } from 'vue'
+import { useCurrencyStore } from '@/stores/cboard/templates/currencyStore'
+
+const currencyStore = useCurrencyStore()
+
+// ✅ تحميل الخيارات من الستور
+const options = computed(() => currencyStore.currencyOptions)
+const localCurrency = ref(currencyStore.currencySymbol)
+
+// ✅ تحديث العملة عند التغيير
+function emitCurrency() {
+  currencyStore.setCurrency(localCurrency.value)
+  currencyStore.saveCurrency()
+}
+
+// ✅ تحميل الخيارات عند التهيئة
+onMounted(async () => {
+  await currencyStore.initCurrencyOptions()
+  localCurrency.value = currencyStore.currencySymbol
+})
+
+// ✅ معاينة الصورة
+const previewImage = computed(() => {
+  const match = options.value.find(opt => opt.value === localCurrency.value)
+  return match?.image || null
+})
+</script>
+
 <template>
   <div class="currency-selector">
     <label for="currency-select">اختر العملة:</label>
@@ -31,66 +60,51 @@
   </div>
 </template>
 
-<script setup lang="ts">
-import { ref, watch, computed, withDefaults } from 'vue'
-
-const props = withDefaults(defineProps<{
-  selected: string
-  options: { value: string; label?: string; image?: string }[]
-}>(), {
-  selected: 'ر.س',
-  options: () => []
-})
-
-const emit = defineEmits<{
-  (e: 'update:selected', value: string): void
-}>()
-
-const localCurrency = ref(
-  props.options.some(opt => opt.value === props.selected)
-    ? props.selected
-    : props.options[0]?.value || 'ر.س'
-)
-
-watch(() => props.selected, (newVal) => {
-  if (props.options.some(opt => opt.value === newVal)) {
-    localCurrency.value = newVal
-  }
-})
-
-function emitCurrency() {
-  emit('update:selected', localCurrency.value)
-}
-
-const previewImage = computed(() => {
-  const match = props.options.find(opt => opt.value === localCurrency.value)
-  return match?.image || null
-})
-</script>
 
 <style scoped>
 .currency-selector {
-  padding: 1rem 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  font-family: 'Tajawal', sans-serif;
+}
+
+label {
+  font-size: 0.85rem;
+  font-weight: bold;
+  color: #1C1C1C;
 }
 
 .row {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 1rem;
 }
 
 .currency-dropdown {
-  flex: 0 0 160px;
-  padding: 0.5rem;
-  font-size: 1rem;
+  flex: 0 0 180px;
+  padding: 0.4rem 0.6rem;
+  font-size: 0.85rem;
   border-radius: 6px;
-  border: 1px solid #ccc;
-  background-color: #fff;
+  border: 1px solid #E0E0E0;
+  background-color: #FFFFFF;
+  color: #1C1C1C;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.currency-dropdown:focus {
+  border-color: #FF7A00;
+  box-shadow: 0 0 0 2px rgba(255, 122, 0, 0.2);
+  outline: none;
 }
 
 .currency-preview {
   flex: 1;
-  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 120px;
 }
 
 .currency-symbol {
@@ -98,6 +112,7 @@ const previewImage = computed(() => {
   font-weight: bold;
   display: inline-block;
   margin-bottom: 0.3rem;
+  color: #1C1C1C;
 }
 
 .currency-icon {
@@ -105,4 +120,5 @@ const previewImage = computed(() => {
   height: 32px;
   vertical-align: middle;
 }
+
 </style>

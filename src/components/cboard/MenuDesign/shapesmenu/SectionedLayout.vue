@@ -19,13 +19,29 @@
         :key="product.id"
         class="product-item"
       >
+        <!-- ✅ صورة المنتج -->
+        <div class="product-image-wrapper" v-if="imageShape !== 'none'">
+          <img
+            v-if="product.imageBase64"
+            :src="product.imageBase64"
+            :class="['product-image', imageShape]"
+            alt="صورة المنتج"
+          />
+          <div v-else class="product-image placeholder" :class="imageShape"></div>
+        </div>
+
         <span class="product-name">{{ product.name }}</span>
+
         <span class="product-price">
           <span v-if="product.finalPrice !== product.basePrice" class="old-price">
-            {{ product.basePrice }} {{ currencySymbol }}
+            {{ product.basePrice }}
+            <span v-if="currencyKey !== 'svg-riyal'">{{ currencySymbol }}</span>
+            <span v-else v-html="currencySymbol"></span>
           </span>
           <span class="final-price">
-            {{ product.finalPrice }} {{ currencySymbol }}
+            {{ product.finalPrice }}
+            <span v-if="currencyKey !== 'svg-riyal'">{{ currencySymbol }}</span>
+            <span v-else v-html="currencySymbol"></span>
           </span>
         </span>
       </div>
@@ -36,7 +52,6 @@
 <script setup lang="ts">
 import { ref, computed, watchEffect } from 'vue'
 
-// ✅ تعريف الأنواع
 interface Product {
   id: string
   name: string
@@ -44,6 +59,7 @@ interface Product {
   finalPrice: number
   sectionId: string
   status: string
+  imageBase64?: string
 }
 
 interface Section {
@@ -55,12 +71,14 @@ interface ColorSettings {
   [key: string]: string
 }
 
-// ✅ تعريف props بشكل صريح
 const props = withDefaults(
   defineProps<{
     products: Product[]
     sections: Section[]
     colors: ColorSettings
+    currencySymbol: string
+    currencyKey: string
+    imageShape: 'circle' | 'roundedSquare' | 'rectangle' | 'none'
   }>(),
   {
     products: () => [],
@@ -69,15 +87,12 @@ const props = withDefaults(
   }
 )
 
-const currencySymbol = 'ر.س'
 const activeSectionId = ref('')
 
-// ✅ فلترة المنتجات حسب القسم النشط
 const filteredProducts = computed(() =>
   props.products.filter((p) => p.sectionId === activeSectionId.value && p.status === 'visible')
 )
 
-// ✅ تعيين القسم الأول تلقائيًا
 watchEffect(() => {
   if (!activeSectionId.value && props.sections.length) {
     activeSectionId.value = props.sections[0].id
@@ -142,6 +157,42 @@ watchEffect(() => {
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 
+/* ✅ صورة المنتج */
+.product-image-wrapper {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 0.4rem;
+}
+
+.product-image {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  background-color: #eee;
+}
+
+.product-image.circle {
+  border-radius: 50%;
+}
+
+.product-image.roundedSquare {
+  border-radius: 12px;
+}
+
+.product-image.rectangle {
+  width: 120px;
+  height: 80px;
+  border-radius: 6px;
+}
+
+.product-image.none {
+  display: none;
+}
+
+.product-image.placeholder {
+  background-color: #ddd;
+}
+
 /* ✅ اسم المنتج */
 .product-name {
   display: block;
@@ -171,5 +222,4 @@ watchEffect(() => {
   font-weight: bold;
   color: var(--currencyIcon-color, inherit);
 }
-
 </style>

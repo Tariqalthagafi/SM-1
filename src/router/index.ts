@@ -48,6 +48,12 @@ const routes = [
         component: () => import('@/views/cboard/Social.vue'),
       },
       {
+       path: 'order-info',
+       name: 'OrderInfo',
+       component: () => import('@/views/cboard/OrderInfoView.vue'),
+       meta: { requiresAuth: true }
+      },
+      {
         path: 'templates',
         name: 'templates',
         component: () => import('@/views/cboard/templates.vue'),

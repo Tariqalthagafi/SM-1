@@ -76,6 +76,7 @@ const sidebarItems = computed(() => [
   { name: 'العروض', icon: '🎁', route: '/cboard/Offers' },
   { name: 'ربط المنتجات', icon: '🧩', route: '/cboard/linker' },
   { name: 'التواصل', icon: '📱', route: '/cboard/Social' },
+  { name: 'معلومات التشغيل', icon: '🕒', route: '/cboard/order-info' },
   { name: 'الثيمات', icon: '🎨', route: '/cboard/templates' },
   { name: 'تصميم المنيو', icon: '🖌️', route: '/cboard/MenuDesign' },
   { name: 'معاينة المنيو', icon: '🧾', route: '/cboard/MenuPreview' },

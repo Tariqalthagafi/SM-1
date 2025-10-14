@@ -8,6 +8,9 @@ export type MenuLayout =
   | 'vertical'
   | 'cards'
   | 'sectioned'
+  | 'sidebarCategories'
+  | 'gridCategories'
+  | 'pagedCategories'
 
 export interface LayoutSettings {
   layout: MenuLayout

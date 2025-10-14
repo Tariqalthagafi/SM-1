@@ -13,13 +13,29 @@
           :key="product.id"
           class="product-item"
         >
+          <!-- ✅ صورة المنتج -->
+          <div class="product-image-wrapper" v-if="imageShape !== 'none'">
+            <img
+              v-if="product.imageBase64"
+              :src="product.imageBase64"
+              :class="['product-image', imageShape]"
+              alt="صورة المنتج"
+            />
+            <div v-else class="product-image placeholder" :class="imageShape"></div>
+          </div>
+
           <span class="product-name">{{ product.name }}</span>
+
           <span class="product-price">
             <span v-if="product.finalPrice !== product.basePrice" class="old-price">
-              {{ product.basePrice }} {{ currencySymbol }}
+              {{ product.basePrice }}
+              <span v-if="currencyKey !== 'svg-riyal'">{{ currencySymbol }}</span>
+              <span v-else v-html="currencySymbol"></span>
             </span>
             <span class="final-price">
-              {{ product.finalPrice }} {{ currencySymbol }}
+              {{ product.finalPrice }}
+              <span v-if="currencyKey !== 'svg-riyal'">{{ currencySymbol }}</span>
+              <span v-else v-html="currencySymbol"></span>
             </span>
           </span>
         </div>
@@ -30,12 +46,24 @@
 
 <script setup lang="ts">
 defineProps<{
-  products: any[]
-  sections: any[]
+  products: {
+    id: string
+    name: string
+    basePrice: number
+    finalPrice: number
+    sectionId: string
+    status: string
+    imageBase64?: string
+  }[]
+  sections: {
+    id: string
+    name: string
+  }[]
   colors: Record<string, string>
+  currencySymbol: string
+  currencyKey: string
+  imageShape: 'circle' | 'roundedSquare' | 'rectangle' | 'none'
 }>()
-
-const currencySymbol = 'ر.س'
 </script>
 
 <style scoped>
@@ -75,20 +103,59 @@ const currencySymbol = 'ر.س'
   font-size: 0.85rem;
   font-family: var(--font-family, 'Cairo');
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
 }
 
+/* ✅ صورة المنتج */
+.product-image-wrapper {
+  flex-shrink: 0;
+}
+
+.product-image {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+  background-color: #eee;
+}
+
+.product-image.circle {
+  border-radius: 50%;
+}
+
+.product-image.roundedSquare {
+  border-radius: 12px;
+}
+
+.product-image.rectangle {
+  width: 80px;
+  height: 60px;
+  border-radius: 6px;
+}
+
+.product-image.none {
+  display: none;
+}
+
+.product-image.placeholder {
+  background-color: #ddd;
+}
+
+/* ✅ اسم المنتج */
 .product-name {
   font-weight: bold;
+  flex: 1;
 }
 
+/* ✅ السعر */
 .product-price {
   font-size: 0.8rem;
   color: var(--priceText-color, #333);
   background-color: var(--priceBackground-bg, transparent);
   padding: 0.3rem 0.5rem;
   border-radius: 4px;
+  white-space: nowrap;
 }
 
 .old-price {
@@ -101,5 +168,4 @@ const currencySymbol = 'ر.س'
   font-weight: bold;
   color: var(--currencyIcon-color, inherit);
 }
-
 </style>

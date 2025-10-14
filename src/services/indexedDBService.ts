@@ -1,7 +1,9 @@
 import { openDB } from 'idb'
+import type { OperatingHours } from '@/types/contexts/OrderInfoView'
+
 
 const DB_NAME = 'menuDB'
-const DB_VERSION = 7
+const DB_VERSION = 8
 
 export const dbPromise = openDB(DB_NAME, DB_VERSION, {
   upgrade(db) {
@@ -52,6 +54,10 @@ if (!db.objectStoreNames.contains('layout_templates')) {
 // 🧩 جدول تخصيص المستخدم النهائي
 if (!db.objectStoreNames.contains('menu_customization')) {
   db.createObjectStore('menu_customization', { keyPath: 'id' })
+}
+
+if (!db.objectStoreNames.contains('order_methods')) {
+  db.createObjectStore('order_methods', { keyPath: 'id' })
 }
 
 }
@@ -147,5 +153,26 @@ async saveCustomization(data: any, id = 'template') {
   const db = await dbPromise
   await db.put('menu_customization', { id, ...data })
 },
+
+async getOrderMethods(id = 'default') {
+  const db = await dbPromise
+  return db.get('order_methods', id)
+},
+
+async saveOrderMethods(methods: any[], id = 'default') {
+  const db = await dbPromise
+  await db.put('order_methods', { id, methods })
+},
+async getOperatingHours(id = 'default') {
+  const db = await dbPromise
+  const record = await db.get('operating_hours', id)
+  return record?.hours ?? null
+},
+
+async saveOperatingHours(hours: OperatingHours, id = 'default') {
+  const db = await dbPromise
+  await db.put('operating_hours', { id, hours })
+}
+
 
 }

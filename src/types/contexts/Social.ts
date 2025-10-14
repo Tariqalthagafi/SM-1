@@ -16,6 +16,7 @@ export type SocialKey =
   | 'tiktok'
   | 'youtube'
   | 'whatsapp'
+  | 'location'
 
 // الكائن الكامل الذي يُخزن في IndexedDB
 export interface SocialLinks {
@@ -30,4 +31,5 @@ export interface SocialLinks {
   tiktok: SocialLink
   youtube: SocialLink
   whatsapp: SocialLink
+  location: SocialLink
 }

@@ -37,7 +37,67 @@ export const colorPresets = {
     secondary: '#A47551',     // بني فاتح
     background: '#FAF3E0',    // خلفية كريمية
     text: '#3E2C23'           // بني داكن للنص
-  }
+  },
+   'مخصص 1': {
+    primary: '#FF7A00',
+    secondary: '#999999',
+    background: '#FFFFFF',
+    text: '#000000'
+  },
+  'مخصص 2': {
+    primary: '#00A8E8',
+    secondary: '#007EA7',
+    background: '#F0F8FF',
+    text: '#002B5B'
+  },
+  'مخصص 3': {
+    primary: '#FFB703',
+    secondary: '#FB8500',
+    background: '#FFF8E1',
+    text: '#333333'
+  },
+  'مخصص 4': {
+    primary: '#6A4C93',
+    secondary: '#9D4EDD',
+    background: '#F3F0FF',
+    text: '#2B2D42'
+  },
+  'مخصص 5': {
+    primary: '#2EC4B6',
+    secondary: '#CBF3F0',
+    background: '#E0FBFC',
+    text: '#1B1B1E'
+  },
+  'مخصص 6': {
+    primary: '#EF476F',
+    secondary: '#FFD166',
+    background: '#FFF1F1',
+    text: '#2F2F2F'
+  },
+  'مخصص 7': {
+    primary: '#118AB2',
+    secondary: '#06D6A0',
+    background: '#E8F9F1',
+    text: '#073B4C'
+  },
+  'مخصص 8': {
+    primary: '#F72585',
+    secondary: '#B5179E',
+    background: '#FDE2FF',
+    text: '#3A0CA3'
+  },
+  'مخصص 9': {
+    primary: '#FF9F1C',
+    secondary: '#FFBF69',
+    background: '#FFF3E0',
+    text: '#2E2E2E'
+  },
+  'مخصص 10': {
+    primary: '#8338EC',
+    secondary: '#3A86FF',
+    background: '#E0E0FF',
+    text: '#1A1A1A'
+  },
 } as const
 
 export type ColorPresetName = keyof typeof colorPresets

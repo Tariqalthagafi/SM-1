@@ -1,107 +1,61 @@
 <template>
-  <div v-if="sections.length && products.length">
-    <div class="menu-preview-frame">
-      <div
-        v-for="section in sections"
-        :key="section.id"
-        class="menu-section"
-      >
-        <h5 class="section-title">{{ section.name }}</h5>
-
-        <div class="products" :class="layoutClass">
-          <div
-            v-for="product in products.filter(p => p.sectionId === section.id && p.status === 'visible')"
-            :key="product.id"
-            class="product-item"
-          >
-            <img
-              v-if="product.imageBase64"
-              :src="product.imageBase64"
-              alt="صورة المنتج"
-              class="product-image"
-            />
-            <div class="product-info">
-              <span class="product-name">
-                {{ product.name }}
-                <span v-if="product.hasAllergens" class="allergen-icon">⚠️</span>
-              </span>
-
-              <span class="product-price">
-                <span
-                  v-if="product.finalPrice !== product.basePrice"
-                  class="old-price"
-                >
-                  {{ product.basePrice }} {{ currencySymbol }}
-                </span>
-                <span class="final-price">
-                  {{ product.finalPrice }} {{ currencySymbol }}
-                </span>
-              </span>
-
-              <span v-if="product.offerLabel" class="offer-label">
-                {{ product.offerLabel }}
-              </span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+  <div v-if="sections.length && products.length" class="menu-preview-frame">
+    <component
+      :is="layoutComponent"
+      v-bind="layoutProps"
+    />
   </div>
-
   <p v-else>جاري تحميل المنيو...</p>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { indexedDBService } from '@/services/indexedDBService'
+import { useCurrencyStore } from '@/stores/cboard/templates/currencyStore'
+import { useLayoutEditorStore } from '@/stores/cboard/MenuDesign/LayoutEditor'
+import { useImageShapeStore } from '@/stores/cboard/templates/imageShapeStore'
+
+// ✅ استيراد مكونات العرض
+import VerticalLayout from '@/components/cboard/MenuDesign/shapesmenu/VerticalLayout.vue'
+import GridLayout from '@/components/cboard/MenuDesign/shapesmenu/GridLayout.vue'
+import CardsLayout from '@/components/cboard/MenuDesign/shapesmenu/CardsLayout.vue'
+import SectionedLayout from '@/components/cboard/MenuDesign/shapesmenu/SectionedLayout.vue'
+import SidebarView from '@/components/cboard/MenuDesign/shapesmenu/SidebarView.vue'
+import GridView from '@/components/cboard/MenuDesign/shapesmenu/GridView.vue'
+import PagedView from '@/components/cboard/MenuDesign/shapesmenu/PagedView.vue'
 
 const sections = ref<any[]>([])
 const products = ref<any[]>([])
-const layout = ref<string>('grid')
-const currencySymbol = ref('ر.س')
+
+const layoutStore = useLayoutEditorStore()
+const layout = computed(() => layoutStore.layout || 'grid')
+
+const currencyStore = useCurrencyStore()
+const currencyKey = computed(() => currencyStore.currencySymbol)
+const currencySymbol = computed(() => currencyStore.displayedSymbol)
+
+const imageShapeStore = useImageShapeStore()
+const imageShape = computed(() => {
+  const shape = imageShapeStore.imageShape
+  return ['circle', 'rectangle', 'roundedSquare', 'none'].includes(shape)
+    ? shape
+    : 'rectangle'
+})
 
 function applyFinalSettings(settings: any, colors: Record<string, string>) {
   const root = document.documentElement
-
   Object.entries(colors).forEach(([key, value]) => {
     root.style.setProperty(`--${key}-bg`, value)
     root.style.setProperty(`--${key}-color`, value)
   })
-
   if (settings.fontFamily) {
     root.style.setProperty('--font-family', settings.fontFamily)
   }
-
-  currencySymbol.value =
-    settings.currencySymbol === 'svg-riyal'
-      ? '﷼'
-      : settings.currencySymbol || 'ر.س'
-
-  layout.value = settings.layout_id || 'grid'
 }
 
-const layoutClass = computed(() => {
-  switch (layout.value) {
-    case 'grid':
-      return 'layout-grid'
-    case 'vertical':
-      return 'layout-vertical'
-    case 'cards':
-      return 'layout-cards'
-    case 'sectioned':
-      return 'layout-sectioned'
-    default:
-      return 'layout-default'
-  }
-})
-
 async function loadFinalData() {
-  const customization =
-    (await indexedDBService.getCustomization('template')) || {}
-  const colors =
-    (await indexedDBService.getColors(customization.colors_ref ?? 'default')) ||
-    {}
-
+  const customization = await indexedDBService.getCustomization('template') || {}
+  const colors = await indexedDBService.getColors(customization.colors_ref ?? 'default') || {}
   applyFinalSettings(customization, colors)
 
   const offers = await indexedDBService.getAll('offers')
@@ -110,11 +64,7 @@ async function loadFinalData() {
 
   products.value = allProducts.map((p: any) => {
     p.imageBase64 = typeof p.imageBase64 === 'string' ? p.imageBase64 : ''
-
-    const offer = offers.find(
-      (o: any) => o.id === p.selectedOfferId && o.isActive
-    )
-
+    const offer = offers.find((o: any) => o.id === p.selectedOfferId && o.isActive)
     if (offer) {
       if (offer.type === 'percentage') {
         p.finalPrice = Math.round((p.basePrice ?? 0) * (1 - offer.discount / 100))
@@ -127,13 +77,60 @@ async function loadFinalData() {
       p.finalPrice = p.basePrice ?? 0
       p.offerLabel = null
     }
-
     p.hasAllergens = Array.isArray(p.allergens) && p.allergens.length > 0
     return p
   })
 }
 
-onMounted(loadFinalData)
+// ✅ تجهيز الأقسام مع المنتجات
+const sectionsWithProducts = computed(() =>
+  sections.value.map(section => ({
+    ...section,
+    products: products.value.filter(p => p.sectionId === section.id && p.status === 'visible')
+  }))
+)
+
+// ✅ اختيار المكون المناسب حسب النموذج
+const layoutComponent = computed(() => {
+  const map: Record<string, any> = {
+    vertical: VerticalLayout,
+    grid: GridLayout,
+    cards: CardsLayout,
+    sectioned: SectionedLayout,
+    sidebarCategories: SidebarView,
+    gridCategories: GridView,
+    pagedCategories: PagedView
+  }
+  return map[layout.value] || GridLayout
+})
+
+const layoutProps = computed(() => {
+  const base = {
+    products: products.value,
+    currencySymbol: currencySymbol.value,
+    currencyKey: currencyKey.value,
+    imageShape: imageShape.value
+  }
+
+  const layoutsUsingCategories = ['gridCategories', 'pagedCategories', 'sidebarCategories']
+  if (layoutsUsingCategories.includes(layout.value)) {
+    return {
+      ...base,
+      categories: sectionsWithProducts.value
+    }
+  } else {
+    return {
+      ...base,
+      sections: sectionsWithProducts.value
+    }
+  }
+})
+
+onMounted(async () => {
+  await currencyStore.initCurrencyOptions()
+  await layoutStore.loadLayout()
+  await loadFinalData()
+})
 </script>
 
 <style scoped>
@@ -152,6 +149,7 @@ onMounted(loadFinalData)
   font-family: var(--font-family, 'Cairo');
 }
 
+/* ✅ تخطيطات متعددة */
 .products.layout-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
@@ -175,6 +173,20 @@ onMounted(loadFinalData)
   display: block;
 }
 
+.products.layout-sidebar {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.products.layout-paged {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 1rem;
+}
+
+/* ✅ المنتج */
 .product-item {
   display: flex;
   flex-direction: row;
@@ -234,5 +246,12 @@ onMounted(loadFinalData)
   font-size: 0.75rem;
   color: #007bff;
   margin-top: 0.2rem;
+}
+
+:global(.riyal-icon) {
+  width: 1em;
+  height: 1em;
+  vertical-align: middle;
+  margin-inline-start: 0.2em;
 }
 </style>

@@ -5,6 +5,17 @@
       :key="product.id"
       class="card"
     >
+      <!-- ✅ صورة المنتج -->
+      <div class="card-image" v-if="imageShape !== 'none'">
+        <img
+          v-if="product.imageBase64"
+          :src="product.imageBase64"
+          :class="['product-image', imageShape]"
+          alt="صورة المنتج"
+        />
+        <div v-else class="product-image placeholder" :class="imageShape"></div>
+      </div>
+
       <div class="card-header">
         <span class="product-name">{{ product.name }}</span>
       </div>
@@ -12,10 +23,15 @@
       <div class="card-body">
         <span class="product-price">
           <span v-if="product.finalPrice !== product.basePrice" class="old-price">
-            {{ product.basePrice }} {{ currencySymbol }}
+            {{ product.basePrice }}
+            <span v-if="currencyKey !== 'svg-riyal'">{{ currencySymbol }}</span>
+            <span v-else v-html="currencySymbol"></span>
           </span>
+
           <span class="final-price">
-            {{ product.finalPrice }} {{ currencySymbol }}
+            {{ product.finalPrice }}
+            <span v-if="currencyKey !== 'svg-riyal'">{{ currencySymbol }}</span>
+            <span v-else v-html="currencySymbol"></span>
           </span>
         </span>
       </div>
@@ -25,11 +41,17 @@
 
 <script setup lang="ts">
 defineProps<{
-  products: any[]
-  colors: Record<string, string>
+  products: {
+    id: string
+    name: string
+    basePrice: number
+    finalPrice: number
+    imageBase64?: string
+  }[]
+  currencySymbol: string
+  currencyKey: string
+  imageShape: 'circle' | 'roundedSquare' | 'rectangle' | 'none'
 }>()
-
-const currencySymbol = 'ر.س'
 </script>
 
 <style scoped>
@@ -60,6 +82,43 @@ const currencySymbol = 'ر.س'
 
 .card:hover {
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* ✅ صورة المنتج */
+.card-image {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 0.5rem;
+}
+
+.product-image {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  background-color: #eee;
+}
+
+/* الأشكال */
+.product-image.circle {
+  border-radius: 50%;
+}
+
+.product-image.roundedSquare {
+  border-radius: 12px;
+}
+
+.product-image.rectangle {
+  width: 120px;
+  height: 80px;
+  border-radius: 6px;
+}
+
+.product-image.none {
+  display: none;
+}
+
+.product-image.placeholder {
+  background-color: #ddd;
 }
 
 /* ✅ رأس البطاقة */
@@ -125,5 +184,4 @@ const currencySymbol = 'ر.س'
   font-size: 1.2rem;
   margin-left: 0.3rem;
 }
-
 </style>

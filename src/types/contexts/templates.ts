@@ -10,19 +10,25 @@ export type ExpiredStyle =
   | 'badge'
 
 export type OfferStyle =
-  | 'oldNewStacked'
   | 'badgeWithNewPrice'
-  | 'inlineStrikeThrough' 
-  | 'strike' 
-  | 'badge' 
-  | 'priceOnly'
+  | 'stackedPrice'
+  | 'badgeDiscount'
+  | 'strikeInline'
+
 
 export type CardShape = 'rounded' | 'flat' | 'shadowed'
 export type FontSize = 'small' | 'medium' | 'large'
 
 // من templates.ts
-export type ImageShape = 'circle' | 'square' | 'rectangle' | 'none'
-export type AllergenIconStyle = 'colored' | 'outline' | 'flat'| 'hidden' | 'monochrome'
+export type ImageShape = 'circle' | 'roundedSquare' | 'rectangle' | 'none'
+export type AllergenIconStyle =
+  | 'colored'
+  | 'outlined'
+  | 'monochrome'
+  | 'hidden'
+  | 'boxedA'
+  | 'boldA'
+  | 'warningTriangle'
 
 // ===============================
 // إعدادات القالب (Template Settings)

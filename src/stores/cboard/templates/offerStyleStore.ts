@@ -6,7 +6,7 @@ import { indexedDBService } from '@/services/indexedDBService'
 import type { OfferStyle } from '@/types/contexts/templates'
 
 export const useOfferStyleStore = defineStore('offerStyleStore', () => {
-  const offerStyle = ref<OfferStyle>('oldNewStacked') // القيمة الافتراضية
+  const offerStyle = ref<OfferStyle>('badgeWithNewPrice') // القيمة الافتراضية
   const offerStyleOptions = ref<{ value: OfferStyle; label?: string }[]>([])
 
   function setOfferStyle(style: OfferStyle) {
@@ -30,30 +30,40 @@ export const useOfferStyleStore = defineStore('offerStyleStore', () => {
 
     const seedOptions = [
       {
-        id: 'offerStyle-oldNewStacked',
-        key: 'offerStyle',
-        value: 'oldNewStacked',
-        label: 'سعر قديم فوق جديد',
-        type: 'string',
-        context: 'template',
-        group: 'offerStyle',
-        is_active: true
-      },
-      {
         id: 'offerStyle-badgeWithNewPrice',
         key: 'offerStyle',
         value: 'badgeWithNewPrice',
-        label: 'شارة خصم + سعر جديد',
+        label: '🔖 شارة خصم + سعر جديد',
         type: 'string',
         context: 'template',
         group: 'offerStyle',
         is_active: true
       },
       {
-        id: 'offerStyle-inlineStrikeThrough',
+        id: 'offerStyle-stackedPrice',
         key: 'offerStyle',
-        value: 'inlineStrikeThrough',
-        label: 'سطر واحد مشطوب',
+        value: 'stackedPrice',
+        label: 'السعر فوق بعض',
+        type: 'string',
+        context: 'template',
+        group: 'offerStyle',
+        is_active: true
+      },
+      {
+        id: 'offerStyle-badgeDiscount',
+        key: 'offerStyle',
+        value: 'badgeDiscount',
+        label: 'شارة قبل السعر',
+        type: 'string',
+        context: 'template',
+        group: 'offerStyle',
+        is_active: true
+      },
+      {
+        id: 'offerStyle-strikeInline',
+        key: 'offerStyle',
+        value: 'strikeInline',
+        label: 'سعر مشطوب بجانب الجديد',
         type: 'string',
         context: 'template',
         group: 'offerStyle',
@@ -71,12 +81,12 @@ export const useOfferStyleStore = defineStore('offerStyleStore', () => {
     offerStyleOptions.value = await indexedDBService.getOptions('offerStyle')
     await loadOfferStyle()
     if (!offerStyleOptions.value.find(o => o.value === offerStyle.value)) {
-      offerStyle.value = offerStyleOptions.value[0]?.value || 'oldNewStacked'
+      offerStyle.value = offerStyleOptions.value[0]?.value || 'badgeWithNewPrice'
     }
   }
 
   function resetOfferStyle() {
-    offerStyle.value = 'oldNewStacked'
+    offerStyle.value = 'badgeWithNewPrice'
   }
 
   return {
