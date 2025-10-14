@@ -56,7 +56,6 @@
 import { onMounted } from 'vue'
 import { useSocialStore } from '@/stores/cboard/Social'
 import SocialField from '@/components/cboard/Social/SocialField.vue'
-import SocialGroup from '@/components/cboard/Social/SocialGroup.vue'
 import type { SocialKey } from '@/types/contexts/Social'
 
 const store = useSocialStore()
