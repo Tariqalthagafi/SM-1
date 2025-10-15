@@ -15,5 +15,6 @@ export interface Product {
   finalPrice?: number     // 💰 السعر بعد الخصم
   imageUrl?: string
   imageBase64?: string
+  hasAllergens?: boolean
 
 }

@@ -128,11 +128,17 @@ onMounted(async () => {
 
 /* إزالة البطاقة، كل مكون مسؤول عن تنسيقه */
 .card {
-  padding: 0;
-  border: none;
-  background: transparent;
-  box-shadow: none;
-  border-radius: 0;
+  padding: 1rem;
+  background: #FFFFFF;
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  border: 1px solid #F0F0F0;
+  transition: box-shadow 0.2s ease;
 }
+
+.card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
 
 </style>

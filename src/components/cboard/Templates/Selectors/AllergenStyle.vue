@@ -118,9 +118,11 @@ function getIconStyle(style: AllergenIconStyle) {
 }
 
 label {
-  font-size: 0.85rem;
+  font-size: 1rem;
   font-weight: bold;
-  color: #1C1C1C;
+  margin-bottom: 0.8rem;
+  color: #FF7A00;
+  font-family: 'Tajawal', sans-serif;
 }
 
 .row {

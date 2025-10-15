@@ -3,7 +3,7 @@
     <!-- أدوات التحكم -->
     <div class="action-group">
       <button class="drag-handle" title="اسحب لتحريك">⠿</button>
-      <button class="delete-btn" @click="deleteProduct" title="حذف المنتج">🗑️</button>
+      <button class="delete-btn" @click="showConfirm = true" title="حذف المنتج">🗑️</button>
     </div>
 
     <!-- اسم المنتج -->
@@ -42,10 +42,11 @@
     <!-- مسببات الحساسية -->
     <div class="field">
       <label>مسببات الحساسية</label>
-      <AllergensPicker
-        v-model="localProduct.allergens"
-        @change="saveField('allergens')"
-      />
+<AllergensPicker
+  v-model="localProduct.allergens"
+  @update:modelValue="saveField('allergens')"
+/>
+
     </div>
 
     <!-- رفع صورة -->
@@ -66,6 +67,18 @@
         @change="handleUpload"
         style="display: none"
       />
+    </div>
+
+    <!-- ✅ تأكيد الحذف -->
+    <div v-if="showConfirm" class="modal-overlay">
+      <div class="modal-box">
+        <h2>تأكيد الحذف</h2>
+        <p>هل أنت متأكد من حذف هذا المنتج؟ لا يمكن التراجع بعد الحذف.</p>
+        <div class="modal-actions">
+          <button class="confirm-btn" @click="deleteProduct">نعم، احذف</button>
+          <button class="cancel-btn" @click="showConfirm = false">إلغاء</button>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -88,6 +101,7 @@ const localProduct = ref<Product>({
 })
 
 const fileInput = ref<HTMLInputElement | null>(null)
+const showConfirm = ref(false)
 
 onMounted(() => {
   localProduct.value = {
@@ -97,16 +111,21 @@ onMounted(() => {
   }
 })
 
-function saveField(field: keyof Product) {
-  productsStore.updateProduct(localProduct.value.id, {
+async function saveField(field: keyof Product) {
+  const updated = {
     ...localProduct.value,
-    allergens: [...(localProduct.value.allergens ?? [])] // ✅ منع خطأ TypeScript
-  })
+    allergens: [...(localProduct.value.allergens ?? [])],
+    hasAllergens: (localProduct.value.allergens ?? []).length > 0
+  }
+
+  await productsStore.updateProduct(localProduct.value.id, updated)
 }
+
 
 function deleteProduct() {
   productsStore.deleteProduct(localProduct.value.id)
   emit('delete')
+  showConfirm.value = false
 }
 
 function triggerUpload() {
@@ -207,5 +226,64 @@ async function handleUpload(event: Event) {
 }
 .upload-btn:hover {
   background-color: #e96c00;
+}
+
+/* ✅ تأكيد الحذف */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-box {
+  background: #fff;
+  border-radius: 12px;
+  padding: 1.5rem;
+  width: 320px;
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.modal-box h2 {
+  color: #FF7A00;
+  font-size: 1.3rem;
+  margin-bottom: 0.5rem;
+}
+
+.modal-box p {
+  color: #1C1C1C;
+  font-size: 0.95rem;
+  margin-bottom: 1rem;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.confirm-btn {
+  background-color: #FF7A00;
+  color: #fff;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.cancel-btn {
+  background-color: #fff;
+  color: #1C1C1C;
+  border: 1px solid #E0E0E0;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
 }
 </style>

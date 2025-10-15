@@ -3,7 +3,7 @@
     class="allergens-picker"
     ref="wrapper"
     tabindex="0"
-    @blur="dropdownOpen = false"
+    @focusout="handleFocusOut"
   >
     <div class="input-wrapper" @click="dropdownOpen = true">
       <div class="tags">
@@ -16,7 +16,6 @@
           v-model="search"
           placeholder="اختر مسببات الحساسية"
           @focus="dropdownOpen = true"
-          @blur="dropdownOpen = false"
         />
       </div>
     </div>
@@ -25,6 +24,7 @@
       <li
         v-for="item in filteredList"
         :key="item"
+        @mousedown.prevent
         @click="selectItem(item)"
       >
         {{ item }}
@@ -56,7 +56,7 @@ const allergensList = [
 const props = defineProps<{ modelValue?: string[] }>()
 const emit = defineEmits<{ (e: 'update:modelValue', value: string[]): void }>()
 
-const localValue = ref<string[]>(Array.isArray(props.modelValue) ? props.modelValue : [])
+const localValue = ref<string[]>(Array.isArray(props.modelValue) ? [...props.modelValue] : [])
 const search = ref('')
 const dropdownOpen = ref(false)
 const wrapper = ref<HTMLElement | null>(null)
@@ -71,12 +71,6 @@ watch(
   { immediate: true }
 )
 
-watch(localValue, (val, oldVal) => {
-  if (JSON.stringify(val) !== JSON.stringify(oldVal)) {
-    emit('update:modelValue', [...val])
-  }
-})
-
 const filteredList = computed(() => {
   return allergensList.filter(
     (item) =>
@@ -87,6 +81,7 @@ const filteredList = computed(() => {
 function selectItem(item: string) {
   if (!localValue.value.includes(item)) {
     localValue.value.push(item)
+    emit('update:modelValue', [...localValue.value])
   }
   search.value = ''
   dropdownOpen.value = false
@@ -94,6 +89,13 @@ function selectItem(item: string) {
 
 function removeTag(tag: string) {
   localValue.value = localValue.value.filter((t) => t !== tag)
+  emit('update:modelValue', [...localValue.value])
+}
+
+function handleFocusOut() {
+  setTimeout(() => {
+    dropdownOpen.value = false
+  }, 100)
 }
 </script>
 

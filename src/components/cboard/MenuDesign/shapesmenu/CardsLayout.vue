@@ -21,19 +21,59 @@
       </div>
 
       <div class="card-body">
-        <span class="product-price">
-          <span v-if="product.finalPrice !== product.basePrice" class="old-price">
-            {{ product.basePrice }}
-            <span v-if="currencyKey !== 'svg-riyal'">{{ currencySymbol }}</span>
-            <span v-else v-html="currencySymbol"></span>
-          </span>
+        <!-- ✅ السعر حسب offerStyle -->
+        <div class="product-price" :class="offerStyle">
+          <template v-if="offerStyle === 'strikeInline'">
+            <span class="old-price">{{ product.basePrice }} <span v-html="currencySymbol"></span></span>
+            <span class="final-price">{{ product.finalPrice }} <span v-html="currencySymbol"></span></span>
+          </template>
 
-          <span class="final-price">
-            {{ product.finalPrice }}
-            <span v-if="currencyKey !== 'svg-riyal'">{{ currencySymbol }}</span>
-            <span v-else v-html="currencySymbol"></span>
+          <template v-else-if="offerStyle === 'stackedPrice'">
+            <div class="stacked">
+              <span class="old-price">{{ product.basePrice }} <span v-html="currencySymbol"></span></span>
+              <span class="final-price">{{ product.finalPrice }} <span v-html="currencySymbol"></span></span>
+            </div>
+          </template>
+
+          <template v-else-if="offerStyle === 'badgeWithNewPrice'">
+            <span class="final-price badge">{{ product.finalPrice }} <span v-html="currencySymbol"></span></span>
+          </template>
+
+          <template v-else-if="offerStyle === 'badgeDiscount' && product.discount">
+            <span class="discount-badge">-{{ product.discount }}%</span>
+            <span class="final-price">{{ product.finalPrice }} <span v-html="currencySymbol"></span></span>
+          </template>
+
+          <template v-else-if="offerStyle === 'priceOnly'">
+            <span class="final-price">
+  {{ product.finalPrice }}
+  <span v-html="currencySymbol"></span>
+</span>
+
+          </template>
+
+          <template v-else-if="offerStyle === 'badge'">
+            <span class="final-price">{{ product.finalPrice }} <span v-html="currencySymbol"></span></span>
+            <span class="offer-label">عرض</span>
+          </template>
+
+          <template v-else>
+            <span class="final-price">{{ product.finalPrice }} <span v-html="currencySymbol"></span>
+</span>
+          </template>
+        </div>
+
+        <!-- ✅ عرض مسببات الحساسية -->
+        <div v-if="product.hasAllergens && product.allergens?.length" class="allergens-display">
+          <span
+            v-for="allergen in product.allergens"
+            :key="allergen"
+            class="allergen-icon"
+            :class="allergenIconStyle"
+          >
+            {{ getAllergenSymbol(allergenIconStyle ?? 'boxedA') }}
           </span>
-        </span>
+        </div>
       </div>
     </div>
   </div>
@@ -47,11 +87,34 @@ defineProps<{
     basePrice: number
     finalPrice: number
     imageBase64?: string
+    allergens?: string[]
+    hasAllergens?: boolean
+    discount?: number
   }[]
   currencySymbol: string
   currencyKey: string
   imageShape: 'circle' | 'roundedSquare' | 'rectangle' | 'none'
+  offerStyle?: 'badgeWithNewPrice' | 'stackedPrice' | 'badgeDiscount' | 'strikeInline' | 'priceOnly' | 'badge'
+  allergenIconStyle?: 'colored' | 'outlined' | 'monochrome' | 'hidden' | 'boxedA' | 'boldA' | 'warningTriangle'
 }>()
+
+function getAllergenSymbol(style: string): string {
+  switch (style) {
+    case 'boxedA':
+    case 'colored':
+    case 'outlined':
+      return '🅰'
+    case 'boldA':
+    case 'monochrome':
+      return 'A'
+    case 'warningTriangle':
+      return '⚠'
+    case 'hidden':
+      return ''
+    default:
+      return '?'
+  }
+}
 </script>
 
 <style scoped>
@@ -65,7 +128,6 @@ defineProps<{
   border-radius: 8px;
 }
 
-/* ✅ البطاقة */
 .card {
   width: calc(33.333% - 1rem);
   background-color: var(--cardBackground-bg, #ffffff);
@@ -84,7 +146,6 @@ defineProps<{
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 
-/* ✅ صورة المنتج */
 .card-image {
   display: flex;
   justify-content: center;
@@ -98,7 +159,6 @@ defineProps<{
   background-color: #eee;
 }
 
-/* الأشكال */
 .product-image.circle {
   border-radius: 50%;
 }
@@ -121,7 +181,6 @@ defineProps<{
   background-color: #ddd;
 }
 
-/* ✅ رأس البطاقة */
 .card-header {
   font-size: 1rem;
   font-weight: bold;
@@ -129,7 +188,6 @@ defineProps<{
   color: var(--titleText-color, #000);
 }
 
-/* ✅ جسم البطاقة */
 .card-body {
   font-size: 0.9rem;
   background-color: var(--productBackground-bg, transparent);
@@ -137,7 +195,6 @@ defineProps<{
   border-radius: 4px;
 }
 
-/* ✅ السعر */
 .product-price {
   font-weight: bold;
   color: var(--priceText-color, #333);
@@ -147,20 +204,40 @@ defineProps<{
   display: inline-block;
 }
 
-/* ✅ السعر القديم */
+.product-price.stacked .stacked {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.product-price.badgeWithNewPrice .badge {
+  background-color: #ff9800;
+  color: #fff;
+  padding: 0.2rem 0.4rem;
+  border-radius: 6px;
+  font-weight: bold;
+}
+
+.discount-badge {
+  background-color: #e53935;
+  color: #fff;
+  padding: 0.2rem 0.4rem;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  margin-inline-end: 0.3rem;
+}
+
 .old-price {
   text-decoration: line-through;
   color: red;
   margin-right: 0.3rem;
 }
 
-/* ✅ السعر النهائي */
 .final-price {
   font-weight: bold;
   color: var(--currencyIcon-color, inherit);
 }
 
-/* ✅ رمز العرض */
 .offer-label {
   background-color: var(--offerLabel-bg, #007bff);
   color: #fff;
@@ -171,17 +248,46 @@ defineProps<{
   display: inline-block;
 }
 
-/* ✅ رمز الحساسية */
-.allergen-icon {
-  color: var(--allergenIcon-color, #ff0000);
-  font-size: 1.2rem;
-  margin-left: 0.3rem;
+.allergens-display {
+  margin-top: 0.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
 }
 
-/* ✅ رمز المنتج المنتهي */
-.expired-icon {
-  color: var(--expiredProductIcon-color, #9e9e9e);
-  font-size: 1.2rem;
-  margin-left: 0.3rem;
+.allergen-icon.boxedA {
+  background-color: #ffe5e5;
+  color: #d00;
+  padding: 0.2rem 0.4rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+}
+
+.allergen-icon.outlined {
+  border: 1px solid #d00;
+  padding: 0.2rem;
+  border-radius: 4px;
+  color: #d00;
+  font-size: 0.85rem;
+}
+
+.allergen-icon.warningTriangle {
+  color: #FF7A00;
+  font-size: 1rem;
+}
+
+.allergen-icon.monochrome {
+  color: #666;
+  font-size: 0.85rem;
+}
+
+.allergen-icon.boldA {
+  font-weight: bold;
+  color: #333;
+  font-size: 0.85rem;
+}
+
+.allergen-icon.hidden {
+  display: none;
 }
 </style>
