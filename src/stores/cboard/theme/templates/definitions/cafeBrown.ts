@@ -138,7 +138,7 @@ export const cafeBrown: TemplateConfig = {
       offer: '#d7ccc8'
     },
     fontFamily: 'Cairo',
-    offerStyle: 'badgeWithNewPrice',
+    offerStyle: 'strikeOnly',
     expiredStyle: 'strike',
     imageShape: 'rectangle',
     allergens: [],
@@ -150,7 +150,7 @@ export const cafeBrown: TemplateConfig = {
     backgroundColors: ['menu', 'section', 'product'],
     textColors: ['sectionTitle', 'productName', 'price'],
     font: true,
-    offerStyles: [ 'badgeWithNewPrice'],
+    offerStyles: [ 'strikeOnly'],
     expiredStyles: ['strike', 'badge'],
     imageShapes: ['circle', 'roundedSquare', 'rectangle', 'none'],
 allergenIconStyles: ['colored', 'outlined', 'monochrome'],

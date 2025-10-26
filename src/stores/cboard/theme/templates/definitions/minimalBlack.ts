@@ -64,7 +64,7 @@ export const minimalBlack: TemplateConfig = {
       offer: '#ff9800'
     },
     fontFamily: 'Roboto',
-    offerStyle: 'badgeWithNewPrice',
+    offerStyle: 'strikeOnly',
     expiredStyle: 'strike',
     imageShape: 'roundedSquare',
     allergens: [],
@@ -76,7 +76,7 @@ export const minimalBlack: TemplateConfig = {
     backgroundColors: ['menu', 'section', 'product'],
     textColors: ['sectionTitle', 'productName', 'price'],
     font: true,
-    offerStyles: ['badgeWithNewPrice'],
+    offerStyles: ['strikeOnly'],
     expiredStyles: ['strike', 'badge'],
     imageShapes: ['circle', 'roundedSquare', 'rectangle', 'none'],
     allergenIconStyles: ['colored', 'outlined', 'monochrome'],
