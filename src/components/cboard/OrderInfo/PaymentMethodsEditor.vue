@@ -1,5 +1,5 @@
 <template>
-  <section class="info-section">
+  <section class="info-section" v-if="isReady">
     <h3>طرق الدفع</h3>
     <div class="methods-grid">
       <div
@@ -19,15 +19,30 @@
 </template>
 
 <script setup lang="ts">
-import { watch } from 'vue'
+import { ref, watch, toRaw, onMounted } from 'vue'
 import { useOrderInfoStore } from '@/stores/OrderInfo'
+import { indexedDBService } from '@/services/indexedDBService'
 import type { PaymentMethod } from '@/types/contexts/OrderInfo'
 
 const store = useOrderInfoStore()
-const typedPaymentMethods = store.paymentMethods as (PaymentMethod & { icon: string })[]
+const typedPaymentMethods = store.paymentMethods as PaymentMethod[]
+const isReady = ref(false)
+
+onMounted(async () => {
+  const saved = await indexedDBService.getPaymentMethods('default')
+  const savedMap = new Map<string, boolean>(
+    (saved?.methods ?? []).map((m: PaymentMethod) => [m.name, m.enabled])
+  )
+
+  typedPaymentMethods.forEach(method => {
+    method.enabled = savedMap.get(method.name) ?? method.enabled
+  })
+
+  isReady.value = true
+})
 
 watch(typedPaymentMethods, () => {
-  store.save()
+  indexedDBService.savePaymentMethods(toRaw(store.paymentMethods), 'default')
 }, { deep: true })
 </script>
 

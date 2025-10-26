@@ -7,10 +7,18 @@
 </template>
 
 <script setup lang="ts">
+import { useOrderInfoStore } from '@/stores/cboard/OrderInfo'
+import { onMounted } from 'vue'
 import OperatingHoursEditor from '@/components/cboard/OrderInfo/OperatingHoursEditor.vue'
 import DeliveryMethodsEditor from '@/components/cboard/OrderInfo/DeliveryMethodsEditor.vue'
 import PaymentMethodsEditor from '@/components/cboard/OrderInfo/PaymentMethodsEditor.vue'
+
+const store = useOrderInfoStore()
+onMounted(() => {
+  store.load()
+})
 </script>
+
 
 <style scoped>
 .order-info-editor {

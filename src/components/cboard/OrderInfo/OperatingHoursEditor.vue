@@ -1,5 +1,5 @@
 <template>
-  <section class="info-section">
+  <section class="info-section" v-if="isReady">
     <h3>مواعيد العمل</h3>
     <div class="days-grid">
       <div v-for="day in allDays" :key="day" class="day-card">
@@ -69,14 +69,28 @@
 </template>
 
 <script setup lang="ts">
-import { watch } from 'vue'
+import { ref, watch, toRaw, onMounted } from 'vue'
 import { useOrderInfoStore } from '@/stores/cboard/OrderInfo'
+import { indexedDBService } from '@/services/indexedDBService'
 
 const allDays = ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت']
-const { operatingHours, save } = useOrderInfoStore()
+const store = useOrderInfoStore()
+const operatingHours = store.operatingHours
+const isReady = ref(false)
+
+onMounted(async () => {
+  const saved = await indexedDBService.getOperatingHours('default')
+
+  // تهيئة الأيام الفارغة إن لم تكن موجودة
+  allDays.forEach(day => {
+    operatingHours.value[day] = saved?.[day] ?? []
+  })
+
+  isReady.value = true
+})
 
 watch(operatingHours, () => {
-  save()
+  indexedDBService.saveOperatingHours(toRaw(operatingHours.value), 'default')
 }, { deep: true })
 
 function setFirstPeriod(day: string) {
@@ -114,6 +128,8 @@ function isActive(day: string, type: 'first' | 'second' | 'full') {
   return false
 }
 </script>
+
+
 
 <style scoped>
 .info-section h3 {

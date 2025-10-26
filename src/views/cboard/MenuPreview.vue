@@ -1,11 +1,17 @@
 <!-- 📁 المسار: src/views/cboard/MenuPreview.vue -->
 <template>
+       <div class="contact-buttons-row">
+    <SocialContactButton position="none" />
+    <PaymentContactButton position="none" />
+    <DeliveryContactButton position="none" />
+  </div>
+  <div class="menu-separator"></div>
   <div v-if="!isLoading" class="menu-preview-frame">
     <component
       :is="layoutComponent"
       v-bind="layoutProps"
     />
-   <SocialContactButton position="top-center" />
+
   </div>
   <p v-else>جاري تحميل المنيو...</p>
 </template>
@@ -29,6 +35,8 @@ import SidebarView from '@/components/cboard/MenuDesign/shapesmenu/SidebarView.v
 import GridView from '@/components/cboard/MenuDesign/shapesmenu/GridView.vue'
 import PagedView from '@/components/cboard/MenuDesign/shapesmenu/PagedView.vue'
 import SocialContactButton from '@/components/cboard/Social/SocialContactButton.vue'
+import DeliveryContactButton from '@/components/cboard/OrderInfo/DeliveryContactButton.vue'
+import PaymentContactButton from '@/components/cboard/OrderInfo/PaymentContactButton.vue'
 
 const isLoading = ref(true)
 
@@ -128,6 +136,7 @@ const layoutProps = computed(() => {
     allergenIconStyle: allergenIconStyle.value,
     getAllergenIconSymbol: getAllergenIconSymbol.value,
     getAllergenIconStyle: getAllergenIconStyle.value,
+    
   }
 
   const layoutsUsingCategories = ['gridCategories', 'pagedCategories', 'sidebarCategories']
@@ -167,8 +176,11 @@ onMounted(async () => {
 
 <style scoped>
 .menu-preview-frame {
-  margin-top: 1rem;
+  position: relative;
+  padding: 1rem;
+  background-color: var(--cardBackground-bg, #f9f9f9); /* نفس الخلفية */
 }
+
 
 .menu-section {
   margin-bottom: 1rem;
@@ -280,4 +292,38 @@ onMounted(async () => {
   vertical-align: middle;
   margin-inline-start: 0.2em;
 }
+.floating-buttons {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  z-index: 1000;
+}
+.contact-buttons-row {
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 1rem;
+  z-index: 1000;
+}
+.top-contact-bar {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background: white;
+  padding: 0.5rem 1rem;
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  border-bottom: 1px solid #eee;
+}
+.menu-separator {
+  height: 1rem;
+  background-color: var(--cardBackground-bg, #f9f9f9); /* نفس الخلفية */
+}
+
 </style>

@@ -1,6 +1,6 @@
 <template>
   <!-- الزر الثابت في الزاوية -->
-  <div class="contact-button-container" :class="position">
+<div class="contact-button-container none">
 <button class="main-contact-btn" @click="isPopoverOpen = !isPopoverOpen">
   <v-icon name="fa-phone" />
 
@@ -109,14 +109,12 @@ function getLinkUrl(key: keyof typeof socialStore.links, value: string): string 
 
 <style scoped>
 .contact-button-container {
-  position: fixed;
-  top: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 1000;
+  position: static;
   display: flex;
   align-items: center;
+  justify-content: center;
 }
+
 
 .main-contact-btn {
   width: 50px;
@@ -199,6 +197,9 @@ function getLinkUrl(key: keyof typeof socialStore.links, value: string): string 
 @keyframes pop-in {
   from { transform: scale(0.8); opacity: 0; }
   to { transform: scale(1); opacity: 1; }
+}
+.contact-button-container.none {
+  position: static;
 }
 
 </style>

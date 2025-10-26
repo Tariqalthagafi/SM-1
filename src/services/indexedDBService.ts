@@ -1,9 +1,9 @@
 import { openDB } from 'idb'
-import type { OperatingHours } from '@/types/contexts/OrderInfoView'
+import type { OperatingHours , PaymentMethod } from '@/types/contexts/OrderInfoView'
 
 
 const DB_NAME = 'menuDB'
-const DB_VERSION = 8
+const DB_VERSION = 10
 
 export const dbPromise = openDB(DB_NAME, DB_VERSION, {
   upgrade(db) {
@@ -58,6 +58,14 @@ if (!db.objectStoreNames.contains('menu_customization')) {
 
 if (!db.objectStoreNames.contains('order_methods')) {
   db.createObjectStore('order_methods', { keyPath: 'id' })
+}
+
+if (!db.objectStoreNames.contains('payment_methods')) {
+  db.createObjectStore('payment_methods', { keyPath: 'id' })
+}
+
+if (!db.objectStoreNames.contains('operating_hours')) {
+  db.createObjectStore('operating_hours', { keyPath: 'id' })
 }
 
 }
@@ -172,7 +180,18 @@ async getOperatingHours(id = 'default') {
 async saveOperatingHours(hours: OperatingHours, id = 'default') {
   const db = await dbPromise
   await db.put('operating_hours', { id, hours })
+},
+
+async getPaymentMethods(id = 'default') {
+  const db = await dbPromise
+  return db.get('payment_methods', id)
+},
+
+async savePaymentMethods(methods: PaymentMethod[], id = 'default') {
+  const db = await dbPromise
+  await db.put('payment_methods', { id, methods })
 }
+
 
 
 }

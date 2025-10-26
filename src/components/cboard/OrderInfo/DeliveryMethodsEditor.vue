@@ -1,5 +1,5 @@
 <template>
-  <section class="info-section">
+  <section class="info-section" v-if="isReady">
     <h3>طرق استلام الطلب</h3>
     <div class="methods-grid">
       <div
@@ -18,18 +18,36 @@
   </section>
 </template>
 
+
 <script setup lang="ts">
-import { watch } from 'vue'
+import { ref, watch, toRaw, onMounted } from 'vue'
 import { useOrderInfoStore } from '@/stores/OrderInfo'
+import { indexedDBService } from '@/services/indexedDBService'
 import type { DeliveryMethod } from '@/types/contexts/OrderInfo'
 
 const store = useOrderInfoStore()
 const typedDeliveryMethods = store.deliveryMethods as DeliveryMethod[]
+const isReady = ref(false)
+
+onMounted(async () => {
+  const saved = await indexedDBService.getOrderMethods('default')
+  const savedMap = new Map<string, boolean>(
+    (saved?.methods ?? []).map((m: DeliveryMethod) => [m.name, m.enabled])
+  )
+
+  typedDeliveryMethods.forEach(method => {
+    method.enabled = savedMap.get(method.name) ?? method.enabled
+  })
+
+  isReady.value = true
+})
 
 watch(typedDeliveryMethods, () => {
-  store.save()
+  indexedDBService.saveOrderMethods(toRaw(store.deliveryMethods), 'default')
 }, { deep: true })
+
 </script>
+
 
 <style scoped>
 .info-section h3 {

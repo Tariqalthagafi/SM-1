@@ -27,7 +27,9 @@ import {
   FaSnapchatGhost,
   FaTiktok,
   FaYoutube,
-  FaConnectdevelop
+  FaConnectdevelop,
+  FaCreditCard,
+  FaTruck
 } from 'oh-vue-icons/icons'
 
 addIcons(
@@ -43,7 +45,9 @@ addIcons(
   FaTiktok,
   FaYoutube,
   MdConnectwithoutcontact,
-  FaConnectdevelop 
+  FaConnectdevelop,
+  FaCreditCard,
+  FaTruck
 )
 
 const app = createApp(App)
