@@ -21,8 +21,8 @@ export const useFontStore = defineStore('fontStore', () => {
 
   async function loadFont() {
     const saved = await indexedDBService.getSetting('fontFamily')
-    if (saved && fontOptions.value.find(f => f.value === saved)) {
-      fontFamily.value = saved
+    if (saved?.value && fontOptions.value.find(f => f.value === saved.value)) {
+      fontFamily.value = saved.value
     }
   }
 
@@ -46,13 +46,20 @@ export const useFontStore = defineStore('fontStore', () => {
   async function initFontOptions() {
     await seedFontOptions()
     fontOptions.value = await indexedDBService.getOptions('fontFamily')
-    await loadFont()
+    
+    // 1. استرجاع القيمة مباشرة (savedFontValue = 'Tajawal')
+    const savedFontValue = await indexedDBService.getSetting('fontFamily') 
+    
+    let fontToApply = 'Cairo'; 
 
-    // ✅ تأكيد أن الخط المحفوظ موجود ضمن الخيارات
-    if (!fontOptions.value.find(f => f.value === fontFamily.value)) {
-      fontFamily.value = fontOptions.value[0]?.value || 'Cairo'
-    }
+    // 2. التحقق من القيمة مباشرة
+    if (savedFontValue && fontOptions.value.find(f => f.value === savedFontValue)) {
+      fontToApply = savedFontValue;
+    } 
+    
+    fontFamily.value = fontToApply;
   }
+
 
   function resetFont() {
     fontFamily.value = 'Cairo'

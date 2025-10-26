@@ -5,7 +5,6 @@
       :key="product.id"
       class="card"
     >
-      <!-- ✅ صورة المنتج -->
       <div class="card-image" v-if="imageShape !== 'none'">
         <img
           v-if="product.imageBase64"
@@ -21,49 +20,30 @@
       </div>
 
       <div class="card-body">
-        <!-- ✅ السعر حسب offerStyle -->
         <div class="product-price" :class="offerStyle">
-          <template v-if="offerStyle === 'strikeInline'">
-            <span class="old-price">{{ product.basePrice }} <span v-html="currencySymbol"></span></span>
-            <span class="final-price">{{ product.finalPrice }} <span v-html="currencySymbol"></span></span>
-          </template>
+         <template v-if="offerStyle === 'strikeOnly' && product.offerLabel">
+  <span class="old-price">{{ product.basePrice }} <span v-html="currencySymbol"></span></span>
+  <span class="final-price">{{ product.finalPrice }} <span v-html="currencySymbol"></span></span>
+</template>
 
-          <template v-else-if="offerStyle === 'stackedPrice'">
-            <div class="stacked">
-              <span class="old-price">{{ product.basePrice }} <span v-html="currencySymbol"></span></span>
-              <span class="final-price">{{ product.finalPrice }} <span v-html="currencySymbol"></span></span>
-            </div>
-          </template>
+<template v-else-if="offerStyle === 'strikeWithSaving' && product.offerLabel">
+  <span class="offer-label">🔥 وفر {{ product.basePrice - product.finalPrice }} <span v-html="currencySymbol"></span></span>
+  <span class="old-price">{{ product.basePrice }} <span v-html="currencySymbol"></span></span>
+  <span class="final-price">{{ product.finalPrice }} <span v-html="currencySymbol"></span></span>
+</template>
 
-          <template v-else-if="offerStyle === 'badgeWithNewPrice'">
-            <span class="final-price badge">{{ product.finalPrice }} <span v-html="currencySymbol"></span></span>
-          </template>
+<template v-else-if="offerStyle === 'strikeWithBadge' && product.offerLabel">
+  <span class="offer-label">🔖 خصم {{ Math.round((1 - product.finalPrice / product.basePrice) * 100) }}%</span>
+  <span class="old-price">{{ product.basePrice }} <span v-html="currencySymbol"></span></span>
+  <span class="final-price">{{ product.finalPrice }} <span v-html="currencySymbol"></span></span>
+</template>
 
-          <template v-else-if="offerStyle === 'badgeDiscount' && product.discount">
-            <span class="discount-badge">-{{ product.discount }}%</span>
-            <span class="final-price">{{ product.finalPrice }} <span v-html="currencySymbol"></span></span>
-          </template>
+<template v-else>
+  <span class="final-price">{{ product.finalPrice }} <span v-html="currencySymbol"></span></span>
+</template>
 
-          <template v-else-if="offerStyle === 'priceOnly'">
-            <span class="final-price">
-  {{ product.finalPrice }}
-  <span v-html="currencySymbol"></span>
-</span>
-
-          </template>
-
-          <template v-else-if="offerStyle === 'badge'">
-            <span class="final-price">{{ product.finalPrice }} <span v-html="currencySymbol"></span></span>
-            <span class="offer-label">عرض</span>
-          </template>
-
-          <template v-else>
-            <span class="final-price">{{ product.finalPrice }} <span v-html="currencySymbol"></span>
-</span>
-          </template>
         </div>
 
-        <!-- ✅ عرض مسببات الحساسية -->
         <div v-if="product.hasAllergens && product.allergens?.length" class="allergens-display">
           <span
             v-for="allergen in product.allergens"
@@ -86,15 +66,15 @@ defineProps<{
     name: string
     basePrice: number
     finalPrice: number
+    offerLabel?: string
     imageBase64?: string
     allergens?: string[]
     hasAllergens?: boolean
-    discount?: number
   }[]
   currencySymbol: string
   currencyKey: string
   imageShape: 'circle' | 'roundedSquare' | 'rectangle' | 'none'
-  offerStyle?: 'badgeWithNewPrice' | 'stackedPrice' | 'badgeDiscount' | 'strikeInline' | 'priceOnly' | 'badge'
+  offerStyle: 'strikeOnly' | 'strikeWithSaving' | 'strikeWithBadge'
   allergenIconStyle?: 'colored' | 'outlined' | 'monochrome' | 'hidden' | 'boxedA' | 'boldA' | 'warningTriangle'
 }>()
 
@@ -116,6 +96,7 @@ function getAllergenSymbol(style: string): string {
   }
 }
 </script>
+
 
 <style scoped>
 .cards-layout {
@@ -204,47 +185,22 @@ function getAllergenSymbol(style: string): string {
   display: inline-block;
 }
 
-.product-price.stacked .stacked {
-  display: flex;
-  flex-direction: column;
-  gap: 0.2rem;
-}
-
-.product-price.badgeWithNewPrice .badge {
-  background-color: #ff9800;
-  color: #fff;
-  padding: 0.2rem 0.4rem;
-  border-radius: 6px;
-  font-weight: bold;
-}
-
-.discount-badge {
-  background-color: #e53935;
-  color: #fff;
-  padding: 0.2rem 0.4rem;
-  border-radius: 6px;
-  font-size: 0.75rem;
-  margin-inline-end: 0.3rem;
-}
-
 .old-price {
   text-decoration: line-through;
   color: red;
-  margin-right: 0.3rem;
+  margin-inline-end: 0.3rem;
 }
 
 .final-price {
   font-weight: bold;
-  color: var(--currencyIcon-color, inherit);
+  color: #2e7d32;
 }
 
 .offer-label {
-  background-color: var(--offerLabel-bg, #007bff);
-  color: #fff;
-  padding: 0.2rem 0.4rem;
-  border-radius: 4px;
   font-size: 0.75rem;
-  margin-top: 0.5rem;
+  font-weight: 500;
+  color: #FF7A00;
+  margin-top: 0.2rem;
   display: inline-block;
 }
 

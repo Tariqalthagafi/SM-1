@@ -144,7 +144,7 @@ export const classicGold: TemplateConfig = {
       offer: '#ffd54f'
     },
     fontFamily: 'Cairo',
-    offerStyle: 'badge',
+    offerStyle: 'badgeWithNewPrice',
     expiredStyle: 'strike',
     imageShape: 'rectangle',
     allergens: [],
@@ -156,7 +156,7 @@ export const classicGold: TemplateConfig = {
     backgroundColors: ['menu', 'section', 'product'],
     textColors: ['sectionTitle','productName', 'price'],
     font: true,
-    offerStyles: ['priceOnly', 'badge'],
+    offerStyles: [ 'badgeWithNewPrice'],
     expiredStyles: ['strike', 'badge'],
     imageShapes: ['circle', 'roundedSquare', 'rectangle', 'none'],
     allergenIconStyles: ['colored', 'outlined', 'monochrome'],

@@ -1,5 +1,13 @@
 <template>
-  <div class="template-customizer">
+  <!-- عرض مؤشر التحميل أولاً -->
+  <div v-if="isLoading" class="loading-indicator">
+    <p>جاري تحميل إعدادات القالب...</p>
+    <!-- يمكنك إضافة أيقونة تحميل هنا إذا أردت -->
+  </div>
+
+  <!-- بعد انتهاء التحميل، يتم عرض المحتوى الفعلي -->
+  <div v-else class="template-customizer">
+    <!-- بطاقة اختيار الخط -->
     <div class="card">
       <ThemeFontSelector
         :fonts="fontStore.fontOptions"
@@ -11,79 +19,74 @@
       />
     </div>
 
+    <!-- بطاقة اختيار نمط العرض -->
     <div class="card">
-   <OfferStylePicker
-    :options="offerStyleStore.offerStyleOptions"
-    :selected="offerStyleStore.offerStyle"
-    @update:selected="val => {
-    offerStyleStore.setOfferStyle(val)
-    offerStyleStore.saveOfferStyle()
-    }"
-    />
-
+      <OfferStylePicker
+        :selected="offerStyleStore.offerStyle"
+        :options="offerStyleStore.offerStyleOptions"
+        :original-price="product.originalPrice"
+        :new-price="product.discountedPrice"
+        @update:selected="val => {
+          offerStyleStore.setOfferStyle(val)
+          offerStyleStore.saveOfferStyle()
+        }"
+      />
     </div>
 
+    <!-- بطاقة اختيار نمط انتهاء الصلاحية -->
     <div class="card">
-     <ExpiredStylePicker
-     :options="expiredStyleStore.expiredStyleOptions"
-     :selected="expiredStyleStore.expiredStyle"
-     @update:selected="val => {
-      expiredStyleStore.setExpiredStyle(val)
-      expiredStyleStore.saveExpiredStyle()
-     }"
-    />
-
+      <ExpiredStylePicker
+        :options="expiredStyleStore.expiredStyleOptions"
+        :selected="expiredStyleStore.expiredStyle"
+        @update:selected="val => {
+          expiredStyleStore.setExpiredStyle(val)
+          expiredStyleStore.saveExpiredStyle()
+        }"
+      />
     </div>
 
+    <!-- بطاقة اختيار شكل الصورة -->
     <div class="card">
-<ImageShapeSelector
-  :options="imageShapeStore.imageShapeOptions"
-  :selected="imageShapeStore.imageShape"
-  @update:selected="val => {
-    imageShapeStore.setImageShape(val)
-    imageShapeStore.saveImageShape()
-  }"
-/>
-
-
+      <ImageShapeSelector
+        :options="imageShapeStore.imageShapeOptions"
+        :selected="imageShapeStore.imageShape"
+        @update:selected="val => {
+          imageShapeStore.setImageShape(val)
+          imageShapeStore.saveImageShape()
+        }"
+      />
     </div>
 
+    <!-- بطاقة اختيار العملة -->
     <div class="card">
-<CurrencySelector
-  :options="currencyStore.currencyOptions"
-  :selected="currencyStore.currencySymbol"
-  @update:selected="(val: string) => {
-    currencyStore.setCurrency(val)
-    currencyStore.saveCurrency()
-  }"
-/>
-
-
+      <CurrencySelector
+        :options="currencyStore.currencyOptions"
+        :selected="currencyStore.currencySymbol"
+        @update:selected="(val: string) => {
+          currencyStore.setCurrency(val)
+          currencyStore.saveCurrency()
+        }"
+      />
     </div>
 
+    <!-- بطاقة اختيار نمط مسببات الحساسية -->
     <div class="card">
-<AllergenStyle
-  :selected="'boxedA'"
-  :options="[
-    { value: 'boxedA', label: '🅰 مربع' },
-    { value: 'boldA', label: 'A تقيل' },
-    { value: 'warningTriangle', label: '⚠ مثلث تحذير' },
-    { value: 'colored', label: '🅰 ملون' },
-    { value: 'outlined', label: '🅰 بإطار' },
-    { value: 'monochrome', label: 'A رمادي' },
-    { value: 'hidden', label: 'بدون رمز' }
-  ]"
-/>
-
-
+      <AllergenStyle
+        :options="allergenStyleStore.allergenStyleOptions"
+        :selected="allergenStyleStore.allergenIconStyle"
+        @update:selected="val => {
+          allergenStyleStore.setAllergenStyle(val)
+          allergenStyleStore.saveAllergenStyle()
+        }"
+      />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue'
-import { indexedDBService } from '@/services/indexedDBService'
+import { onMounted, ref } from 'vue'
 
+// المكونات
 import CurrencySelector from '@/components/cboard/Templates/Selectors/CurrencySelector.vue'
 import ThemeFontSelector from '@/components/cboard/Templates/Selectors/ThemeFontSelector.vue'
 import OfferStylePicker from '@/components/cboard/Templates/Selectors/OfferStylePicker.vue'
@@ -91,6 +94,7 @@ import ExpiredStylePicker from '@/components/cboard/Templates/Selectors/ExpiredS
 import ImageShapeSelector from '@/components/cboard/Templates/Selectors/ImageShapeSelector.vue'
 import AllergenStyle from '@/components/cboard/Templates/Selectors/AllergenStyle.vue'
 
+// مخازن الحالة (Pinia Stores)
 import { useFontStore } from '@/stores/cboard/templates/fontStore'
 import { useOfferStyleStore } from '@/stores/cboard/templates/offerStyleStore'
 import { useExpiredStyleStore } from '@/stores/cboard/templates/expiredStyleStore'
@@ -98,6 +102,10 @@ import { useImageShapeStore } from '@/stores/cboard/templates/imageShapeStore'
 import { useCurrencyStore } from '@/stores/cboard/templates/currencyStore'
 import { useAllergenStyleStore } from '@/stores/cboard/templates/allergenStyleStore'
 
+// 1. تعريف متغير حالة التحميل
+const isLoading = ref(true)
+
+// تهيئة جميع المخازن
 const fontStore = useFontStore()
 const offerStyleStore = useOfferStyleStore()
 const expiredStyleStore = useExpiredStyleStore()
@@ -105,15 +113,37 @@ const imageShapeStore = useImageShapeStore()
 const currencyStore = useCurrencyStore()
 const allergenStyleStore = useAllergenStyleStore()
 
-onMounted(async () => {
-  await fontStore.initFontOptions()
-  await offerStyleStore.initOfferStyleOptions()
-  await expiredStyleStore.initExpiredStyleOptions()
-  await imageShapeStore.initImageShapeOptions()
-  await currencyStore.initCurrencyOptions()
-  await allergenStyleStore.initAllergenStyleOptions()
+// بيانات وهمية للمعاينة
+const product = ref({
+  originalPrice: 60,
+  discountedPrice: 25
 })
 
+// عند تحميل المكون، قم بتهيئة جميع المخازن
+onMounted(() => {
+  initCustomizer()
+})
+
+// دالة لتهيئة وتحميل البيانات الأولية من قاعدة البيانات
+async function initCustomizer() {
+  try {
+    // استخدام Promise.all لتشغيل جميع عمليات التهيئة بشكل متوازٍ
+    await Promise.all([
+      fontStore.initFontOptions(),
+      offerStyleStore.loadOfferStyle(),
+      expiredStyleStore.initExpiredStyleOptions(),
+      imageShapeStore.initImageShapeOptions(),
+      currencyStore.initCurrencyOptions(),
+      allergenStyleStore.initAllergenStyleOptions()
+    ])
+  } catch (error) {
+    console.error("Failed to initialize customizer settings:", error);
+    // يمكنك هنا عرض رسالة خطأ للمستخدم إذا فشل التحميل
+  } finally {
+    // 2. بعد انتهاء التحميل (سواء نجح أو فشل)، قم بتغيير حالة التحميل لعرض المحتوى
+    isLoading.value = false
+  }
+}
 </script>
 
 <style scoped>
@@ -123,10 +153,9 @@ onMounted(async () => {
   gap: 1.5rem 2rem;
   padding: 1rem 0;
   background-color: #fff;
-  font-family: 'Tajawal', sans-serif;
+  font-family: var(--font-family);
 }
 
-/* إزالة البطاقة، كل مكون مسؤول عن تنسيقه */
 .card {
   padding: 1rem;
   background: #FFFFFF;
@@ -140,5 +169,15 @@ onMounted(async () => {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
 }
 
-
+/* 3. إضافة أنماط لمؤشر التحميل */
+.loading-indicator {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 400px;
+  width: 100%;
+  font-size: 1.2rem;
+  color: #888;
+  background-color: #fff;
+}
 </style>

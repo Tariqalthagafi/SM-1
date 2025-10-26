@@ -7,9 +7,14 @@
       :value="value"
       @input="$emit('update', ($event.target as HTMLInputElement).value)"
     />
-    <button @click="$emit('toggle-visibility')">
-      {{ isPublic ? '👁️ عام' : '🔒 خاص' }}
-    </button>
+
+    <div class="visibility-toggle">
+      <span class="status-label">{{ isPublic ? 'عام' : 'خاص' }}</span>
+      <label class="switch">
+        <input type="checkbox" :checked="isPublic" @change="$emit('toggle-visibility')" />
+        <span class="slider"></span>
+      </label>
+    </div>
   </div>
 </template>
 
@@ -31,7 +36,7 @@ defineEmits<{
 .social-field {
   display: flex;
   flex-direction: column;
-  gap: 0.3rem;
+  gap: 0.5rem;
 }
 
 .social-field label {
@@ -57,12 +62,59 @@ defineEmits<{
   outline: none;
 }
 
-.social-field button {
-  align-self: flex-start;
-  background: none;
-  border: none;
+.visibility-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.status-label {
   font-size: 0.8rem;
+  font-weight: 500;
+  color: #1C1C1C;
+}
+
+/* زر التبديل */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 36px;
+  height: 20px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
   cursor: pointer;
-  color: #FF7A00;
+  top: 0; left: 0;
+  right: 0; bottom: 0;
+  background-color: #ccc;
+  border-radius: 20px;
+  transition: 0.3s;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 14px;
+  width: 14px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  border-radius: 50%;
+  transition: 0.3s;
+}
+
+input:checked + .slider {
+  background-color: #FF7A00;
+}
+
+input:checked + .slider:before {
+  transform: translateX(16px);
 }
 </style>

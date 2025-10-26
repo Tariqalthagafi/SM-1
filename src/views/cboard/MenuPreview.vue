@@ -1,21 +1,26 @@
+<!-- 📁 المسار: src/views/cboard/MenuPreview.vue -->
 <template>
-  <div v-if="sections.length && products.length" class="menu-preview-frame">
+  <div v-if="!isLoading" class="menu-preview-frame">
     <component
       :is="layoutComponent"
       v-bind="layoutProps"
     />
+   <SocialContactButton position="top-center" />
   </div>
   <p v-else>جاري تحميل المنيو...</p>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-import { indexedDBService } from '@/services/indexedDBService'
+import { useFontStore } from '@/stores/cboard/templates/fontStore'
 import { useCurrencyStore } from '@/stores/cboard/templates/currencyStore'
 import { useLayoutEditorStore } from '@/stores/cboard/MenuDesign/LayoutEditor'
 import { useImageShapeStore } from '@/stores/cboard/templates/imageShapeStore'
-
-// ✅ استيراد مكونات العرض
+import { useOfferStyleStore } from '@/stores/cboard/templates/offerStyleStore'
+import { useAllergenStyleStore } from '@/stores/cboard/templates/allergenStyleStore'
+import { indexedDBService } from '@/services/indexedDBService'
+import { useSocialStore } from '@/stores/cboard/Social' 
+// ✅ مكونات التخطيط
 import VerticalLayout from '@/components/cboard/MenuDesign/shapesmenu/VerticalLayout.vue'
 import GridLayout from '@/components/cboard/MenuDesign/shapesmenu/GridLayout.vue'
 import CardsLayout from '@/components/cboard/MenuDesign/shapesmenu/CardsLayout.vue'
@@ -23,18 +28,26 @@ import SectionedLayout from '@/components/cboard/MenuDesign/shapesmenu/Sectioned
 import SidebarView from '@/components/cboard/MenuDesign/shapesmenu/SidebarView.vue'
 import GridView from '@/components/cboard/MenuDesign/shapesmenu/GridView.vue'
 import PagedView from '@/components/cboard/MenuDesign/shapesmenu/PagedView.vue'
+import SocialContactButton from '@/components/cboard/Social/SocialContactButton.vue'
+
+const isLoading = ref(true)
+
+const fontStore = useFontStore()
+const offerStyleStore = useOfferStyleStore()
+const layoutStore = useLayoutEditorStore()
+const currencyStore = useCurrencyStore()
+const imageShapeStore = useImageShapeStore()
+const allergenStyleStore = useAllergenStyleStore()
+const socialStore = useSocialStore()
 
 const sections = ref<any[]>([])
 const products = ref<any[]>([])
 
-const layoutStore = useLayoutEditorStore()
 const layout = computed(() => layoutStore.layout || 'grid')
-
-const currencyStore = useCurrencyStore()
 const currencyKey = computed(() => currencyStore.currencySymbol)
 const currencySymbol = computed(() => currencyStore.displayedSymbol)
+const offerStyle = computed(() => offerStyleStore.offerStyle)
 
-const imageShapeStore = useImageShapeStore()
 const imageShape = computed(() => {
   const shape = imageShapeStore.imageShape
   return ['circle', 'rectangle', 'roundedSquare', 'none'].includes(shape)
@@ -42,21 +55,24 @@ const imageShape = computed(() => {
     : 'rectangle'
 })
 
-function applyFinalSettings(settings: any, colors: Record<string, string>) {
+const allergenIconStyle = computed(() => allergenStyleStore.allergenIconStyle)
+const getAllergenIconSymbol = computed(() => allergenStyleStore.getIconSymbol)
+const getAllergenIconStyle = computed(() => allergenStyleStore.getIconStyle)
+
+
+
+function applyFinalColors(colors: Record<string, string>) {
   const root = document.documentElement
   Object.entries(colors).forEach(([key, value]) => {
     root.style.setProperty(`--${key}-bg`, value)
     root.style.setProperty(`--${key}-color`, value)
   })
-  if (settings.fontFamily) {
-    root.style.setProperty('--font-family', settings.fontFamily)
-  }
 }
 
 async function loadFinalData() {
   const customization = await indexedDBService.getCustomization('template') || {}
   const colors = await indexedDBService.getColors(customization.colors_ref ?? 'default') || {}
-  applyFinalSettings(customization, colors)
+  applyFinalColors(colors)
 
   const offers = await indexedDBService.getAll('offers')
   sections.value = await indexedDBService.getAll('sections')
@@ -82,7 +98,6 @@ async function loadFinalData() {
   })
 }
 
-// ✅ تجهيز الأقسام مع المنتجات
 const sectionsWithProducts = computed(() =>
   sections.value.map(section => ({
     ...section,
@@ -90,7 +105,6 @@ const sectionsWithProducts = computed(() =>
   }))
 )
 
-// ✅ اختيار المكون المناسب حسب النموذج
 const layoutComponent = computed(() => {
   const map: Record<string, any> = {
     vertical: VerticalLayout,
@@ -109,7 +123,11 @@ const layoutProps = computed(() => {
     products: products.value,
     currencySymbol: currencySymbol.value,
     currencyKey: currencyKey.value,
-    imageShape: imageShape.value
+    imageShape: imageShape.value,
+    offerStyle: offerStyle.value,
+    allergenIconStyle: allergenIconStyle.value,
+    getAllergenIconSymbol: getAllergenIconSymbol.value,
+    getAllergenIconStyle: getAllergenIconStyle.value,
   }
 
   const layoutsUsingCategories = ['gridCategories', 'pagedCategories', 'sidebarCategories']
@@ -127,11 +145,25 @@ const layoutProps = computed(() => {
 })
 
 onMounted(async () => {
-  await currencyStore.initCurrencyOptions()
-  await layoutStore.loadLayout()
-  await loadFinalData()
+  try {
+    // استخدام Promise.all لتحميل كل شيء بشكل متوازٍ لتحسين الأداء
+    await Promise.all([
+      fontStore.initFontOptions(),
+      currencyStore.initCurrencyOptions(),
+      layoutStore.loadLayout(),
+      offerStyleStore.loadOfferStyle(),
+      allergenStyleStore.initAllergenStyleOptions(),
+       socialStore.load(),
+      loadFinalData() // تحميل بيانات المنتجات والأقسام
+    ]);
+  } catch (error) {
+    console.error("Failed to initialize menu preview:", error);
+  } finally {
+    isLoading.value = false;
+  }
 })
 </script>
+
 
 <style scoped>
 .menu-preview-frame {
@@ -146,7 +178,7 @@ onMounted(async () => {
   font-size: 1rem;
   margin-bottom: 0.5rem;
   color: var(--sectionTitle-color, #000);
-  font-family: var(--font-family, 'Cairo');
+  font-family: var(--font-family );
 }
 
 /* ✅ تخطيطات متعددة */
@@ -198,7 +230,7 @@ onMounted(async () => {
   padding: 0.6rem;
   border-radius: 6px;
   font-size: 0.85rem;
-  font-family: var(--font-family, 'Cairo');
+  font-family: var(--font-family);
 }
 
 .product-image {
@@ -217,12 +249,6 @@ onMounted(async () => {
 .product-name {
   display: block;
   margin-bottom: 0.2rem;
-}
-
-.allergen-icon {
-  color: red;
-  font-size: 0.9rem;
-  margin-inline-start: 0.3rem;
 }
 
 .product-price {

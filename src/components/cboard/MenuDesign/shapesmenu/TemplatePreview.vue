@@ -11,7 +11,10 @@
       :currency-symbol="currencySymbol"
       :currency-key="currencyKey"
       :image-shape="imageShape"
+      :offer-style="offerStyle"
+      :allergen-icon-style="allergenIconStyle"
     />
+
 
     <!-- ✅ باقي النماذج -->
     <component
@@ -23,7 +26,9 @@
             colors: colorStore.colors,
             currencySymbol,
             currencyKey,
-            imageShape
+            imageShape,
+            offerStyle,
+            allergenIconStyle // ✅ إضافة هنا
           }
         : {
             products,
@@ -31,9 +36,12 @@
             colors: colorStore.colors,
             currencySymbol,
             currencyKey,
-            imageShape
+            imageShape,
+            offerStyle,
+            allergenIconStyle // ✅ إضافة هنا
           }"
     />
+
   </div>
 
   <p v-else>جاري تحميل المعاينة...</p>
@@ -55,6 +63,19 @@ import SectionedLayout from './SectionedLayout.vue'
 import SidebarView from './SidebarView.vue'
 import GridView from './GridView.vue'
 import PagedView from './PagedView.vue'
+import { useOfferStyleStore } from '@/stores/cboard/templates/offerStyleStore'
+import { useFontStore } from '@/stores/cboard/templates/fontStore'
+// ✅ إضافة استيراد متجر الحساسية (افتراض)
+import { useAllergenStyleStore } from '@/stores/cboard/templates/allergenStyleStore'
+
+const fontStore = useFontStore()
+
+const offerStyleStore = useOfferStyleStore()
+const offerStyle = computed(() => offerStyleStore.offerStyle)
+
+// ✅ تهيئة متجر الحساسية
+const allergenStore = useAllergenStyleStore()
+const allergenIconStyle = computed(() => allergenStore.allergenIconStyle)
 
 const sections = ref<any[]>([])
 const products = ref<any[]>([])
@@ -76,8 +97,9 @@ function applySettingsToCSS(colors: Record<string, string>) {
     root.style.setProperty(`--${key}-bg`, value)
     root.style.setProperty(`--${key}-color`, value)
   })
-  root.style.setProperty('--font-family', 'Cairo')
+  root.style.setProperty('--font-family', fontStore.fontFamily) // ✅ ديناميكي
 }
+
 
 // ✅ تحميل البيانات من indexedDB
 async function loadStaticData() {
@@ -92,6 +114,10 @@ async function loadStaticData() {
         ? Math.round((p.basePrice ?? 0) * (1 - offer.discount / 100))
         : offer.discount
       : p.basePrice ?? 0
+      
+    // ✅ إضافة تهيئة بيانات الحساسية - افتراض أن البيانات موجودة في المنتج
+    p.hasAllergens = p.allergens?.length > 0
+    
     return p
   })
 
@@ -108,6 +134,8 @@ async function loadStaticData() {
 // ✅ تحميل أولي
 onMounted(() => {
   currencyStore.initCurrencyOptions()
+  // ✅ يجب تهيئة متجر الحساسية هنا
+allergenStore.initAllergenStyleOptions()
   loadStaticData()
   applySettingsToCSS(colorStore.colors)
 })
@@ -139,7 +167,7 @@ const isCategoryLayout = computed(() =>
 <style scoped>
 h4 {
   margin-bottom: 1rem;
-  font-family: var(--font-family, 'Cairo');
+  font-family: var(--font-family);
   color: var(--titleText-color, #000);
 }
 </style>

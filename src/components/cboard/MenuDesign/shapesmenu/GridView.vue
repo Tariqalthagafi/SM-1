@@ -1,3 +1,4 @@
+// مربعات الاقسام
 <template>
   <div class="grid-view">
     <!-- عرض الأقسام -->
@@ -39,22 +40,42 @@
           </div>
 
           <div class="card-body">
-            <span class="product-price">
-              <span
-                v-if="product.finalPrice !== product.basePrice"
-                class="old-price"
-              >
-                {{ product.basePrice }}
-                <span v-if="currencyKey !== 'svg-riyal'">{{ currencySymbol }}</span>
-                <span v-else v-html="currencySymbol"></span>
-              </span>
+            <div class="product-price" :class="offerStyle">
+              <template v-if="offerStyle === 'strikeOnly' && product.offerLabel">
+                <span class="old-price">{{ product.basePrice }} <span v-html="currencySymbol"></span></span>
+                <span class="final-price">{{ product.finalPrice }} <span v-html="currencySymbol"></span></span>
+              </template>
 
-              <span class="final-price">
-                {{ product.finalPrice }}
-                <span v-if="currencyKey !== 'svg-riyal'">{{ currencySymbol }}</span>
-                <span v-else v-html="currencySymbol"></span>
+              <template v-else-if="offerStyle === 'strikeWithSaving' && product.offerLabel">
+                <span class="offer-label">🔥 وفر {{ product.basePrice - product.finalPrice }} <span v-html="currencySymbol"></span></span>
+                <span class="old-price">{{ product.basePrice }} <span v-html="currencySymbol"></span></span>
+                <span class="final-price">{{ product.finalPrice }} <span v-html="currencySymbol"></span></span>
+              </template>
+
+              <template v-else-if="offerStyle === 'strikeWithBadge' && product.offerLabel">
+                <span class="offer-label">🔖 خصم {{ Math.round((1 - product.finalPrice / product.basePrice) * 100) }}%</span>
+                <span class="old-price">{{ product.basePrice }} <span v-html="currencySymbol"></span></span>
+                <span class="final-price">{{ product.finalPrice }} <span v-html="currencySymbol"></span></span>
+              </template>
+
+              <template v-else>
+                <span class="final-price">{{ product.finalPrice }} <span v-html="currencySymbol"></span></span>
+              </template>
+            </div>
+            
+            <!-- ✅ إضافة منطق عرض مسببات الحساسية -->
+            <div v-if="product.hasAllergens && product.allergens?.length" class="allergens-display">
+              <span
+                v-for="allergen in product.allergens"
+                :key="allergen"
+                class="allergen-icon"
+                :class="allergenIconStyle"
+              >
+                {{ getAllergenSymbol(allergenIconStyle ?? 'boxedA') }}
               </span>
-            </span>
+            </div>
+            <!-- نهاية منطق عرض مسببات الحساسية -->
+            
           </div>
         </div>
       </div>
@@ -65,7 +86,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 
-const { categories, currencySymbol, currencyKey, imageShape } = defineProps<{
+const { categories, currencySymbol, currencyKey, imageShape, offerStyle, allergenIconStyle } = defineProps<{
   categories: {
     id: string
     name: string
@@ -74,16 +95,43 @@ const { categories, currencySymbol, currencyKey, imageShape } = defineProps<{
       name: string
       basePrice: number
       finalPrice: number
+      offerLabel?: string
       imageBase64?: string
+      // ✅ إضافة خصائص مسببات الحساسية للمنتج
+      allergens?: string[]
+      hasAllergens?: boolean
     }[]
   }[]
   currencySymbol: string
   currencyKey: string
   imageShape: 'circle' | 'roundedSquare' | 'rectangle' | 'none'
+  offerStyle: 'strikeOnly' | 'strikeWithSaving' | 'strikeWithBadge'
+  // ✅ إضافة خصائص نمط الأيقونة
+  allergenIconStyle?: 'colored' | 'outlined' | 'monochrome' | 'hidden' | 'boxedA' | 'boldA' | 'warningTriangle'
 }>()
 
 const selectedCategory = ref<typeof categories[0] | null>(null)
+
+// ✅ إضافة دالة المساعد (Helper Function)
+function getAllergenSymbol(style: string): string {
+  switch (style) {
+    case 'boxedA':
+    case 'colored':
+    case 'outlined':
+      return '🅰'
+    case 'boldA':
+    case 'monochrome':
+      return 'A'
+    case 'warningTriangle':
+      return '⚠'
+    case 'hidden':
+      return ''
+    default:
+      return '?'
+  }
+}
 </script>
+
 
 <style scoped>
 .grid-view {
@@ -105,7 +153,7 @@ const selectedCategory = ref<typeof categories[0] | null>(null)
   border: 1px solid #ddd;
   border-radius: 8px;
   cursor: pointer;
-  font-family: 'Tajawal', sans-serif;
+font-family: var(--font-family);
   font-weight: bold;
   transition: background 0.2s ease;
 }
@@ -129,7 +177,7 @@ const selectedCategory = ref<typeof categories[0] | null>(null)
   font-size: 1rem;
   font-weight: bold;
   margin-bottom: 1rem;
-  font-family: 'Tajawal', sans-serif;
+font-family: var(--font-family);
   color: var(--titleText-color, #000);
 }
 
@@ -144,7 +192,7 @@ const selectedCategory = ref<typeof categories[0] | null>(null)
   border-radius: 8px;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
   padding: 1rem;
-  font-family: 'Cairo', sans-serif;
+font-family: var(--font-family);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -222,4 +270,50 @@ const selectedCategory = ref<typeof categories[0] | null>(null)
 .final-price {
   font-weight: bold;
 }
+
+/* ✅ تنسيقات مسببات الحساسية المضافة */
+.allergens-display {
+  margin-top: 0.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  justify-content: flex-start; /* تم تغييرها لتكون في بداية البطاقة */
+}
+
+.allergen-icon.boxedA {
+  background-color: #ffe5e5;
+  color: #d00;
+  padding: 0.2rem 0.4rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+}
+
+.allergen-icon.outlined {
+  border: 1px solid #d00;
+  padding: 0.2rem;
+  border-radius: 4px;
+  color: #d00;
+  font-size: 0.85rem;
+}
+
+.allergen-icon.warningTriangle {
+  color: #FF7A00;
+  font-size: 1rem;
+}
+
+.allergen-icon.monochrome {
+  color: #666;
+  font-size: 0.85rem;
+}
+
+.allergen-icon.boldA {
+  font-weight: bold;
+  color: #333;
+  font-size: 0.85rem;
+}
+
+.allergen-icon.hidden {
+  display: none;
+}
+/* نهاية تنسيقات مسببات الحساسية */
 </style>

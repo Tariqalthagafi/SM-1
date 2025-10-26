@@ -10,14 +10,10 @@ export type ExpiredStyle =
   | 'badge'
 
 export type OfferStyle =
-  | 'badgeWithNewPrice'
-  | 'stackedPrice'
-  | 'badgeDiscount'
-  | 'strikeInline'
-  | 'badge'
-  | 'priceOnly'
 
-
+  | 'strikeOnly'
+  | 'strikeWithSaving'
+  | 'strikeWithBadge'
 
 export type CardShape = 'rounded' | 'flat' | 'shadowed'
 export type FontSize = 'small' | 'medium' | 'large'

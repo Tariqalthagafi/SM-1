@@ -20,32 +20,31 @@
       <!-- معاينة مصغرة -->
       <div class="offer-preview">
         <div class="preview-box" :class="localSelected">
-          <template v-if="localSelected === 'badgeWithNewPrice'">
-            <span class="product-name">منتج تجريبي</span>
-            <span class="product-price">25 ر.س</span>
-          </template>
+          <span class="product-name">منتج تجريبي</span>
 
-          <template v-else-if="localSelected === 'stackedPrice'">
-            <span class="product-name">منتج تجريبي</span>
+          <template v-if="localSelected === 'strikeOnly'">
             <span class="product-price">
-              <span class="old">60 ر.س</span>
-              <span class="new">25 ر.س</span>
+              <span class="old"> ~{{ originalPrice }} ر.س~ </span>
+              <span class="new">{{ newPrice }} ر.س</span>
             </span>
           </template>
 
-          <template v-else-if="localSelected === 'badgeDiscount'">
-            <span class="product-name">منتج تجريبي</span>
+          <template v-else-if="localSelected === 'strikeWithSaving'">
+            <span class="product-savings">🔥 وفر {{ savingAmount }} ر.س</span>
             <span class="product-price">
-              <span class="badge">-58%</span> 25 ر.س
+              <span class="old"> ~{{ originalPrice }} ر.س~ </span>
+              <span class="new">{{ newPrice }} ر.س</span>
             </span>
           </template>
 
-          <template v-else-if="localSelected === 'strikeInline'">
-            <span class="product-name">منتج تجريبي</span>
+          <template v-else-if="localSelected === 'strikeWithBadge'">
+            <span class="discount-badge">🔖 -{{ discountPercent }}%</span>
             <span class="product-price">
-              <span class="old"> ~60 ر.س~ </span> → <span class="new">25 ر.س</span>
+              <span class="old"> ~{{ originalPrice }} ر.س~ </span>
+              <span class="new">{{ newPrice }} ر.س</span>
             </span>
           </template>
+
         </div>
         <small>معاينة النمط</small>
       </div>
@@ -54,15 +53,19 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, withDefaults } from 'vue'
+import { ref, watch, withDefaults, computed } from 'vue'
 import type { OfferStyle } from '@/types/contexts/templates'
 
 const props = withDefaults(defineProps<{
   selected: OfferStyle
   options: { value: OfferStyle; label?: string }[]
+  originalPrice: number
+  newPrice: number
 }>(), {
-  selected: 'badgeWithNewPrice',
-  options: () => []
+  selected: 'strikeOnly',
+  options: () => [],
+  originalPrice: 60,
+  newPrice: 25
 })
 
 const emit = defineEmits<{
@@ -72,7 +75,7 @@ const emit = defineEmits<{
 const localSelected = ref<OfferStyle>(
   props.options.some(opt => opt.value === props.selected)
     ? props.selected
-    : props.options[0]?.value || 'badgeWithNewPrice'
+    : props.options[0]?.value || 'strikeOnly'
 )
 
 watch(() => props.selected, (newVal) => {
@@ -84,6 +87,11 @@ watch(() => props.selected, (newVal) => {
 function emitSelection() {
   emit('update:selected', localSelected.value)
 }
+
+const savingAmount = computed(() => props.originalPrice - props.newPrice)
+const discountPercent = computed(() =>
+  Math.round((savingAmount.value / props.originalPrice) * 100)
+)
 </script>
 
 <style scoped>
@@ -99,7 +107,6 @@ label {
   font-weight: bold;
   margin-bottom: 0.8rem;
   color: #FF7A00;
-  font-family: 'Tajawal', sans-serif;
 }
 
 .row {
@@ -147,19 +154,60 @@ label {
   color: #1C1C1C;
 }
 
-/* badgeWithNewPrice */
+.product-name {
+  font-weight: 600;
+  margin-bottom: 0.3rem;
+}
+
+.preview-box.strikeOnly .product-price,
+.preview-box.strikeWithSaving .product-price,
+.preview-box.strikeWithBadge .product-price,
+.preview-box.strikeInline .product-price {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  justify-content: center;
+}
+
+.old {
+  text-decoration: line-through;
+  color: #999;
+}
+
+.new {
+  font-weight: bold;
+  color: #2e7d32;
+}
+
+.product-savings {
+  font-size: 0.8rem;
+  color: #FF7A00;
+  font-weight: 500;
+  margin-bottom: 0.3rem;
+}
+
+.discount-badge {
+  background-color: #FF7A00;
+  color: white;
+  font-size: 0.75rem;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  font-weight: bold;
+  margin-bottom: 0.3rem;
+  display: inline-block;
+}
+
 .preview-box.badgeWithNewPrice {
   background-color: #fff8e1;
   border: 1px solid #FF7A00;
 }
 
 .preview-box.badgeWithNewPrice .product-price::before {
-  content: "🔖 -25% ";
+  content: "🔖 ";
   color: #FF7A00;
   font-weight: bold;
 }
 
-/* stackedPrice */
 .preview-box.stackedPrice .product-price {
   display: flex;
   flex-direction: column;
@@ -177,7 +225,6 @@ label {
   color: #2e7d32;
 }
 
-/* badgeDiscount */
 .preview-box.badgeDiscount .product-price {
   display: flex;
   align-items: center;
@@ -191,22 +238,5 @@ label {
   padding: 0.2rem 0.4rem;
   border-radius: 4px;
   font-weight: bold;
-}
-
-/* strikeInline */
-.preview-box.strikeInline .product-price {
-  display: flex;
-  align-items: center;
-  gap: 0.3rem;
-}
-
-.preview-box.strikeInline .old {
-  text-decoration: line-through;
-  color: #999;
-}
-
-.preview-box.strikeInline .new {
-  font-weight: bold;
-  color: #2e7d32;
 }
 </style>

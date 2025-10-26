@@ -20,7 +20,7 @@ import TemplateCustomizer from '@/components/cboard/Templates/Customizer/Templat
   justify-content: center;
   padding: 2rem;
   background-color: #fff; /* خلفية بيضاء ناعمة */
-  font-family: 'Tajawal', sans-serif;
+  font-family: var(--font-family);
 }
 
 .template-editor-container {

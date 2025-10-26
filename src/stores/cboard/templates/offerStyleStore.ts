@@ -1,93 +1,54 @@
 // 📁 المسار: src/stores/cboard/templates/offerStyleStore.ts
 
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { indexedDBService } from '@/services/indexedDBService'
 import type { OfferStyle } from '@/types/contexts/templates'
 
 export const useOfferStyleStore = defineStore('offerStyleStore', () => {
-  const offerStyle = ref<OfferStyle>('badgeWithNewPrice') // القيمة الافتراضية
-  const offerStyleOptions = ref<{ value: OfferStyle; label?: string }[]>([])
+  // ✅ النمط المختار حاليًا
+  const offerStyle = ref<OfferStyle>('strikeOnly') // القيمة الافتراضية
 
+  // ✅ قائمة الخيارات (في الذاكرة فقط، لا تُزرع)
+  const offerStyleOptions = ref<{ value: OfferStyle; label: string }[]>([
+    { value: 'strikeOnly', label: 'سعر مشطوب فقط' },
+    { value: 'strikeWithSaving', label: '🔥 وفر 5 ر.س' },
+    { value: 'strikeWithBadge', label: '🔖 نسبة خصم' }
+  ])
+
+  // ✅ تعيين النمط المختار
   function setOfferStyle(style: OfferStyle) {
     offerStyle.value = style
   }
 
-  async function loadOfferStyle() {
-    const saved = await indexedDBService.getSetting('offerStyle')
-    if (typeof saved === 'string' && offerStyleOptions.value.find(o => o.value === saved)) {
-      offerStyle.value = saved as OfferStyle
-    }
-  }
+  // ✅ تحميل النمط المختار من IndexedDB
+async function loadOfferStyle() {
+  const saved = await indexedDBService.getSetting('offerStyle')
 
+  if (typeof saved === 'string' && offerStyleOptions.value.find(o => o.value === saved)) {
+    offerStyle.value = saved as OfferStyle
+  } else {
+    // ✅ زرع تلقائي للنمط الافتراضي عند أول تشغيل
+    offerStyle.value = 'strikeOnly'
+    await indexedDBService.saveSetting('offerStyle', offerStyle.value)
+  }
+}
+
+
+  // ✅ حفظ يدوي (اختياري)
   async function saveOfferStyle() {
     await indexedDBService.saveSetting('offerStyle', offerStyle.value)
   }
 
-  async function seedOfferStyleOptions() {
-    const existing = await indexedDBService.getOptions('offerStyle')
-    if (existing.length > 0) return
-
-    const seedOptions = [
-      {
-        id: 'offerStyle-badgeWithNewPrice',
-        key: 'offerStyle',
-        value: 'badgeWithNewPrice',
-        label: '🔖 شارة خصم + سعر جديد',
-        type: 'string',
-        context: 'template',
-        group: 'offerStyle',
-        is_active: true
-      },
-      {
-        id: 'offerStyle-stackedPrice',
-        key: 'offerStyle',
-        value: 'stackedPrice',
-        label: 'السعر فوق بعض',
-        type: 'string',
-        context: 'template',
-        group: 'offerStyle',
-        is_active: true
-      },
-      {
-        id: 'offerStyle-badgeDiscount',
-        key: 'offerStyle',
-        value: 'badgeDiscount',
-        label: 'شارة قبل السعر',
-        type: 'string',
-        context: 'template',
-        group: 'offerStyle',
-        is_active: true
-      },
-      {
-        id: 'offerStyle-strikeInline',
-        key: 'offerStyle',
-        value: 'strikeInline',
-        label: 'سعر مشطوب بجانب الجديد',
-        type: 'string',
-        context: 'template',
-        group: 'offerStyle',
-        is_active: true
-      }
-    ]
-
-    for (const option of seedOptions) {
-      await indexedDBService.saveOption(option)
-    }
-  }
-
-  async function initOfferStyleOptions() {
-    await seedOfferStyleOptions()
-    offerStyleOptions.value = await indexedDBService.getOptions('offerStyle')
-    await loadOfferStyle()
-    if (!offerStyleOptions.value.find(o => o.value === offerStyle.value)) {
-      offerStyle.value = offerStyleOptions.value[0]?.value || 'badgeWithNewPrice'
-    }
-  }
-
+  // ✅ إعادة تعيين للنمط الافتراضي
   function resetOfferStyle() {
-    offerStyle.value = 'badgeWithNewPrice'
+    offerStyle.value = 'strikeOnly'
   }
+
+  // ✅ حفظ تلقائي عند التغيير
+  watch(offerStyle, async (newStyle) => {
+    await indexedDBService.saveSetting('offerStyle', newStyle)
+  })
 
   return {
     offerStyle,
@@ -95,7 +56,6 @@ export const useOfferStyleStore = defineStore('offerStyleStore', () => {
     setOfferStyle,
     loadOfferStyle,
     saveOfferStyle,
-    initOfferStyleOptions,
     resetOfferStyle
   }
 })

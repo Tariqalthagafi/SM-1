@@ -90,7 +90,7 @@ export const freshGreen: TemplateConfig = {
       offer: '#81c784'
     },
     fontFamily: 'Tajawal',
-    offerStyle: 'badge',
+    offerStyle: 'badgeWithNewPrice',
     expiredStyle: 'strike',
     imageShape: 'circle',
     allergens: [],
@@ -102,7 +102,7 @@ export const freshGreen: TemplateConfig = {
     backgroundColors: ['menu', 'section', 'product'],
     textColors: ['sectionTitle', 'productName', 'price'],
     font: true,
-    offerStyles: ['priceOnly', 'badge'],
+    offerStyles: ['badgeWithNewPrice'],
     expiredStyles: ['strike', 'badge'],
     imageShapes: ['circle', 'roundedSquare', 'rectangle', 'none'],
     allergenIconStyles: ['colored', 'outlined', 'monochrome'],

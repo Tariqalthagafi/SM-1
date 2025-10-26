@@ -83,7 +83,7 @@ export const modernBlue: TemplateConfig = {
       offer: '#64b5f6'
     },
     fontFamily: 'Tajawal',
-    offerStyle: 'badge',
+    offerStyle: 'badgeWithNewPrice',
     expiredStyle: 'strike',
     imageShape: 'circle',
     allergens: [],
@@ -95,7 +95,7 @@ export const modernBlue: TemplateConfig = {
     backgroundColors: ['menu', 'section', 'product'],
     textColors: ['sectionTitle', 'productName', 'price'],
     font: true,
-    offerStyles: ['priceOnly', 'badge'],
+    offerStyles: ['badgeWithNewPrice'],
     expiredStyles: ['strike', 'badge'],
     imageShapes: ['circle', 'roundedSquare', 'rectangle', 'none'],
     allergenIconStyles: ['colored', 'outlined', 'monochrome'],

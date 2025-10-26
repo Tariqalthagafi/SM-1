@@ -1,3 +1,4 @@
+// صفحات قابلة للسحب
 <template>
   <div class="paged-view">
     <div class="page-content">
@@ -25,22 +26,42 @@
           </div>
 
           <div class="card-body">
-            <span class="product-price">
-              <span
-                v-if="product.finalPrice !== product.basePrice"
-                class="old-price"
-              >
-                {{ product.basePrice }}
-                <span v-if="currencyKey !== 'svg-riyal'">{{ currencySymbol }}</span>
-                <span v-else v-html="currencySymbol"></span>
-              </span>
+            <div class="product-price" :class="offerStyle">
+              <template v-if="offerStyle === 'strikeOnly' && product.offerLabel">
+                <span class="old-price">{{ product.basePrice }} <span v-html="currencySymbol"></span></span>
+                <span class="final-price">{{ product.finalPrice }} <span v-html="currencySymbol"></span></span>
+              </template>
 
-              <span class="final-price">
-                {{ product.finalPrice }}
-                <span v-if="currencyKey !== 'svg-riyal'">{{ currencySymbol }}</span>
-                <span v-else v-html="currencySymbol"></span>
+              <template v-else-if="offerStyle === 'strikeWithSaving' && product.offerLabel">
+                <span class="offer-label">🔥 وفر {{ product.basePrice - product.finalPrice }} <span v-html="currencySymbol"></span></span>
+                <span class="old-price">{{ product.basePrice }} <span v-html="currencySymbol"></span></span>
+                <span class="final-price">{{ product.finalPrice }} <span v-html="currencySymbol"></span></span>
+              </template>
+
+              <template v-else-if="offerStyle === 'strikeWithBadge' && product.offerLabel">
+                <span class="offer-label">🔖 خصم {{ Math.round((1 - product.finalPrice / product.basePrice) * 100) }}%</span>
+                <span class="old-price">{{ product.basePrice }} <span v-html="currencySymbol"></span></span>
+                <span class="final-price">{{ product.finalPrice }} <span v-html="currencySymbol"></span></span>
+              </template>
+
+              <template v-else>
+                <span class="final-price">{{ product.finalPrice }} <span v-html="currencySymbol"></span></span>
+              </template>
+            </div>
+            
+            <!-- ✅ إضافة منطق عرض مسببات الحساسية -->
+            <div v-if="product.hasAllergens && product.allergens?.length" class="allergens-display">
+              <span
+                v-for="allergen in product.allergens"
+                :key="allergen"
+                class="allergen-icon"
+                :class="allergenIconStyle"
+              >
+                {{ getAllergenSymbol(allergenIconStyle ?? 'boxedA') }}
               </span>
-            </span>
+            </div>
+            <!-- نهاية منطق عرض مسببات الحساسية -->
+            
           </div>
         </div>
       </div>
@@ -56,7 +77,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 
-const { categories, currencySymbol, currencyKey, imageShape } = defineProps<{
+const { categories, currencySymbol, currencyKey, imageShape, offerStyle, allergenIconStyle } = defineProps<{
   categories: {
     id: string
     name: string
@@ -65,12 +86,19 @@ const { categories, currencySymbol, currencyKey, imageShape } = defineProps<{
       name: string
       basePrice: number
       finalPrice: number
+      offerLabel?: string
       imageBase64?: string
+      // ✅ إضافة خصائص مسببات الحساسية للمنتج
+      allergens?: string[]
+      hasAllergens?: boolean
     }[]
   }[]
   currencySymbol: string
   currencyKey: string
   imageShape: 'circle' | 'roundedSquare' | 'rectangle' | 'none'
+  offerStyle: 'strikeOnly' | 'strikeWithSaving' | 'strikeWithBadge'
+  // ✅ إضافة خصائص نمط الأيقونة
+  allergenIconStyle?: 'colored' | 'outlined' | 'monochrome' | 'hidden' | 'boxedA' | 'boldA' | 'warningTriangle'
 }>()
 
 const index = ref(0)
@@ -83,7 +111,27 @@ function nextPage() {
 function prevPage() {
   if (index.value > 0) index.value--
 }
+
+// ✅ إضافة دالة المساعد (Helper Function)
+function getAllergenSymbol(style: string): string {
+  switch (style) {
+    case 'boxedA':
+    case 'colored':
+    case 'outlined':
+      return '🅰'
+    case 'boldA':
+    case 'monochrome':
+      return 'A'
+    case 'warningTriangle':
+      return '⚠'
+    case 'hidden':
+      return ''
+    default:
+      return '?'
+  }
+}
 </script>
+
 
 <style scoped>
 .paged-view {
@@ -96,7 +144,7 @@ function prevPage() {
   font-size: 1rem;
   font-weight: bold;
   margin-bottom: 1rem;
-  font-family: 'Tajawal', sans-serif;
+font-family: var(--font-family);
   color: var(--titleText-color, #000);
 }
 
@@ -111,7 +159,7 @@ function prevPage() {
   border-radius: 8px;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
   padding: 1rem;
-  font-family: 'Cairo', sans-serif;
+font-family: var(--font-family);
   background-color: var(--cardBackground-bg, #fff);
   color: var(--titleText-color, #000);
   display: flex;
@@ -202,7 +250,7 @@ function prevPage() {
   border: none;
   border-radius: 6px;
   cursor: pointer;
-  font-family: 'Tajawal', sans-serif;
+font-family: var(--font-family);
   font-weight: bold;
 }
 
@@ -210,4 +258,50 @@ function prevPage() {
   background-color: #ccc;
   cursor: not-allowed;
 }
+
+/* ✅ تنسيقات مسببات الحساسية المضافة */
+.allergens-display {
+  margin-top: 0.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  justify-content: flex-start;
+}
+
+.allergen-icon.boxedA {
+  background-color: #ffe5e5;
+  color: #d00;
+  padding: 0.2rem 0.4rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+}
+
+.allergen-icon.outlined {
+  border: 1px solid #d00;
+  padding: 0.2rem;
+  border-radius: 4px;
+  color: #d00;
+  font-size: 0.85rem;
+}
+
+.allergen-icon.warningTriangle {
+  color: #FF7A00;
+  font-size: 1rem;
+}
+
+.allergen-icon.monochrome {
+  color: #666;
+  font-size: 0.85rem;
+}
+
+.allergen-icon.boldA {
+  font-weight: bold;
+  color: #333;
+  font-size: 0.85rem;
+}
+
+.allergen-icon.hidden {
+  display: none;
+}
+/* نهاية تنسيقات مسببات الحساسية */
 </style>

@@ -4,9 +4,17 @@
   </div>
 </template>
 
-<script setup>
-// لا حاجة لأي كود في هذه المرحلة
+<script setup lang="ts">
+import { onMounted } from 'vue'
+import { useFontStore } from '@/stores/cboard/templates/fontStore'
+
+const fontStore = useFontStore()
+
+onMounted(async () => {
+  await fontStore.initFontOptions() // ✅ تحميل الخط وتطبيقه مباشرة
+})
 </script>
+
 
 <style>
 /* لا يوجد أي ستايل هنا، كل مكون مسؤول عن شكله */

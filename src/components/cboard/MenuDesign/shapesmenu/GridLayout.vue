@@ -18,13 +18,43 @@
 
       <div class="product-name">{{ product.name }}</div>
 
-      <div class="product-price">
-        <span class="final-price">
-          {{ product.finalPrice }}
-          <span v-if="currencyKey !== 'svg-riyal'">{{ currencySymbol }}</span>
-          <span v-else v-html="currencySymbol"></span>
+      <!-- ✅ السعر حسب نمط العرض -->
+      <div class="product-price" :class="offerStyle">
+        <template v-if="offerStyle === 'strikeOnly' && product.offerLabel">
+          <span class="old-price">{{ product.basePrice }} <span v-html="currencySymbol"></span></span>
+          <span class="final-price">{{ product.finalPrice }} <span v-html="currencySymbol"></span></span>
+        </template>
+
+        <template v-else-if="offerStyle === 'strikeWithSaving' && product.offerLabel">
+          <span class="offer-label">🔥 وفر {{ product.basePrice - product.finalPrice }} <span v-html="currencySymbol"></span></span>
+          <span class="old-price">{{ product.basePrice }} <span v-html="currencySymbol"></span></span>
+          <span class="final-price">{{ product.finalPrice }} <span v-html="currencySymbol"></span></span>
+        </template>
+
+        <template v-else-if="offerStyle === 'strikeWithBadge' && product.offerLabel">
+          <span class="offer-label">🔖 خصم {{ Math.round((1 - product.finalPrice / product.basePrice) * 100) }}%</span>
+          <span class="old-price">{{ product.basePrice }} <span v-html="currencySymbol"></span></span>
+          <span class="final-price">{{ product.finalPrice }} <span v-html="currencySymbol"></span></span>
+        </template>
+
+        <template v-else>
+          <span class="final-price">{{ product.finalPrice }} <span v-html="currencySymbol"></span></span>
+        </template>
+      </div>
+      
+      <!-- ✅ إضافة منطق عرض مسببات الحساسية -->
+      <div v-if="product.hasAllergens && product.allergens?.length" class="allergens-display">
+        <span
+          v-for="allergen in product.allergens"
+          :key="allergen"
+          class="allergen-icon"
+          :class="allergenIconStyle"
+        >
+          {{ getAllergenSymbol(allergenIconStyle ?? 'boxedA') }}
         </span>
       </div>
+      <!-- نهاية منطق عرض مسببات الحساسية -->
+      
     </div>
   </div>
 </template>
@@ -36,13 +66,39 @@ defineProps<{
     name: string
     basePrice: number
     finalPrice: number
+    offerLabel?: string
     imageBase64?: string
+    // ✅ خصائص مسببات الحساسية للمنتج
+    allergens?: string[]
+    hasAllergens?: boolean
   }[]
   sections?: any[]
   currencySymbol: string
   currencyKey: string
   imageShape: 'circle' | 'roundedSquare' | 'rectangle' | 'none'
+  offerStyle: 'strikeOnly' | 'strikeWithSaving' | 'strikeWithBadge'
+  // ✅ إضافة نمط الأيقونة فقط
+  allergenIconStyle?: 'colored' | 'outlined' | 'monochrome' | 'hidden' | 'boxedA' | 'boldA' | 'warningTriangle'
 }>()
+
+// ✅ إضافة دالة المساعد (Helper Function) من CardsLayout.vue
+function getAllergenSymbol(style: string): string {
+  switch (style) {
+    case 'boxedA':
+    case 'colored':
+    case 'outlined':
+      return '🅰'
+    case 'boldA':
+    case 'monochrome':
+      return 'A'
+    case 'warningTriangle':
+      return '⚠'
+    case 'hidden':
+      return ''
+    default:
+      return '?'
+  }
+}
 </script>
 
 <style scoped>
@@ -55,7 +111,6 @@ defineProps<{
   border-radius: 8px;
 }
 
-/* ✅ بطاقة المنتج */
 .product-card {
   background-color: var(--cardBackground-bg, #ffffff);
   color: var(--titleText-color, #000);
@@ -72,7 +127,6 @@ defineProps<{
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 
-/* ✅ صورة المنتج */
 .product-image-wrapper {
   display: flex;
   justify-content: center;
@@ -86,7 +140,6 @@ defineProps<{
   background-color: #eee;
 }
 
-/* الأشكال */
 .product-image.circle {
   border-radius: 50%;
 }
@@ -109,13 +162,11 @@ defineProps<{
   background-color: #ddd;
 }
 
-/* ✅ اسم المنتج */
 .product-name {
   margin-bottom: 0.3rem;
   font-weight: bold;
 }
 
-/* ✅ السعر */
 .product-price {
   color: var(--priceText-color, #333);
   background-color: var(--priceBackground-bg, transparent);
@@ -124,7 +175,67 @@ defineProps<{
   display: inline-block;
 }
 
+.old-price {
+  text-decoration: line-through;
+  color: red;
+  margin-inline-end: 0.3rem;
+}
+
 .final-price {
   font-weight: bold;
+  color: #2e7d32;
+}
+
+.offer-label {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #FF7A00;
+  margin-top: 0.2rem;
+  display: block;
+}
+
+/* ✅ تنسيقات مسببات الحساسية المضافة */
+.allergens-display {
+  margin-top: 0.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  justify-content: center;
+}
+
+.allergen-icon.boxedA {
+  background-color: #ffe5e5;
+  color: #d00;
+  padding: 0.2rem 0.4rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+}
+
+.allergen-icon.outlined {
+  border: 1px solid #d00;
+  padding: 0.2rem;
+  border-radius: 4px;
+  color: #d00;
+  font-size: 0.85rem;
+}
+
+.allergen-icon.warningTriangle {
+  color: #FF7A00;
+  font-size: 1rem;
+}
+
+.allergen-icon.monochrome {
+  color: #666;
+  font-size: 0.85rem;
+}
+
+.allergen-icon.boldA {
+  font-weight: bold;
+  color: #333;
+  font-size: 0.85rem;
+}
+
+.allergen-icon.hidden {
+  display: none;
 }
 </style>

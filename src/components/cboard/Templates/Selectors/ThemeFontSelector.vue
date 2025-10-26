@@ -9,7 +9,7 @@
         class="font-dropdown"
       >
         <option
-          v-for="font in fonts"
+          v-for="font in props.fonts"
           :key="font.value"
           :value="font.value"
           :style="{ fontFamily: font.value }"
@@ -27,40 +27,25 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted } from 'vue'
-import { indexedDBService } from '@/services/indexedDBService'
+import { ref, watch } from 'vue'
 
-const props = withDefaults(defineProps<{
-  selectedFont: string
-}>(), {
-  selectedFont: ''
-})
+const props = defineProps<{
+  selectedFont: string,
+  fonts: { value: string; label?: string }[]
+}>()
 
 const emit = defineEmits<{
   (e: 'update:selectedFont', font: string): void
 }>()
 
-const fonts = ref<{ value: string; label?: string }[]>([])
-const localFont = ref('')
 
-// تحميل الخطوط من template_options
-onMounted(async () => {
-  fonts.value = await indexedDBService.getOptions('fontFamily')
+const localFont = ref(props.selectedFont)
 
-  const defaultFont = fonts.value.find(f => f.value === props.selectedFont)
-    ? props.selectedFont
-    : fonts.value[0]?.value || ''
-
-  localFont.value = defaultFont
-})
-
-// مزامنة مع التحديث الخارجي
 watch(() => props.selectedFont, (newFont) => {
-  if (fonts.value.find(f => f.value === newFont)) {
-    localFont.value = newFont
-  }
+  localFont.value = newFont
 })
 
+// إرسال التحديث للخارج
 function emitFont() {
   emit('update:selectedFont', localFont.value)
 }
@@ -71,7 +56,7 @@ function emitFont() {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
-  font-family: 'Tajawal', sans-serif;
+  font-family: var(--font-family);
 }
 
 label {
@@ -79,7 +64,7 @@ label {
   font-weight: bold;
   margin-bottom: 0.8rem;
   color: #FF7A00;
-  font-family: 'Tajawal', sans-serif;
+  font-family: var(--font-family);
 }
 
 .row {
@@ -117,5 +102,4 @@ label {
   font-size: 1.2rem;
   color: #1C1C1C;
 }
-
 </style>

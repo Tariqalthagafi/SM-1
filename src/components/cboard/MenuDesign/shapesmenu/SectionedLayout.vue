@@ -1,3 +1,5 @@
+// عرض بالقسم 
+
 <template>
   <div class="sectioned-layout">
     <!-- ✅ شريط الأقسام -->
@@ -32,18 +34,42 @@
 
         <span class="product-name">{{ product.name }}</span>
 
-        <span class="product-price">
-          <span v-if="product.finalPrice !== product.basePrice" class="old-price">
-            {{ product.basePrice }}
-            <span v-if="currencyKey !== 'svg-riyal'">{{ currencySymbol }}</span>
-            <span v-else v-html="currencySymbol"></span>
+        <div class="product-price" :class="offerStyle">
+          <template v-if="offerStyle === 'strikeOnly' && product.offerLabel">
+            <span class="old-price">{{ product.basePrice }} <span v-html="currencySymbol"></span></span>
+            <span class="final-price">{{ product.finalPrice }} <span v-html="currencySymbol"></span></span>
+          </template>
+
+          <template v-else-if="offerStyle === 'strikeWithSaving' && product.offerLabel">
+            <span class="offer-label">🔥 وفر {{ product.basePrice - product.finalPrice }} <span v-html="currencySymbol"></span></span>
+            <span class="old-price">{{ product.basePrice }} <span v-html="currencySymbol"></span></span>
+            <span class="final-price">{{ product.finalPrice }} <span v-html="currencySymbol"></span></span>
+          </template>
+
+          <template v-else-if="offerStyle === 'strikeWithBadge' && product.offerLabel">
+            <span class="offer-label">🔖 خصم {{ Math.round((1 - product.finalPrice / product.basePrice) * 100) }}%</span>
+            <span class="old-price">{{ product.basePrice }} <span v-html="currencySymbol"></span></span>
+            <span class="final-price">{{ product.finalPrice }} <span v-html="currencySymbol"></span></span>
+          </template>
+
+          <template v-else>
+            <span class="final-price">{{ product.finalPrice }} <span v-html="currencySymbol"></span></span>
+          </template>
+        </div>
+        
+        <!-- ✅ إضافة منطق عرض مسببات الحساسية -->
+        <div v-if="product.hasAllergens && product.allergens?.length" class="allergens-display">
+          <span
+            v-for="allergen in product.allergens"
+            :key="allergen"
+            class="allergen-icon"
+            :class="allergenIconStyle"
+          >
+            {{ getAllergenSymbol(allergenIconStyle ?? 'boxedA') }}
           </span>
-          <span class="final-price">
-            {{ product.finalPrice }}
-            <span v-if="currencyKey !== 'svg-riyal'">{{ currencySymbol }}</span>
-            <span v-else v-html="currencySymbol"></span>
-          </span>
-        </span>
+        </div>
+        <!-- نهاية منطق عرض مسببات الحساسية -->
+        
       </div>
     </div>
   </div>
@@ -60,6 +86,10 @@ interface Product {
   sectionId: string
   status: string
   imageBase64?: string
+  offerLabel?: string
+  // ✅ إضافة خصائص مسببات الحساسية للمنتج
+  allergens?: string[]
+  hasAllergens?: boolean
 }
 
 interface Section {
@@ -79,6 +109,9 @@ const props = withDefaults(
     currencySymbol: string
     currencyKey: string
     imageShape: 'circle' | 'roundedSquare' | 'rectangle' | 'none'
+    offerStyle: 'strikeOnly' | 'strikeWithSaving' | 'strikeWithBadge'
+    // ✅ إضافة خصائص نمط الأيقونة
+    allergenIconStyle?: 'colored' | 'outlined' | 'monochrome' | 'hidden' | 'boxedA' | 'boldA' | 'warningTriangle'
   }>(),
   {
     products: () => [],
@@ -98,7 +131,27 @@ watchEffect(() => {
     activeSectionId.value = props.sections[0].id
   }
 })
+
+// ✅ إضافة دالة المساعد (Helper Function)
+function getAllergenSymbol(style: string): string {
+  switch (style) {
+    case 'boxedA':
+    case 'colored':
+    case 'outlined':
+      return '🅰'
+    case 'boldA':
+    case 'monochrome':
+      return 'A'
+    case 'warningTriangle':
+      return '⚠'
+    case 'hidden':
+      return ''
+    default:
+      return '?'
+  }
+}
 </script>
+
 
 <style scoped>
 .sectioned-layout {
@@ -124,7 +177,7 @@ watchEffect(() => {
   cursor: pointer;
   border-radius: 6px;
   font-weight: bold;
-  font-family: var(--font-family, 'Cairo');
+font-family: var(--font-family);
   transition: background-color 0.2s ease;
 }
 
@@ -148,7 +201,7 @@ watchEffect(() => {
   border-radius: 6px;
   text-align: center;
   font-size: 0.85rem;
-  font-family: var(--font-family, 'Cairo');
+font-family: var(--font-family);
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
   transition: box-shadow 0.2s ease;
 }
@@ -222,4 +275,50 @@ watchEffect(() => {
   font-weight: bold;
   color: var(--currencyIcon-color, inherit);
 }
+
+/* ✅ تنسيقات مسببات الحساسية المضافة */
+.allergens-display {
+  margin-top: 0.3rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  justify-content: center;
+}
+
+.allergen-icon.boxedA {
+  background-color: #ffe5e5;
+  color: #d00;
+  padding: 0.2rem 0.4rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+}
+
+.allergen-icon.outlined {
+  border: 1px solid #d00;
+  padding: 0.2rem;
+  border-radius: 4px;
+  color: #d00;
+  font-size: 0.85rem;
+}
+
+.allergen-icon.warningTriangle {
+  color: #FF7A00;
+  font-size: 1rem;
+}
+
+.allergen-icon.monochrome {
+  color: #666;
+  font-size: 0.85rem;
+}
+
+.allergen-icon.boldA {
+  font-weight: bold;
+  color: #333;
+  font-size: 0.85rem;
+}
+
+.allergen-icon.hidden {
+  display: none;
+}
+/* نهاية تنسيقات مسببات الحساسية */
 </style>

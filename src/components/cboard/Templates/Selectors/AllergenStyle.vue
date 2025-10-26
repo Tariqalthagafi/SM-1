@@ -9,7 +9,7 @@
         class="allergen-style-dropdown"
       >
         <option
-          v-for="option in options"
+          v-for="option in props.options"
           :key="option.value"
           :value="option.value"
         >
@@ -17,14 +17,14 @@
         </option>
       </select>
 
-      <!-- معاينة مصغرة -->
+      <!-- معاينة مصغرة - أصبحت الآن تعتمد على دوال من الـ store -->
       <div class="allergen-preview">
         <span
           class="allergen-icon"
           :class="localStyle"
-          :style="getIconStyle(localStyle)"
+          :style="allergenStyleStore.getIconStyle(localStyle)" 
         >
-          {{ getIconSymbol(localStyle) }}
+          {{ allergenStyleStore.getIconSymbol(localStyle) }}
         </span>
         <small>معاينة الرمز</small>
       </div>
@@ -35,6 +35,11 @@
 <script setup lang="ts">
 import { ref, watch, withDefaults } from 'vue'
 import type { AllergenIconStyle } from '@/types/contexts/templates'
+// 1. استيراد الـ store
+import { useAllergenStyleStore } from '@/stores/cboard/templates/allergenStyleStore'
+
+// 2. تهيئة الـ store
+const allergenStyleStore = useAllergenStyleStore()
 
 const props = withDefaults(defineProps<{
   selected: AllergenIconStyle
@@ -48,68 +53,25 @@ const emit = defineEmits<{
   (e: 'update:selected', value: AllergenIconStyle): void
 }>()
 
-const localStyle = ref<AllergenIconStyle>(
-  props.options.some(opt => opt.value === props.selected)
-    ? props.selected
-    : props.options[0]?.value || 'boxedA'
-)
+// هذا المنطق لإدارة الحالة المحلية لا يزال ضروريًا وممتازًا
+const localStyle = ref<AllergenIconStyle>(props.selected)
 
 watch(() => props.selected, (newVal) => {
-  if (props.options.some(opt => opt.value === newVal)) {
-    localStyle.value = newVal
-  }
+  localStyle.value = newVal
 })
 
 function emitStyle() {
   emit('update:selected', localStyle.value)
 }
 
-function getIconSymbol(style: AllergenIconStyle): string {
-  switch (style) {
-    case 'boxedA':
-    case 'colored':
-    case 'outlined':
-      return '🅰'
-    case 'boldA':
-      return 'A'
-    case 'warningTriangle':
-      return '⚠'
-    case 'monochrome':
-      return 'A'
-    case 'hidden':
-      return ''
-    default:
-      return '?'
-  }
-}
+// ❌❌❌ تم حذف الدوال المكررة من هنا ❌❌❌
+// function getIconSymbol(...) { ... }
+// function getIconStyle(...) { ... }
 
-function getIconStyle(style: AllergenIconStyle) {
-  switch (style) {
-    case 'boxedA':
-    case 'colored':
-      return { color: '#ff0000' }
-    case 'boldA':
-      return { fontWeight: 'bold', color: '#666' }
-    case 'warningTriangle':
-      return { color: '#FF7A00' }
-    case 'outlined':
-      return {
-        border: '1px solid #ff0000',
-        padding: '0.2rem',
-        borderRadius: '4px',
-        color: '#ff0000'
-      }
-    case 'monochrome':
-      return { color: '#666' }
-    case 'hidden':
-      return { display: 'none' }
-    default:
-      return { color: '#999' }
-  }
-}
 </script>
 
 <style scoped>
+/* ... الأنماط تبقى كما هي ... */
 .allergen-style-selector {
   display: flex;
   flex-direction: column;
