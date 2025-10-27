@@ -7,7 +7,15 @@
         v-for="method in typedDeliveryMethods"
         :key="method.name"
       >
-        <div class="method-icon">{{ method.icon }}</div>
+<div class="method-icon">
+  <img
+    v-if="isImage(method.icon)"
+    :src="`/icons/delivery/${method.icon}`"
+    class="svg-icon"
+    :alt="method.name"
+  />
+  <span v-else>{{ method.icon }}</span>
+</div>
         <div class="method-name">{{ method.name }}</div>
         <label class="switch">
           <input type="checkbox" v-model="method.enabled" />
@@ -28,6 +36,9 @@ import type { DeliveryMethod } from '@/types/contexts/OrderInfo'
 const store = useOrderInfoStore()
 const typedDeliveryMethods = store.deliveryMethods as DeliveryMethod[]
 const isReady = ref(false)
+function isImage(filename: string): boolean {
+  return /\.(svg|png|webp)$/i.test(filename)
+}
 
 onMounted(async () => {
   const saved = await indexedDBService.getOrderMethods('default')
@@ -137,4 +148,11 @@ input:checked + .slider {
 input:checked + .slider:before {
   transform: translateX(16px);
 }
+.svg-icon {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+  display: block;
+}
+
 </style>

@@ -15,17 +15,27 @@ export const useOrderInfoStore = defineStore('orderInfo', () => {
   })
 
   const deliveryMethods = ref<DeliveryMethod[]>([
-    { name: 'طلب محلي', icon: '🍽️', enabled: false },
-    { name: 'استلام الفرع', icon: '🏃‍♂️', enabled: false },
-    { name: 'توصيل جاهز', icon: '🚗', enabled: false },
-    { name: 'توصيل هنقرستيشن', icon: '📦', enabled: false },
-    { name: 'توصيل كيتا', icon: '🛵', enabled: false }
+  { name: 'طلب محلي', icon: 'dinin-icon.svg', enabled: false },
+  { name: 'استلام الفرع', icon: 'takeaway-icon.png', enabled: false },
+  { name: 'توصيل المطعم المباشر', icon: 'delivery-icon.svg', enabled: false },
+  { name: 'توصيل جاهز', icon: 'Jahez-icon.svg', enabled: false },
+  { name: 'توصيل هنقرستيشن', icon: 'hunger-icon.svg', enabled: false },
+  { name: 'توصيل مرسول', icon: 'marsool-icon.svg', enabled: false },
+  { name: 'توصيل كيتا', icon: 'keeta-icon.webp', enabled: false },
   ])
 
   const paymentMethods = ref<PaymentMethod[]>([
-    { name: 'نقدًا', icon: '💵', enabled: false },
-    { name: 'مدى', icon: '💳', enabled: false },
-    { name: 'فيزا', icon: '🧾', enabled: false }
+   { name: 'مدى', icon: 'mada-icon.svg', enabled: false },
+  { name: 'Visa', icon: 'visa-icon.svg', enabled: false },
+  { name: 'MasterCard', icon: 'mastercard-icon.svg', enabled: false },
+  { name: 'American Express', icon: 'amex-icon.svg', enabled: false },
+  { name: 'STC Pay', icon: 'stcpay-icon.svg', enabled: false },
+  { name: 'Apple Pay', icon: 'applepay-icon.svg', enabled: false },
+  { name: 'Google Pay', icon: 'googlepay-icon.svg', enabled: false },
+  { name: 'PayPal', icon: 'paypal-icon.svg', enabled: false },
+  { name: 'تحويل بنكي', icon: 'bank-icon.svg', enabled: false },
+  { name: 'تابي (Tabby)', icon: 'tabby-icon.svg', enabled: false },
+  { name: 'تمارا (Tamara)', icon: 'tamara-icon.svg', enabled: false }
   ])
 
   function removePeriod(day: string, index: number) {

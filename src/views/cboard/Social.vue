@@ -8,6 +8,7 @@
         label="البريد الإلكتروني"
         :value="store.links.email.value"
         :isPublic="store.links.email.isPublic"
+        :icon="store.links.email.icon"
         placeholder="your@email.com"
         @update="(val: string) => store.updateLinkValue('email', val)"
         @toggle-visibility="() => store.toggleLinkVisibility('email')"
@@ -16,6 +17,7 @@
         label="رقم التواصل"
         :value="store.links.phone.value"
         :isPublic="store.links.phone.isPublic"
+        :icon="store.links.phone.icon"
         placeholder="05xxxxxxxx"
         @update="(val: string) => store.updateLinkValue('phone', val)"
         @toggle-visibility="() => store.toggleLinkVisibility('phone')"
@@ -24,6 +26,7 @@
         label="الموقع الإلكتروني"
         :value="store.links.website.value"
         :isPublic="store.links.website.isPublic"
+        :icon="store.links.website.icon"
         placeholder="https://example.com"
         @update="(val: string) => store.updateLinkValue('website', val)"
         @toggle-visibility="() => store.toggleLinkVisibility('website')"
@@ -32,6 +35,7 @@
         label="الموقع الجغرافي"
         :value="store.links.location.value"
         :isPublic="store.links.location.isPublic"
+        :icon="store.links.location.icon"
         :placeholder="placeholders.location"
         @update="(val: string) => store.updateLinkValue('location', val)"
         @toggle-visibility="() => store.toggleLinkVisibility('location')"
@@ -43,6 +47,7 @@
           :label="labels[platform]"
           :value="store.links[platform].value"
           :isPublic="store.links[platform].isPublic"
+          :icon="store.links[platform].icon"
           :placeholder="placeholders[platform]"
           @update="(val: string) => store.updateLinkValue(platform, val)"
           @toggle-visibility="() => store.toggleLinkVisibility(platform)"
@@ -132,7 +137,6 @@ h2 {
   border-bottom: 1px solid #E0E0E0;
 }
 
-
 .social-field input {
   padding: 0.4rem 0.6rem;
   font-size: 0.85rem;
@@ -149,5 +153,4 @@ h2 {
   box-shadow: 0 0 0 2px rgba(255, 122, 0, 0.2);
   outline: none;
 }
-
 </style>

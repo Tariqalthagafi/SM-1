@@ -16,7 +16,13 @@
           @click="isOpen = false"
         >
           <span class="icon-wrapper white-bg">
-            <span class="text-icon">{{ method.icon || '💳' }}</span>
+<img
+  v-if="method.icon.endsWith('.svg')"
+  :src="`/icons/payments/${method.icon}`"
+  class="svg-icon"
+  :alt="method.name"
+/>
+<span v-else class="text-icon">{{ method.icon || '💳' }}</span>
 
           </span>
         </div>
@@ -37,9 +43,8 @@ const store = useOrderInfoStore()
 const isOpen = ref(false)
 
 onMounted(() => {
-  if (!store.paymentMethods.length) {
-    store.load()
-  }
+  store.load() 
+  
 })
 
 const activeMethods = computed(() =>
@@ -154,6 +159,11 @@ const activeMethods = computed(() =>
   font-size: 1.2rem;
   color: #FF7A00;
   font-weight: bold;
+}
+.svg-icon {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
 }
 
 </style>

@@ -6,8 +6,6 @@
 
 </button>
 
-
-
     <!-- القائمة المنبثقة (Popover) -->
     <div v-if="isPopoverOpen" class="contact-popover">
       <h6 class="popover-title">تواصل معنا</h6>
@@ -22,7 +20,11 @@
           :title="link.name"
         >
        <span class="icon-wrapper white-bg">
-  <v-icon :name="link.iconName" :style="{ color: link.color, fontSize: '1.2rem' }" />
+<img
+  :src="`/icons/social/${link.icon}`"
+  class="svg-icon"
+  :alt="link.name"
+/>
 </span>
 
         </a>
@@ -31,12 +33,9 @@
   </div>
 </template>
 
-
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useSocialStore } from '@/stores/cboard/Social'
-
-
 
 defineProps<{
   position: 'bottom-center' | 'bottom-right' | 'top-right' | 'top-center' | 'none'
@@ -51,17 +50,17 @@ onMounted(() => {
 
 // قائمة الروابط مع اسم الأيقونة من مكتبة oh-vue-icons
 const socialMap = [
-  { key: 'phone', name: 'اتصال هاتفي', color: '#34A853', iconName: 'fa-phone' },
-  { key: 'whatsapp', name: 'واتساب', color: '#25D366', iconName: 'fa-whatsapp' },
-  { key: 'email', name: 'بريد إلكتروني', color: '#EA4335', iconName: 'fa-envelope' },
-  { key: 'website', name: 'الموقع الإلكتروني', color: '#007bff', iconName: 'fa-globe' },
-  { key: 'location', name: 'الموقع', color: '#4285F4', iconName: 'fa-map-marker-alt' },
-  { key: 'instagram', name: 'إنستجرام', color: '#E1306C', iconName: 'fa-instagram' },
-  { key: 'twitter', name: 'تويتر (X)', color: '#000000', iconName: 'fa-x-twitter' },
-  { key: 'facebook', name: 'فيسبوك', color: '#1877F2', iconName: 'fa-facebook' },
-  { key: 'snapchat', name: 'سناب شات', color: '#FFFC00', iconName: 'fa-snapchat-ghost' },
-  { key: 'tiktok', name: 'تيك توك', color: '#000000', iconName: 'fa-tiktok' },
-  { key: 'youtube', name: 'يوتيوب', color: '#FF0000', iconName: 'fa-youtube' },
+  { key: 'phone', name: 'اتصال هاتفي', color: '#34A853', icon: 'mobile-icon.svg' },
+  { key: 'whatsapp', name: 'واتساب', color: '#25D366', icon: 'whatsapp-icon.svg' },
+  { key: 'email', name: 'بريد إلكتروني', color: '#EA4335', icon: 'email-icon.svg' },
+  { key: 'website', name: 'الموقع الإلكتروني', color: '#007bff', icon: 'website-icon.svg' },
+  { key: 'location', name: 'الموقع', color: '#4285F4', icon: 'maps-icon.svg' },
+  { key: 'instagram', name: 'إنستجرام', color: '#E1306C', icon: 'instagram-icon.svg' },
+  { key: 'twitter', name: 'تويتر (X)', color: '#000000', icon: 'x-icon.svg' },
+  { key: 'facebook', name: 'فيسبوك', color: '#1877F2', icon: 'facebook-icon.svg' },
+  { key: 'snapchat', name: 'سناب شات', color: '#FFFC00', icon: 'snapchat-icon.svg' },
+  { key: 'tiktok', name: 'تيك توك', color: '#000000', icon: 'tiktok-icon.svg' },
+  { key: 'youtube', name: 'يوتيوب', color: '#FF0000', icon: 'youtube-icon.svg' },
 ]
 
 // تصفية الروابط العامة فقط
@@ -83,7 +82,7 @@ const filteredLinks = computed(() => {
       key: keyof typeof socialStore.links
       name: string
       color: string
-      iconName: string
+      icon: string
       value: string
     }[]
 })
@@ -200,6 +199,12 @@ function getLinkUrl(key: keyof typeof socialStore.links, value: string): string 
 }
 .contact-button-container.none {
   position: static;
+}
+.svg-icon {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+  display: block;
 }
 
 </style>

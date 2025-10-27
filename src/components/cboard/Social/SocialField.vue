@@ -1,6 +1,17 @@
 <template>
   <div class="social-field">
-    <label>{{ label }}</label>
+    
+    <label class="field-label">
+  <img
+    v-if="isImage(icon)"
+    :src="`/icons/social/${icon}`"
+    class="social-icon"
+    :alt="label"
+  />
+  <span v-else class="text-icon">{{ icon || '🔗' }}</span>
+  {{ label }}
+</label>
+
     <input
       type="text"
       :placeholder="placeholder"
@@ -23,6 +34,7 @@ defineProps<{
   label: string
   value: string
   isPublic: boolean
+  icon?: string
   placeholder?: string
 }>()
 
@@ -30,6 +42,10 @@ defineEmits<{
   (e: 'update', val: string): void
   (e: 'toggle-visibility'): void
 }>()
+function isImage(filename?: string): boolean {
+  return !!filename && /\.(svg|png|webp)$/i.test(filename)
+}
+
 </script>
 
 <style scoped>
@@ -117,4 +133,21 @@ input:checked + .slider {
 input:checked + .slider:before {
   transform: translateX(16px);
 }
+.field-label {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.social-icon {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+}
+
+.text-icon {
+  font-size: 1rem;
+  color: #FF7A00;
+}
+
 </style>

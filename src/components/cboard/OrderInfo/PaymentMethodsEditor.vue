@@ -7,7 +7,15 @@
         v-for="method in typedPaymentMethods"
         :key="method.name"
       >
-        <div class="method-icon">{{ method.icon }}</div>
+<div class="method-icon">
+  <img
+    v-if="method.icon.endsWith('.svg')"
+    :src="`/icons/payments/${method.icon}`"
+    class="svg-icon"
+    :alt="method.name"
+  />
+  <span v-else>{{ method.icon }}</span>
+</div>
         <div class="method-name">{{ method.name }}</div>
         <label class="switch">
           <input type="checkbox" v-model="method.enabled" />
@@ -134,4 +142,11 @@ input:checked + .slider {
 input:checked + .slider:before {
   transform: translateX(16px);
 }
+.svg-icon {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+  display: block;
+}
+
 </style>

@@ -2,6 +2,7 @@
 export interface SocialLink {
   value: string
   isPublic: boolean
+  icon?: string
 }
 
 // المفاتيح المدعومة

@@ -16,7 +16,13 @@
           @click="isOpen = false"
         >
           <span class="icon-wrapper white-bg">
-            <span class="text-icon">{{ method.icon || '🚚' }}</span>
+<img
+  v-if="isImage(method.icon)"
+  :src="`/icons/delivery/${method.icon}`"
+  class="svg-icon"
+  :alt="method.name"
+/>
+<span v-else class="text-icon">{{ method.icon || '🚚' }}</span>
           </span>
         </div>
       </div>
@@ -32,6 +38,9 @@ import { useOrderInfoStore } from '@/stores/OrderInfo'
 
 const store = useOrderInfoStore()
 const isOpen = ref(false)
+function isImage(filename: string): boolean {
+  return /\.(svg|png|webp)$/i.test(filename)
+}
 
 const activeMethods = computed(() =>
   store.deliveryMethods.filter(method => method.enabled && method.name)
@@ -137,6 +146,13 @@ const activeMethods = computed(() =>
   font-size: 0.85rem;
   color: #999;
   margin-top: 0.5rem;
+}
+
+.svg-icon {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+  display: block;
 }
 
 @keyframes pop-in {
