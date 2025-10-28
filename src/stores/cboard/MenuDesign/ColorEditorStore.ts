@@ -1,7 +1,5 @@
-// 📁 src/stores/cboard/MenuDesign/ColorEditorStore.ts
-
 import { defineStore } from 'pinia'
-import { ref, watch } from 'vue'
+import { ref } from 'vue'
 import type { ColorSettings } from '@/types/contexts/MenuDesign'
 import { indexedDBService } from '@/services/indexedDBService'
 
@@ -30,53 +28,37 @@ export const useColorEditorStore = defineStore('colorEditorStore', () => {
     colors.value[key] = value
   }
 
-  // ✅ تطبيق مجموعة ألوان كاملة (مثل نمط جاهز)
+  // ✅ تطبيق مجموعة ألوان كاملة
   function setColors(newColors: Partial<ColorSettings>) {
     colors.value = { ...colors.value, ...newColors }
   }
 
-  // ✅ تحميل الألوان من التخزين
-  async function loadColors() {
-    const saved = await indexedDBService.getColors('default')
+  // ✅ تحميل الألوان من نمط معين
+  async function loadColors(presetName: string) {
+    const saved = await indexedDBService.getColors(`preset-${presetName}`)
     if (saved && typeof saved === 'object') {
       colors.value = { ...colors.value, ...(saved as ColorSettings) }
     }
   }
 
-  // ✅ حفظ الألوان يدويًا
-  async function saveColors() {
-    await indexedDBService.saveColors(colors.value, 'default')
+  // ✅ حفظ الألوان في نمط معين
+  async function saveColors(presetName: string) {
+    await indexedDBService.saveColors(colors.value, `preset-${presetName}`)
   }
 
-  // ✅ إعادة تعيين الألوان إلى الوضع الافتراضي
-  function resetColors() {
-    colors.value = {
-      headerBackground: '#ffffff',
-      sectionBackground: '#f5f5f5',
-      cardBackground: '#ffffff',
-      titleText: '#000000',
-      priceText: '#333333',
-      descriptionText: '#666666',
-      allergenIcon: '#ff0000',
-      offerLabel: '#007bff',
-      sectionTitleText: '#222222',
-      currencyIcon: '#009688',
-      expiredProductIcon: '#9e9e9e',
-      bodyBackground: '#f0f0f0',
-      productBackground: '#ffffff',
-      priceBackground: '#fff8e1',
-      currencyBackground: '#e0f7fa'
+  // ✅ حفظ النسخة الأصلية للنمط (لأجل إعادة الضبط)
+  async function saveDefaultPreset(presetName: string) {
+    await indexedDBService.saveSetting(`preset-default-${presetName}`, JSON.parse(JSON.stringify(colors.value)))
+  }
+
+  // ✅ إعادة ضبط النمط إلى حالته الأصلية
+  async function resetPreset(presetName: string) {
+    const saved = await indexedDBService.getSetting(`preset-default-${presetName}`)
+    if (saved && typeof saved === 'object') {
+      colors.value = { ...saved as ColorSettings }
+      await saveColors(presetName)
     }
   }
-
-  // ✅ الحفظ التلقائي عند أي تغيير
-  watch(
-    colors,
-    async (newColors) => {
-      await indexedDBService.saveColors(newColors, 'default')
-    },
-    { deep: true }
-  )
 
   return {
     colors,
@@ -84,6 +66,7 @@ export const useColorEditorStore = defineStore('colorEditorStore', () => {
     setColors,
     loadColors,
     saveColors,
-    resetColors
+    saveDefaultPreset,
+    resetPreset
   }
 })

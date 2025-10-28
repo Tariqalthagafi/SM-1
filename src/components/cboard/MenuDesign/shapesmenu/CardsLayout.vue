@@ -21,27 +21,26 @@
 
       <div class="card-body">
         <div class="product-price" :class="offerStyle">
-         <template v-if="offerStyle === 'strikeOnly' && product.offerLabel">
-  <span class="old-price">{{ product.basePrice }} <span v-html="currencySymbol"></span></span>
-  <span class="final-price">{{ product.finalPrice }} <span v-html="currencySymbol"></span></span>
-</template>
+          <template v-if="offerStyle === 'strikeOnly' && product.offerLabel">
+            <span class="old-price">{{ product.basePrice }} <span v-html="currencySymbol"></span></span>
+            <span class="final-price">{{ product.finalPrice }} <span v-html="currencySymbol"></span></span>
+          </template>
 
-<template v-else-if="offerStyle === 'strikeWithSaving' && product.offerLabel">
-  <span class="offer-label">🔥 وفر {{ product.basePrice - product.finalPrice }} <span v-html="currencySymbol"></span></span>
-  <span class="old-price">{{ product.basePrice }} <span v-html="currencySymbol"></span></span>
-  <span class="final-price">{{ product.finalPrice }} <span v-html="currencySymbol"></span></span>
-</template>
+          <template v-else-if="offerStyle === 'strikeWithSaving' && product.offerLabel">
+            <span class="offer-label">🔥 وفر {{ product.basePrice - product.finalPrice }} <span v-html="currencySymbol"></span></span>
+            <span class="old-price">{{ product.basePrice }} <span v-html="currencySymbol"></span></span>
+            <span class="final-price">{{ product.finalPrice }} <span v-html="currencySymbol"></span></span>
+          </template>
 
-<template v-else-if="offerStyle === 'strikeWithBadge' && product.offerLabel">
-  <span class="offer-label">🔖 خصم {{ Math.round((1 - product.finalPrice / product.basePrice) * 100) }}%</span>
-  <span class="old-price">{{ product.basePrice }} <span v-html="currencySymbol"></span></span>
-  <span class="final-price">{{ product.finalPrice }} <span v-html="currencySymbol"></span></span>
-</template>
+          <template v-else-if="offerStyle === 'strikeWithBadge' && product.offerLabel">
+            <span class="offer-label">🔖 خصم {{ Math.round((1 - product.finalPrice / product.basePrice) * 100) }}%</span>
+            <span class="old-price">{{ product.basePrice }} <span v-html="currencySymbol"></span></span>
+            <span class="final-price">{{ product.finalPrice }} <span v-html="currencySymbol"></span></span>
+          </template>
 
-<template v-else>
-  <span class="final-price">{{ product.finalPrice }} <span v-html="currencySymbol"></span></span>
-</template>
-
+          <template v-else>
+            <span class="final-price">{{ product.finalPrice }} <span v-html="currencySymbol"></span></span>
+          </template>
         </div>
 
         <div v-if="product.hasAllergens && product.allergens?.length" class="allergens-display">
@@ -60,7 +59,7 @@
 </template>
 
 <script setup lang="ts">
-defineProps<{
+const props = defineProps<{
   products: {
     id: string
     name: string
@@ -199,7 +198,7 @@ function getAllergenSymbol(style: string): string {
 .offer-label {
   font-size: 0.75rem;
   font-weight: 500;
-  color: #FF7A00;
+  color: var(--offerLabel-color, #FF7A00);
   margin-top: 0.2rem;
   display: inline-block;
 }
@@ -213,33 +212,33 @@ function getAllergenSymbol(style: string): string {
 
 .allergen-icon.boxedA {
   background-color: #ffe5e5;
-  color: #d00;
+  color: var(--allergenIcon-color, #d00);
   padding: 0.2rem 0.4rem;
   border-radius: 6px;
   font-size: 0.85rem;
 }
 
 .allergen-icon.outlined {
-  border: 1px solid #d00;
+  border: 1px solid var(--allergenIcon-color, #d00);
   padding: 0.2rem;
   border-radius: 4px;
-  color: #d00;
+  color: var(--allergenIcon-color, #d00);
   font-size: 0.85rem;
 }
 
 .allergen-icon.warningTriangle {
-  color: #FF7A00;
+  color: var(--allergenIcon-color, #FF7A00);
   font-size: 1rem;
 }
 
 .allergen-icon.monochrome {
-  color: #666;
+  color: var(--allergenIcon-color, #666);
   font-size: 0.85rem;
 }
 
 .allergen-icon.boldA {
   font-weight: bold;
-  color: #333;
+  color: var(--allergenIcon-color, #333);
   font-size: 0.85rem;
 }
 

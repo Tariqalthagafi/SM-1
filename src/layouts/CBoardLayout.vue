@@ -16,7 +16,16 @@
           @click="handleAction(item.route)"
           :class="['sidebar-link', route.path === item.route ? 'active' : '']"
         >
-          <i class="icon">{{ item.icon }}</i>
+         <span class="icon">
+  <img
+    v-if="item.iconType === 'svg'"
+    :src="`/icons/sidebar/${item.icon}`"
+    :alt="item.name"
+    class="svg-icon"
+  />
+  <span v-else>{{ item.icon }}</span>
+</span>
+
           <span v-if="!isCollapsed">{{ item.name }}</span>
           <span v-else class="tooltip">{{ item.name }}</span>
         </component>
@@ -68,21 +77,23 @@ const sidebarItems = computed(() => [
   {
     name: currentLang.value === 'ar' ? 'English' : 'العربية',
     icon: currentLang.value === 'ar' ? 'En' : 'ع',
+    iconType: 'text',
     route: '#lang'
   },
-  { name: 'الرئيسية', icon: '🏠', route: '/cboard' },
-  { name: 'معلومات التشغيل', icon: '🕒', route: '/cboard/order-info' },
-  { name: 'التواصل', icon: '📱', route: '/cboard/Social' },
-  { name: 'الاقسام', icon: '📋', route: '/cboard/sections' },
-  { name: 'المنتجات', icon: '🍽️', route: '/cboard/Products' },
-  { name: 'العروض', icon: '🎁', route: '/cboard/Offers' },
-  { name: 'ربط المنتجات', icon: '🧩', route: '/cboard/linker' },
-  { name: 'الثيمات', icon: '🎨', route: '/cboard/templates' },
-  { name: 'تصميم المنيو', icon: '🖌️', route: '/cboard/MenuDesign' },
-  { name: 'معاينة المنيو', icon: '🧾', route: '/cboard/MenuPreview' },
-  { name: 'الإعدادات', icon: '⚙️', route: '/cboard/settings' },
-  { name: 'خروج', icon: '⏻', route: '#logout' }
+  { name: 'الرئيسية', icon: 'homepage-icon.svg', iconType: 'svg', route: '/cboard' },
+  { name: 'معلومات التشغيل', icon: 'working-icon.svg', iconType: 'svg', route: '/cboard/order-info' },
+  { name: 'التواصل', icon: 'socialmedia-icon.svg', iconType: 'svg', route: '/cboard/Social' },
+  { name: 'الاقسام', icon: 'sections-icon.svg', iconType: 'svg', route: '/cboard/sections' },
+  { name: 'المنتجات', icon: 'products-icon.svg', iconType: 'svg', route: '/cboard/Products' },
+  { name: 'العروض', icon: 'offer-icon.svg', iconType: 'svg', route: '/cboard/Offers' },
+  { name: 'ربط المنتجات', icon: 'connection-icon.svg', iconType: 'svg', route: '/cboard/linker' },
+  { name: 'الثيمات', icon: 'theme-icon.svg', iconType: 'svg', route: '/cboard/templates' },
+  { name: 'تصميم المنيو', icon: 'menudesign-icon.svg', iconType: 'svg', route: '/cboard/MenuDesign' },
+  { name: 'معاينة المنيو', icon: 'preview-icon.svg', iconType: 'svg', route: '/cboard/MenuPreview' },
+  { name: 'الإعدادات', icon: 'settings-icon.svg', iconType: 'svg', route: '/cboard/settings' },
+  { name: 'خروج', icon: '⏻', iconType: 'text', route: '#logout' }
 ])
+
 </script>
 
 <style scoped>
@@ -148,7 +159,7 @@ const sidebarItems = computed(() => [
   align-items: center;
   gap: 0.75rem;
   text-decoration: none;
-  color: #444;
+  color: #5e5d5d;
   font-weight: 500;
   padding: 0.6rem 0.75rem;
   border-radius: 6px;
@@ -164,8 +175,8 @@ const sidebarItems = computed(() => [
 }
 
 .sidebar-link.active {
-  background-color: #e6f0ff;
-  color: #007bff;
+  background-color: #ff9318;
+  color: #000000;
 }
 
 .icon {
@@ -232,4 +243,10 @@ const sidebarItems = computed(() => [
   right: -10px;
   left: auto;
 }
+.svg-icon {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+}
+
 </style>

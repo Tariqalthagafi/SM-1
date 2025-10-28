@@ -8,7 +8,6 @@
     <!-- تخصيص الألوان -->
     <ColorEditor />
 
-
   </div>
 </template>
 
