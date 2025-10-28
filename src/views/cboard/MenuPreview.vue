@@ -66,43 +66,6 @@ const allergenIconStyle = computed(() => allergenStyleStore.allergenIconStyle)
 const getAllergenIconSymbol = computed(() => allergenStyleStore.getIconSymbol)
 const getAllergenIconStyle = computed(() => allergenStyleStore.getIconStyle)
 
-function applyFinalColors(colors: Record<string, string>) {
-  const root = document.documentElement
-  Object.entries(colors).forEach(([key, value]) => {
-    root.style.setProperty(`--${key}-bg`, value)
-    root.style.setProperty(`--${key}-color`, value)
-  })
-}
-
-async function loadFinalData() {
-  const customization = await indexedDBService.getCustomization('template') || {}
-  const loadedColors = await indexedDBService.getColors(customization.colors_ref ?? 'default') || {}
-  applyFinalColors(loadedColors)
-
-  const offers = await indexedDBService.getAll('offers')
-  sections.value = await indexedDBService.getAll('sections')
-  const allProducts = await indexedDBService.getAll('products')
-
-  products.value = allProducts.map((p: any) => {
-    p.imageBase64 = typeof p.imageBase64 === 'string' ? p.imageBase64 : ''
-    const offer = offers.find((o: any) => o.id === p.selectedOfferId && o.isActive)
-    if (offer) {
-      if (offer.type === 'percentage') {
-        p.finalPrice = Math.round((p.basePrice ?? 0) * (1 - offer.discount / 100))
-        p.offerLabel = `خصم ${offer.discount}%`
-      } else if (offer.type === 'unifiedPrice') {
-        p.finalPrice = offer.discount
-        p.offerLabel = `سعر موحد`
-      }
-    } else {
-      p.finalPrice = p.basePrice ?? 0
-      p.offerLabel = null
-    }
-    p.hasAllergens = Array.isArray(p.allergens) && p.allergens.length > 0
-    return p
-  })
-}
-
 const sectionsWithProducts = computed(() =>
   sections.value.map(section => ({
     ...section,
@@ -149,6 +112,55 @@ const layoutProps = computed(() => {
   }
 })
 
+async function loadFinalData() {
+  const rawColors = await indexedDBService.getColors('default') || {}
+  const colors = { ...rawColors }
+  delete colors.id
+
+  const root = document.documentElement
+  Object.entries(colors).forEach(([key, value]) => {
+    if (key.endsWith('Background') || key.endsWith('bg')) {
+      root.style.setProperty(`--${key}-bg`, String(value))
+    }
+
+    if (
+      key.endsWith('Text') ||
+      key.endsWith('Icon') ||
+      key.endsWith('Label') ||
+      key.endsWith('color')
+    ) {
+      root.style.setProperty(`--${key}-color`, String(value))
+    }
+  })
+
+  root.style.setProperty('--font-family', String(fontStore.fontFamily))
+
+  const offers = await indexedDBService.getAll('offers')
+  const rawSections = await indexedDBService.getAll('sections')
+  const allProducts = await indexedDBService.getAll('products')
+
+  sections.value = rawSections
+
+  products.value = allProducts.map((p: any) => {
+    p.imageBase64 = typeof p.imageBase64 === 'string' ? p.imageBase64 : ''
+    const offer = offers.find((o: any) => o.id === p.selectedOfferId && o.isActive)
+    if (offer) {
+      if (offer.type === 'percentage') {
+        p.finalPrice = Math.round((p.basePrice ?? 0) * (1 - offer.discount / 100))
+        p.offerLabel = `خصم ${offer.discount}%`
+      } else if (offer.type === 'unifiedPrice') {
+        p.finalPrice = offer.discount
+        p.offerLabel = `سعر موحد`
+      }
+    } else {
+      p.finalPrice = p.basePrice ?? 0
+      p.offerLabel = null
+    }
+    p.hasAllergens = Array.isArray(p.allergens) && p.allergens.length > 0
+    return p
+  })
+}
+
 onMounted(async () => {
   try {
     await Promise.all([
@@ -157,9 +169,10 @@ onMounted(async () => {
       layoutStore.loadLayout(),
       offerStyleStore.loadOfferStyle(),
       allergenStyleStore.initAllergenStyleOptions(),
-      socialStore.load(),
-      loadFinalData()
+      socialStore.load()
     ])
+
+    await loadFinalData()
   } catch (error) {
     console.error("Failed to initialize menu preview:", error)
   } finally {
@@ -167,6 +180,7 @@ onMounted(async () => {
   }
 })
 </script>
+
 <style scoped>
 .menu-preview-frame {
   position: relative;

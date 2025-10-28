@@ -21,30 +21,28 @@
       v-else
       :is="layoutComponent"
       v-bind="isCategoryLayout
-        ? {
-            categories,
-            colors: colorStore.colors,
-            currencySymbol,
-            currencyKey,
-            imageShape,
-            offerStyle,
-            allergenIconStyle // ✅ إضافة هنا
-          }
-        : {
-            products,
-            sections,
-            colors: colorStore.colors,
-            currencySymbol,
-            currencyKey,
-            imageShape,
-            offerStyle,
-            allergenIconStyle // ✅ إضافة هنا
-          }"
+       ? {
+      categories,
+      currencySymbol,
+      currencyKey,
+      imageShape,
+      offerStyle,
+      allergenIconStyle
+        }
+      : {
+      products,
+      sections,
+      currencySymbol,
+      currencyKey,
+      imageShape,
+      offerStyle,
+      allergenIconStyle
+        }"
     />
-
   </div>
 
   <p v-else>جاري تحميل المعاينة...</p>
+  
 </template>
 
 <script setup lang="ts">

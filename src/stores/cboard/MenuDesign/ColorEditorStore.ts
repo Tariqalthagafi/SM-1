@@ -3,6 +3,9 @@ import { ref } from 'vue'
 import type { ColorSettings } from '@/types/contexts/MenuDesign'
 import { indexedDBService } from '@/services/indexedDBService'
 
+const selectedPreset = ref<string>('مخصص 1')
+
+
 export const useColorEditorStore = defineStore('colorEditorStore', () => {
   // ✅ الحالة الأساسية للألوان
   const colors = ref<ColorSettings>({
@@ -42,9 +45,11 @@ export const useColorEditorStore = defineStore('colorEditorStore', () => {
   }
 
   // ✅ حفظ الألوان في نمط معين
-  async function saveColors(presetName: string) {
-    await indexedDBService.saveColors(colors.value, `preset-${presetName}`)
-  }
+async function saveColors(presetName?: string) {
+  const name = presetName ?? selectedPreset.value
+  await indexedDBService.saveColors(colors.value, `preset-${name}`)
+}
+
 
   // ✅ حفظ النسخة الأصلية للنمط (لأجل إعادة الضبط)
   async function saveDefaultPreset(presetName: string) {
@@ -52,21 +57,29 @@ export const useColorEditorStore = defineStore('colorEditorStore', () => {
   }
 
   // ✅ إعادة ضبط النمط إلى حالته الأصلية
-  async function resetPreset(presetName: string) {
-    const saved = await indexedDBService.getSetting(`preset-default-${presetName}`)
-    if (saved && typeof saved === 'object') {
-      colors.value = { ...saved as ColorSettings }
-      await saveColors(presetName)
-    }
+async function resetPreset(presetName?: string) {
+  const name = presetName ?? selectedPreset.value
+  const saved = await indexedDBService.getSetting(`preset-default-${name}`)
+  if (saved && typeof saved === 'object') {
+    colors.value = { ...saved as ColorSettings }
+    await saveColors(name)
   }
+}
 
-  return {
-    colors,
-    setColor,
-    setColors,
-    loadColors,
-    saveColors,
-    saveDefaultPreset,
-    resetPreset
-  }
+function setSelectedPreset(name: string) {
+  selectedPreset.value = name
+}
+
+return {
+  colors,
+  selectedPreset,
+  setSelectedPreset,
+  setColor,
+  setColors,
+  loadColors,
+  saveColors,
+  saveDefaultPreset,
+  resetPreset
+}
+
 })
