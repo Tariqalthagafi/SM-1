@@ -1,7 +1,9 @@
 <template>
   <div v-if="sections.length && products.length">
     <h4>معاينة القالب</h4>
-
+    
+<ContactBar />
+    
     <!-- ✅ عرض بالقسم التفاعلي -->
     <SectionedLayout
       v-if="layoutStore.layout === 'sectioned'"
@@ -42,7 +44,7 @@
   </div>
 
   <p v-else>جاري تحميل المعاينة...</p>
-  
+
 </template>
 
 <script setup lang="ts">
@@ -65,6 +67,7 @@ import { useOfferStyleStore } from '@/stores/cboard/templates/offerStyleStore'
 import { useFontStore } from '@/stores/cboard/templates/fontStore'
 // ✅ إضافة استيراد متجر الحساسية (افتراض)
 import { useAllergenStyleStore } from '@/stores/cboard/templates/allergenStyleStore'
+import ContactBar from '@/components/cboard/MenuPreview/ContactBar.vue'
 
 const fontStore = useFontStore()
 
@@ -134,6 +137,8 @@ onMounted(() => {
   currencyStore.initCurrencyOptions()
   // ✅ يجب تهيئة متجر الحساسية هنا
 allergenStore.initAllergenStyleOptions()
+imageShapeStore.initImageShapeOptions()
+
   loadStaticData()
   applySettingsToCSS(colorStore.colors)
 })
@@ -168,4 +173,6 @@ h4 {
   font-family: var(--font-family);
   color: var(--titleText-color, #000);
 }
+
+
 </style>

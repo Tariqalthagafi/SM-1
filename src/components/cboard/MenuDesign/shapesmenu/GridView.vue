@@ -25,7 +25,7 @@
           class="card"
         >
           <!-- ✅ صورة المنتج -->
-          <div class="card-image" v-if="imageShape !== 'none'">
+          <div class="card-image" v-if="imageShape !== 'hidden'">
             <img
               v-if="product.imageBase64"
               :src="product.imageBase64"
@@ -37,6 +37,14 @@
 
           <div class="card-header">
             <span class="product-name">{{ product.name }}</span>
+            <p v-if="product.calories !== undefined" class="product-calories">
+  🍽 {{ product.calories }} سعرة حرارية
+</p>
+
+            <p v-if="product.description" class="product-description">
+  {{ product.description }}
+</p>
+
           </div>
 
           <div class="card-body">
@@ -100,11 +108,13 @@ const { categories, currencySymbol, currencyKey, imageShape, offerStyle, allerge
       // ✅ إضافة خصائص مسببات الحساسية للمنتج
       allergens?: string[]
       hasAllergens?: boolean
+      description?: string
+      calories?: number
     }[]
   }[]
   currencySymbol: string
   currencyKey: string
-  imageShape: 'circle' | 'roundedSquare' | 'rectangle' | 'none'
+  imageShape: 'circle' | 'roundedSquare' | 'rectangle' | 'hidden'
   offerStyle: 'strikeOnly' | 'strikeWithSaving' | 'strikeWithBadge'
   // ✅ إضافة خصائص نمط الأيقونة
   allergenIconStyle?: 'colored' | 'outlined' | 'monochrome' | 'hidden' | 'boxedA' | 'boldA' | 'warningTriangle'
@@ -315,5 +325,17 @@ font-family: var(--font-family);
 .allergen-icon.hidden {
   display: none;
 }
+.product-description {
+  font-size: 0.8rem;
+  color: var(--descriptionText-color, #666);
+  margin-top: 0.4rem;
+  line-height: 1.4;
+}
+.product-calories {
+  font-size: 0.75rem;
+  color: var(--caloriesText-color, #888);
+  margin-top: 0.3rem;
+}
+
 /* نهاية تنسيقات مسببات الحساسية */
 </style>

@@ -1,6 +1,6 @@
 <template>
   <div class="color-editor">
-    <h5>{{ t('colorsSection') }}</h5>
+    
 
     <!-- اختيار نمط جاهز -->
     <div class="preset-selector">

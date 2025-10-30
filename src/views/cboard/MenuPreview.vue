@@ -1,16 +1,20 @@
-<!-- 📁 المسار: src/views/cboard/MenuPreview.vue -->
 <template>
-  <div class="contact-buttons-row">
-    <SocialContactButton position="none" />
-    <PaymentContactButton position="none" />
-    <DeliveryContactButton position="none" />
-  </div>
+  <!-- ✅ شريط علوي مستقل للأيقونات -->
+  
+<ContactBar />
+
+  
+
+  <!-- ✅ فاصل مرئي -->
   <div class="menu-separator"></div>
+
+  <!-- ✅ عرض المنيو -->
   <div v-if="!isLoading" class="menu-preview-frame">
     <component :is="layoutComponent" v-bind="layoutProps" />
   </div>
   <p v-else>جاري تحميل المنيو...</p>
 </template>
+
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
@@ -31,7 +35,7 @@ import SectionedLayout from '@/components/cboard/MenuDesign/shapesmenu/Sectioned
 import SidebarView from '@/components/cboard/MenuDesign/shapesmenu/SidebarView.vue'
 import GridView from '@/components/cboard/MenuDesign/shapesmenu/GridView.vue'
 import PagedView from '@/components/cboard/MenuDesign/shapesmenu/PagedView.vue'
-
+import ContactBar from '@/components/cboard/MenuPreview/ContactBar.vue'
 // ✅ مكونات التواصل
 import SocialContactButton from '@/components/cboard/Social/SocialContactButton.vue'
 import DeliveryContactButton from '@/components/cboard/OrderInfo/DeliveryContactButton.vue'
@@ -57,7 +61,7 @@ const offerStyle = computed(() => offerStyleStore.offerStyle)
 
 const imageShape = computed(() => {
   const shape = imageShapeStore.imageShape
-  return ['circle', 'rectangle', 'roundedSquare', 'none'].includes(shape)
+  return ['circle', 'rectangle', 'roundedSquare', 'hidden'].includes(shape)
     ? shape
     : 'rectangle'
 })
@@ -169,6 +173,7 @@ onMounted(async () => {
       layoutStore.loadLayout(),
       offerStyleStore.loadOfferStyle(),
       allergenStyleStore.initAllergenStyleOptions(),
+      imageShapeStore.initImageShapeOptions(),
       socialStore.load()
     ])
 
@@ -324,15 +329,17 @@ onMounted(async () => {
   top: 0;
   z-index: 1000;
   background: white;
-  padding: 0.5rem 1rem;
+  padding: 0.75rem 1rem;
   display: flex;
   justify-content: center;
   gap: 1rem;
   border-bottom: 1px solid #eee;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
 }
 
+
 .menu-separator {
-  height: 1rem;
+  height: 1px;
   background-color: var(--cardBackground-bg, #f9f9f9);
 }
 </style>

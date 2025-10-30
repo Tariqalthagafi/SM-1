@@ -17,7 +17,7 @@ export const useOrderInfoStore = defineStore('orderInfo', () => {
   const deliveryMethods = ref<DeliveryMethod[]>([
   { name: 'طلب محلي', icon: 'dinin-icon.svg', enabled: false },
   { name: 'استلام الفرع', icon: 'takeaway-icon.png', enabled: false },
-  { name: 'توصيل المطعم المباشر', icon: 'delivery-icon.svg', enabled: false },
+  { name: 'توصيل المطعم ', icon: 'delivery-icon.svg', enabled: false },
   { name: 'توصيل جاهز', icon: 'Jahez-icon.svg', enabled: false },
   { name: 'توصيل هنقرستيشن', icon: 'hunger-icon.svg', enabled: false },
   { name: 'توصيل مرسول', icon: 'marsool-icon.svg', enabled: false },
@@ -25,7 +25,8 @@ export const useOrderInfoStore = defineStore('orderInfo', () => {
   ])
 
   const paymentMethods = ref<PaymentMethod[]>([
-   { name: 'مدى', icon: 'mada-icon.svg', enabled: false },
+  { name: 'نقد', icon: 'SRS1.svg', enabled: false },
+  { name: 'مدى', icon: 'mada-icon.svg', enabled: false },
   { name: 'Visa', icon: 'visa-icon.svg', enabled: false },
   { name: 'MasterCard', icon: 'mastercard-icon.svg', enabled: false },
   { name: 'American Express', icon: 'amex-icon.svg', enabled: false },

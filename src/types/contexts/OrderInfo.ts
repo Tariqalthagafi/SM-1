@@ -1,7 +1,10 @@
 export interface TimePeriod {
+  type: 'first' | 'second' | 'full'
   from: string
   to: string
+  enabled: boolean
 }
+
 
 export type OperatingHours = Record<string, TimePeriod[]>
 
@@ -18,3 +21,8 @@ export interface PaymentMethod {
   
 }
 
+export interface OrderInfoSettings {
+  operatingHours: OperatingHours
+  deliveryMethods: DeliveryMethod[]
+  paymentMethods: PaymentMethod[]
+}

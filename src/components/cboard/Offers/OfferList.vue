@@ -33,11 +33,12 @@
           <button @click="startEdit(offer)">✏️</button>
           <button @click="deleteOffer(offer.id)">🗑️</button>
           <button
-            @click="toggleOfferActive(offer.id)"
-            :class="offer.isActive ? 'btn-disable' : 'btn-enable'"
-          >
-            {{ offer.isActive ? '🔕 تعطيل' : '🔔 تفعيل' }}
+          class="toggle-switch"
+         :class="{ active: offer.isActive }"
+         @click="toggleOfferActive(offer.id)"
+         :aria-label="offer.isActive ? 'تعطيل العرض' : 'تفعيل العرض'">
           </button>
+
         </div>
       </template>
     </div>
@@ -191,4 +192,77 @@ function toggleOfferActive(id: string) {
 .btn-enable:hover {
   background-color: #218838;
 }
+/* زر إضافة عرض */
+.add-button {
+  align-self: flex-start;
+  padding: 0.5rem 1rem;
+  background-color: #FF9318;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+}
+.add-button:hover {
+  background-color: #d86e00;
+}
+
+/* أزرار بجانب العرض */
+.row-actions {
+  display: flex;
+  flex-direction: row;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+/* تعديل */
+.row-actions button:nth-child(1) {
+  background-color: #1C1C1C;
+  color: white;
+}
+.row-actions button:nth-child(1):hover {
+  background-color: #000000;
+}
+
+/* حذف */
+.row-actions button:nth-child(2) {
+  background-color: #FF9318;
+  color: white;
+}
+.row-actions button:nth-child(2):hover {
+  background-color: #d86e00;
+}
+
+/* زر التبديل */
+.toggle-switch {
+  position: relative;
+  width: 50px;
+  height: 26px;
+  background-color: #ccc;
+  border-radius: 13px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  border: none;
+}
+
+.toggle-switch::before {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 20px;
+  height: 20px;
+  background-color: white;
+  border-radius: 50%;
+  transition: transform 0.3s ease;
+}
+
+.toggle-switch.active {
+  background-color: #FF9318;
+}
+
+.toggle-switch.active::before {
+  transform: translateX(24px);
+}
+
 </style>

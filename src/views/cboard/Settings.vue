@@ -1,9 +1,20 @@
 <template>
   <div class="settings-page">
-    <AccountSection />
-    <UsersSection />
-    <DomainSection />
-    <MembershipStatus />
+    <section class="settings-section">
+      <AccountSection />
+    </section>
+
+    <section class="settings-section">
+      <UsersSection />
+    </section>
+
+    <section class="settings-section">
+      <DomainSection />
+    </section>
+
+    <section class="settings-section">
+      <MembershipStatus />
+    </section>
   </div>
 </template>
 
@@ -14,3 +25,7 @@ import DomainSection from '@/components/cboard/settings/DomainSection.vue'
 import MembershipStatus from '@/components/cboard/settings/MembershipStatus.vue'
 
 </script>
+
+<style scoped>
+
+</style>

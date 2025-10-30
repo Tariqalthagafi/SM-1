@@ -72,6 +72,11 @@ const routes = [
         path: 'settings',
         name: 'Settings',
         component: () => import('@/views/cboard/Settings.vue'),
+      },
+      {
+        path: '/menu/:id',
+        name: 'MenuPublicView',
+        component: () => import('@/views/public/MenuPublicView.vue')
       }
     ],
   },

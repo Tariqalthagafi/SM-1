@@ -19,7 +19,7 @@ export type CardShape = 'rounded' | 'flat' | 'shadowed'
 export type FontSize = 'small' | 'medium' | 'large'
 
 // من templates.ts
-export type ImageShape = 'circle' | 'roundedSquare' | 'rectangle' | 'none'
+export type ImageShape = 'circle' | 'roundedSquare' | 'rectangle' | 'hidden'
 export type AllergenIconStyle =
   | 'colored'
   | 'outlined'

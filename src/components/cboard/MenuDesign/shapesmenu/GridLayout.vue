@@ -1,3 +1,5 @@
+// شبكي
+
 <template>
   <div class="grid-layout">
     <div
@@ -6,7 +8,7 @@
       class="product-card"
     >
       <!-- ✅ صورة المنتج -->
-      <div class="product-image-wrapper" v-if="imageShape !== 'none'">
+      <div class="product-image-wrapper" v-if="imageShape !== 'hidden'">
         <img
           v-if="product.imageBase64"
           :src="product.imageBase64"
@@ -16,7 +18,16 @@
         <div v-else class="product-image placeholder" :class="imageShape"></div>
       </div>
 
-      <div class="product-name">{{ product.name }}</div>
+      <div class="product-name">{{ product.name }}
+<p v-if="product.calories !== undefined" class="product-calories">
+  🍽 {{ product.calories }} سعرة حرارية
+</p>
+
+        <p v-if="product.description" class="product-description">
+  {{ product.description }}
+</p>
+
+      </div>
 
       <!-- ✅ السعر حسب نمط العرض -->
       <div class="product-price" :class="offerStyle">
@@ -71,11 +82,13 @@ defineProps<{
     // ✅ خصائص مسببات الحساسية للمنتج
     allergens?: string[]
     hasAllergens?: boolean
+    description?: string
+    calories?: number
   }[]
   sections?: any[]
   currencySymbol: string
   currencyKey: string
-  imageShape: 'circle' | 'roundedSquare' | 'rectangle' | 'none'
+  imageShape: 'circle' | 'roundedSquare' | 'rectangle' | 'hidden'
   offerStyle: 'strikeOnly' | 'strikeWithSaving' | 'strikeWithBadge'
   // ✅ إضافة نمط الأيقونة فقط
   allergenIconStyle?: 'colored' | 'outlined' | 'monochrome' | 'hidden' | 'boxedA' | 'boldA' | 'warningTriangle'
@@ -238,4 +251,16 @@ function getAllergenSymbol(style: string): string {
 .allergen-icon.hidden {
   display: none;
 }
+.product-description {
+  font-size: 0.8rem;
+  color: var(--descriptionText-color, #666);
+  margin-top: 0.4rem;
+  line-height: 1.4;
+}
+.product-calories {
+  font-size: 0.75rem;
+  color: var(--caloriesText-color, #888);
+  margin-top: 0.3rem;
+}
+
 </style>

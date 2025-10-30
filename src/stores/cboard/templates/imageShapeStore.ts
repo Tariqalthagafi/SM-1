@@ -24,47 +24,58 @@ export const useImageShapeStore = defineStore('imageShapeStore', () => {
     await indexedDBService.saveSetting('imageShape', imageShape.value)
   }
 
-  async function seedImageShapeOptions() {
-    const existing = await indexedDBService.getOptions('imageShape')
-    if (existing.length > 0) return
+async function seedImageShapeOptions() {
+  const existing = await indexedDBService.getOptions('imageShape')
+  if (existing.length > 0) return
 
-    const seedOptions = [
-      {
-        id: 'imageShape-circle',
-        key: 'imageShape',
-        value: 'circle',
-        label: 'دائري',
-        type: 'string',
-        context: 'template',
-        group: 'imageShape',
-        is_active: true
-      },
-      {
-        id: 'imageShape-roundedSquare',
-        key: 'imageShape',
-        value: 'roundedSquare',
-        label: 'مربع بحواف ناعمة',
-        type: 'string',
-        context: 'template',
-        group: 'imageShape',
-        is_active: true
-      },
-      {
-        id: 'imageShape-rectangle',
-        key: 'imageShape',
-        value: 'rectangle',
-        label: 'مستطيل أفقي',
-        type: 'string',
-        context: 'template',
-        group: 'imageShape',
-        is_active: true
-      }
-    ]
-
-    for (const option of seedOptions) {
-      await indexedDBService.saveOption(option)
+  const seedOptions = [
+    {
+      id: 'imageShape-circle',
+      key: 'imageShape',
+      value: 'circle',
+      label: 'دائري',
+      type: 'string',
+      context: 'template',
+      group: 'imageShape',
+      is_active: true
+    },
+    {
+      id: 'imageShape-roundedSquare',
+      key: 'imageShape',
+      value: 'roundedSquare',
+      label: 'مربع بحواف ناعمة',
+      type: 'string',
+      context: 'template',
+      group: 'imageShape',
+      is_active: true
+    },
+    {
+      id: 'imageShape-rectangle',
+      key: 'imageShape',
+      value: 'rectangle',
+      label: 'مستطيل أفقي',
+      type: 'string',
+      context: 'template',
+      group: 'imageShape',
+      is_active: true
+    },
+    {
+      id: 'imageShape-hidden',
+      key: 'imageShape',
+      value: 'hidden',
+      label: 'بدون صورة',
+      type: 'string',
+      context: 'template',
+      group: 'imageShape',
+      is_active: true
     }
+  ]
+
+  for (const option of seedOptions) {
+    await indexedDBService.saveOption(option)
   }
+}
+
 
   async function initImageShapeOptions() {
     await seedImageShapeOptions()

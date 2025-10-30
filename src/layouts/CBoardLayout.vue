@@ -1,7 +1,7 @@
 <template>
   <div class="cboard-layout">
     <!-- Sidebar -->
-    <aside v-if="!hideSidebar" class="sidebar" :class="{ collapsed: isCollapsed }">
+    <aside v-if="!isPublicView" class="sidebar" :class="{ collapsed: isCollapsed }">
       <div class="sidebar-header">
         <button @click="toggleSidebar" title="طي القائمة">☰</button>
         <div class="sidebar-actions"></div>
@@ -62,6 +62,39 @@ function toggleLang() {
 
 onMounted(() => {
   document.documentElement.setAttribute('dir', currentLang.value === 'ar' ? 'rtl' : 'ltr')
+
+  const links = document.querySelectorAll('.sidebar-link')
+  links.forEach(link => {
+    link.addEventListener('mouseenter', () => {
+      const tooltip = link.querySelector('.tooltip')
+      if (!tooltip) return
+
+      tooltip.style.opacity = '1'
+      tooltip.style.display = 'inline-block'
+
+      requestAnimationFrame(() => {
+        const rect = link.getBoundingClientRect()
+        const isRTL = document.documentElement.getAttribute('dir') === 'rtl'
+        const tooltipWidth = tooltip.offsetWidth
+
+        tooltip.style.top = `${rect.top + rect.height / 2}px`
+        tooltip.style.transform = 'translateY(-50%)'
+
+        if (isRTL) {
+          tooltip.style.left = `${rect.left - tooltipWidth - 12}px`
+        } else {
+          tooltip.style.left = `${rect.right + 12}px`
+        }
+      })
+    })
+
+    link.addEventListener('mouseleave', () => {
+      const tooltip = link.querySelector('.tooltip')
+      if (tooltip) {
+        tooltip.style.opacity = '0'
+      }
+    })
+  })
 })
 
 function logout() {
@@ -94,7 +127,10 @@ const sidebarItems = computed(() => [
   { name: 'خروج', icon: '⏻', iconType: 'text', route: '#logout' }
 ])
 
+const isPublicView = computed(() => route.path.startsWith('/menu'))
+
 </script>
+
 
 <style scoped>
 .cboard-layout {
@@ -103,7 +139,7 @@ const sidebarItems = computed(() => [
   height: 100vh;
   background-color: #FFFFFF; /* ✅ خلفية موحدة */
   font-family: 'Segoe UI', sans-serif;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .sidebar {
@@ -114,7 +150,7 @@ const sidebarItems = computed(() => [
   display: flex;
   flex-direction: column;
   box-shadow: 2px 0 6px rgba(0,0,0,0.05);
-  overflow: hidden;
+  overflow: visible;
   z-index: 1;
 }
 
@@ -184,9 +220,10 @@ const sidebarItems = computed(() => [
 }
 
 .tooltip {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
+  position: fixed;
+  top: 0;
+  left: 0;
+  transform: none;
   background-color: #333;
   color: #fff;
   padding: 0.3rem 0.6rem;
@@ -196,7 +233,10 @@ const sidebarItems = computed(() => [
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.2s ease;
-  z-index: 10;
+  z-index: 1000;
+  display: inline-block; /* ✅ مهم لتقييد الحجم على النص */
+  width: max-content;     /* ✅ يجعل الخلفية تلتف حول النص فقط */
+  max-width: 300px;       /* ✅ يمنع التمدد الزائد */
 }
 
 .sidebar-link:hover .tooltip {

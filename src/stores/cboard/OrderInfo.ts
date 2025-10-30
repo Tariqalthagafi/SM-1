@@ -4,15 +4,35 @@ import type {
   OperatingHours,
   DeliveryMethod,
   PaymentMethod,
+  TimePeriod,
   OrderInfoSettings
-} from '@/types/contexts/OrderInfoView'
+} from '@/types/contexts/OrderInfo'
 
 const allDays = ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت']
+
+function inferType(index: number): 'first' | 'second' | 'full' {
+  return index === 0 ? 'first' : index === 1 ? 'second' : 'full'
+}
+
+function normalizePeriod(p: Partial<TimePeriod>, index: number): TimePeriod {
+  return {
+    type: p.type ?? inferType(index),
+    from: p.from ?? '',
+    to: p.to ?? '',
+    enabled: p.enabled ?? true
+  }
+}
 
 function initializeHours(data?: OperatingHours): OperatingHours {
   const result: OperatingHours = {}
   for (const day of allDays) {
-    result[day] = data?.[day] ?? [{ from: '', to: '' }]
+    const raw = data?.[day] ?? [
+  { type: 'first', from: '08:00', to: '12:00', enabled: false },
+  { type: 'second', from: '16:00', to: '22:00', enabled: false },
+  { type: 'full', from: '00:00', to: '23:59', enabled: false }
+]
+
+    result[day] = raw.map((p, i) => normalizePeriod(p, i))
   }
   return result
 }
@@ -30,14 +50,14 @@ export function useOrderInfoStore() {
   }
 
   function addPeriod(day: string) {
-    operatingHours.value[day].push({ from: '', to: '' })
+    const existing = operatingHours.value[day]
+    const nextType = inferType(existing.length)
+    existing.push({ type: nextType, from: '', to: '', enabled: true })
   }
 
   function removePeriod(day: string, index: number) {
     operatingHours.value[day].splice(index, 1)
-    if (operatingHours.value[day].length === 0) {
-      operatingHours.value[day].push({ from: '', to: '' })
-    }
+    // لا تضف فترة فارغة تلقائيًا لتجنب كسر النوع
   }
 
   function cleanHours(hours: OperatingHours): OperatingHours {

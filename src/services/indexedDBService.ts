@@ -3,7 +3,7 @@ import type { OperatingHours , PaymentMethod } from '@/types/contexts/OrderInfoV
 
 
 const DB_NAME = 'menuDB'
-const DB_VERSION = 10
+const DB_VERSION = 12
 
 export const dbPromise = openDB(DB_NAME, DB_VERSION, {
   upgrade(db) {
@@ -67,6 +67,10 @@ if (!db.objectStoreNames.contains('payment_methods')) {
 if (!db.objectStoreNames.contains('operating_hours')) {
   db.createObjectStore('operating_hours', { keyPath: 'id' })
 }
+if (!db.objectStoreNames.contains('domain')) {
+  db.createObjectStore('domain', { keyPath: 'id' })
+}
+
 
 }
 })
@@ -179,7 +183,8 @@ async getOperatingHours(id = 'default') {
 
 async saveOperatingHours(hours: OperatingHours, id = 'default') {
   const db = await dbPromise
-  await db.put('operating_hours', { id, hours })
+  const cleanHours = JSON.parse(JSON.stringify(hours))
+  await db.put('operating_hours', { id, hours: cleanHours })
 },
 
 async getPaymentMethods(id = 'default') {
@@ -191,7 +196,5 @@ async savePaymentMethods(methods: PaymentMethod[], id = 'default') {
   const db = await dbPromise
   await db.put('payment_methods', { id, methods })
 }
-
-
 
 }
