@@ -21,7 +21,7 @@ import { useImageShapeStore } from '@/stores/cboard/templates/imageShapeStore'
 import { useOfferStyleStore } from '@/stores/cboard/templates/offerStyleStore'
 import { useAllergenStyleStore } from '@/stores/cboard/templates/allergenStyleStore'
 import { indexedDBService } from '@/services/indexedDBService'
-import { use_social_store } from '@/stores/cboard/social'
+import { use_social_store } from '@/stores/cboard/social.ts'
 
 // ✅ مكونات التخطيط
 import VerticalLayout from '@/components/cboard/MenuDesign/shapesmenu/VerticalLayout.vue'
