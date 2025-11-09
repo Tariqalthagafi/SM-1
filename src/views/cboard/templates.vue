@@ -2,7 +2,7 @@
   <div class="template-editor-page">
 
     <div class="template-editor-container">
-          <h1 class="page-title">خصص شكل المنيو بإضافة رموز بصرية ديناميكية</h1>
+          <h1 class="page-title">{{ t('cboard.templates.title') }}</h1>
 
       <TemplateCustomizer />
     </div>
@@ -11,7 +11,8 @@
 
 <script setup lang="ts">
 import TemplateCustomizer from '@/components/cboard/Templates/Customizer/TemplateCustomizer.vue'
-
+import { useI18n } from 'vue-i18n'
+const { t } = useI18n() 
 </script>
 
 <style scoped>

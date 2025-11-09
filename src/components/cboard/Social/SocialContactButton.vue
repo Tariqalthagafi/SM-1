@@ -1,12 +1,13 @@
 <template>
-  <!-- الزر الثابت في الزاوية -->
-<div class="contact-button-container none">
-<button class="main-contact-btn" @click="isPopoverOpen = !isPopoverOpen">
-  <v-icon name="fa-phone" />
+  <div class="contact-button-container none">
+    <button
+      class="main-contact-btn"
+      @click="isPopoverOpen = !isPopoverOpen"
+      :style="{ backgroundColor: props.colors.topIconsBackground }"
+    >
+      <v-icon name="fa-phone" />
+    </button>
 
-</button>
-
-    <!-- القائمة المنبثقة (Popover) -->
     <div v-if="isPopoverOpen" class="contact-popover">
       <h6 class="popover-title">تواصل معنا</h6>
       <div class="social-links">
@@ -19,14 +20,13 @@
           @click="isPopoverOpen = false"
           :title="link.name"
         >
-       <span class="icon-wrapper white-bg">
-<img
-  :src="`/icons/social/${link.icon}`"
-  class="svg-icon"
-  :alt="link.name"
-/>
-</span>
-
+          <span class="icon-wrapper white-bg">
+            <img
+              :src="`/icons/social/${link.icon}`"
+              class="svg-icon"
+              :alt="link.name"
+            />
+          </span>
         </a>
       </div>
     </div>
@@ -35,60 +35,45 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-import { useSocialStore } from '@/stores/cboard/Social'
+import { use_social_store } from '@/stores/cboard/social'
+import type { social_key } from '@/types/contexts/social'
 
-defineProps<{
+const props = defineProps<{
   position: 'bottom-center' | 'bottom-right' | 'top-right' | 'top-center' | 'none'
+  colors: Record<string, string>
 }>()
 
-const socialStore = useSocialStore()
+const socialStore = use_social_store()
 const isPopoverOpen = ref(false)
 
 onMounted(() => {
   socialStore.load()
 })
 
-// قائمة الروابط مع اسم الأيقونة من مكتبة oh-vue-icons
-const socialMap = [
-  { key: 'phone', name: 'اتصال هاتفي', color: '#34A853', icon: 'mobile-icon.svg' },
-  { key: 'whatsapp', name: 'واتساب', color: '#25D366', icon: 'whatsapp-icon.svg' },
-  { key: 'email', name: 'بريد إلكتروني', color: '#EA4335', icon: 'email-icon.svg' },
-  { key: 'website', name: 'الموقع الإلكتروني', color: '#007bff', icon: 'website-icon.svg' },
-  { key: 'location', name: 'الموقع', color: '#4285F4', icon: 'maps-icon.svg' },
-  { key: 'instagram', name: 'إنستجرام', color: '#E1306C', icon: 'instagram-icon.svg' },
-  { key: 'twitter', name: 'تويتر (X)', color: '#000000', icon: 'x-icon.svg' },
-  { key: 'facebook', name: 'فيسبوك', color: '#1877F2', icon: 'facebook-icon.svg' },
-  { key: 'snapchat', name: 'سناب شات', color: '#FFFC00', icon: 'snapchat-icon.svg' },
-  { key: 'tiktok', name: 'تيك توك', color: '#000000', icon: 'tiktok-icon.svg' },
-  { key: 'youtube', name: 'يوتيوب', color: '#FF0000', icon: 'youtube-icon.svg' },
-]
+// دالة آمنة للوصول إلى الرابط حسب المفتاح
+function getLink(key: social_key) {
+  return socialStore.fields.find(link => link.key === key)
+}
 
-// تصفية الروابط العامة فقط
+
+// قائمة الروابط العامة فقط
 const filteredLinks = computed(() => {
   return socialMap
     .map(mapItem => {
-      const linkData = socialStore.links[mapItem.key as keyof typeof socialStore.links] as { value: string, isPublic: boolean }
-
-      if (linkData?.isPublic && linkData.value) {
+      const linkData = getLink(mapItem.key)
+      if (linkData?.is_public && linkData.value) {
         return {
           ...mapItem,
-          value: linkData.value,
-          key: mapItem.key as keyof typeof socialStore.links
+          value: linkData.value
         }
       }
       return null
     })
-    .filter(link => link !== null) as {
-      key: keyof typeof socialStore.links
-      name: string
-      color: string
-      icon: string
-      value: string
-    }[]
+    .filter((link): link is { key: social_key; name: string; color: string; icon: string; value: string } => link !== null)
 })
 
 // توليد الرابط المناسب حسب نوع الخدمة
-function getLinkUrl(key: keyof typeof socialStore.links, value: string): string {
+function getLinkUrl(key: social_key, value: string): string {
   switch (key) {
     case 'phone':
       return `tel:${value}`
@@ -104,6 +89,21 @@ function getLinkUrl(key: keyof typeof socialStore.links, value: string): string 
       return value
   }
 }
+
+// تعريف المنصات المدعومة
+const socialMap: { key: social_key; name: string; color: string; icon: string }[] = [
+  { key: 'phone', name: 'اتصال هاتفي', color: '#34A853', icon: 'mobile-icon.svg' },
+  { key: 'whatsapp', name: 'واتساب', color: '#25D366', icon: 'whatsapp-icon.svg' },
+  { key: 'email', name: 'بريد إلكتروني', color: '#EA4335', icon: 'email-icon.svg' },
+  { key: 'website', name: 'الموقع الإلكتروني', color: '#007bff', icon: 'website-icon.svg' },
+  { key: 'location', name: 'الموقع', color: '#4285F4', icon: 'maps-icon.svg' },
+  { key: 'instagram', name: 'إنستجرام', color: '#E1306C', icon: 'instagram-icon.svg' },
+  { key: 'twitter', name: 'تويتر (X)', color: '#000000', icon: 'x-icon.svg' },
+  { key: 'facebook', name: 'فيسبوك', color: '#1877F2', icon: 'facebook-icon.svg' },
+  { key: 'snapchat', name: 'سناب شات', color: '#FFFC00', icon: 'snapchat-icon.svg' },
+  { key: 'tiktok', name: 'تيك توك', color: '#000000', icon: 'tiktok-icon.svg' },
+  { key: 'youtube', name: 'يوتيوب', color: '#FF0000', icon: 'youtube-icon.svg' }
+]
 </script>
 
 <style scoped>
@@ -113,7 +113,6 @@ function getLinkUrl(key: keyof typeof socialStore.links, value: string): string 
   align-items: center;
   justify-content: center;
 }
-
 
 .main-contact-btn {
   width: 50px;
@@ -197,14 +196,15 @@ function getLinkUrl(key: keyof typeof socialStore.links, value: string): string 
   from { transform: scale(0.8); opacity: 0; }
   to { transform: scale(1); opacity: 1; }
 }
+
 .contact-button-container.none {
   position: static;
 }
+
 .svg-icon {
   width: 24px;
   height: 24px;
   object-fit: contain;
   display: block;
 }
-
 </style>

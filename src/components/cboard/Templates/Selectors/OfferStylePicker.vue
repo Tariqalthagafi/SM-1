@@ -1,6 +1,8 @@
 <template>
   <div class="offer-style-selector">
-    <label for="offer-style-select">نمط العرض:</label>
+    <label for="offer-style-select">
+      {{ t('cboard.templates.selectors.offerStyle.label') }}
+    </label>
     <div class="row">
       <select
         id="offer-style-select"
@@ -20,33 +22,50 @@
       <!-- معاينة مصغرة -->
       <div class="offer-preview">
         <div class="preview-box" :class="localSelected">
-          <span class="product-name">منتج تجريبي</span>
+          <span class="product-name">
+            {{ t('cboard.templates.selectors.offerStyle.sample.name') }}
+          </span>
 
           <template v-if="localSelected === 'strikeOnly'">
             <span class="product-price">
-              <span class="old"> ~{{ originalPrice }} ر.س~ </span>
-              <span class="new">{{ newPrice }} ر.س</span>
+              <span class="old">
+                ~{{ t('cboard.templates.selectors.offerStyle.sample.price.old', { old: originalPrice }) }}~
+              </span>
+              <span class="new">
+                {{ t('cboard.templates.selectors.offerStyle.sample.price.new', { new: newPrice }) }}
+              </span>
             </span>
           </template>
 
           <template v-else-if="localSelected === 'strikeWithSaving'">
-            <span class="product-savings">🔥 وفر {{ savingAmount }} ر.س</span>
+            <span class="product-savings">
+              {{ t('cboard.templates.selectors.offerStyle.sample.saving', { amount: savingAmount }) }}
+            </span>
             <span class="product-price">
-              <span class="old"> ~{{ originalPrice }} ر.س~ </span>
-              <span class="new">{{ newPrice }} ر.س</span>
+              <span class="old">
+                ~{{ t('cboard.templates.selectors.offerStyle.sample.price.old', { old: originalPrice }) }}~
+              </span>
+              <span class="new">
+                {{ t('cboard.templates.selectors.offerStyle.sample.price.new', { new: newPrice }) }}
+              </span>
             </span>
           </template>
 
           <template v-else-if="localSelected === 'strikeWithBadge'">
-            <span class="discount-badge">🔖 -{{ discountPercent }}%</span>
+            <span class="discount-badge">
+              {{ t('cboard.templates.selectors.offerStyle.sample.discount', { percent: discountPercent }) }}
+            </span>
             <span class="product-price">
-              <span class="old"> ~{{ originalPrice }} ر.س~ </span>
-              <span class="new">{{ newPrice }} ر.س</span>
+              <span class="old">
+                ~{{ t('cboard.templates.selectors.offerStyle.sample.price.old', { old: originalPrice }) }}~
+              </span>
+              <span class="new">
+                {{ t('cboard.templates.selectors.offerStyle.sample.price.new', { new: newPrice }) }}
+              </span>
             </span>
           </template>
-
         </div>
-        <small>معاينة النمط</small>
+        <small>{{ t('cboard.templates.selectors.offerStyle.preview') }}</small>
       </div>
     </div>
   </div>
@@ -55,6 +74,8 @@
 <script setup lang="ts">
 import { ref, watch, withDefaults, computed } from 'vue'
 import type { OfferStyle } from '@/types/contexts/templates'
+import { useI18n } from 'vue-i18n'
+const { t } = useI18n()
 
 const props = withDefaults(defineProps<{
   selected: OfferStyle
@@ -195,48 +216,5 @@ label {
   font-weight: bold;
   margin-bottom: 0.3rem;
   display: inline-block;
-}
-
-.preview-box.badgeWithNewPrice {
-  background-color: #fff8e1;
-  border: 1px solid #FF7A00;
-}
-
-.preview-box.badgeWithNewPrice .product-price::before {
-  content: "🔖 ";
-  color: #FF7A00;
-  font-weight: bold;
-}
-
-.preview-box.stackedPrice .product-price {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.preview-box.stackedPrice .old {
-  text-decoration: line-through;
-  color: #999;
-  font-size: 0.85rem;
-}
-
-.preview-box.stackedPrice .new {
-  font-weight: bold;
-  color: #2e7d32;
-}
-
-.preview-box.badgeDiscount .product-price {
-  display: flex;
-  align-items: center;
-  gap: 0.3rem;
-}
-
-.preview-box.badgeDiscount .badge {
-  background-color: #FF7A00;
-  color: white;
-  font-size: 0.7rem;
-  padding: 0.2rem 0.4rem;
-  border-radius: 4px;
-  font-weight: bold;
 }
 </style>

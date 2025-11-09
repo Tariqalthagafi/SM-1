@@ -1,17 +1,21 @@
 <template>
   <div class="welcome-message">
-    <h2 class="title">مرحبًا بك 👋</h2>
-    <p class="account-id">رقم الحساب: <span class="id-value">{{ homeStore.menuId }}</span></p>
+    <h2 class="title">{{ t('cboard.home.welcome.headline') }} <span class="id-value">{{ userStore.userName }}</span></h2>
+     
   </div>
 </template>
 
 <script setup lang="ts">
-import { useHomeStore } from '@/stores/cboard/homeStore'
 
-const homeStore = useHomeStore()
+import { useUserStore } from '@/stores/cboard/home/userStore'
+import { useI18n } from 'vue-i18n'
 
-homeStore.initStore()
-homeStore.markVisit()
+const { t, locale } = useI18n()
+
+const userStore = useUserStore()
+
+userStore.loadUser()
+
 </script>
 
 <style scoped>

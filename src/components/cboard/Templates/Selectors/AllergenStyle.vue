@@ -1,6 +1,6 @@
 <template>
   <div class="allergen-style-selector">
-    <label for="allergen-style-select">نمط رمز الحساسية:</label>
+    <label for="allergen-style-select"> {{ t('cboard.templates.selectors.allergenStyle.label') }} </label>
     <div class="row">
       <select
         id="allergen-style-select"
@@ -26,7 +26,7 @@
         >
           {{ allergenStyleStore.getIconSymbol(localStyle) }}
         </span>
-        <small>معاينة الرمز</small>
+        <small>{{ t('cboard.templates.selectors.allergenStyle.preview') }}</small>
       </div>
     </div>
   </div>
@@ -35,10 +35,10 @@
 <script setup lang="ts">
 import { ref, watch, withDefaults } from 'vue'
 import type { AllergenIconStyle } from '@/types/contexts/templates'
-// 1. استيراد الـ store
 import { useAllergenStyleStore } from '@/stores/cboard/templates/allergenStyleStore'
+import { useI18n } from 'vue-i18n'
+const { t } = useI18n()
 
-// 2. تهيئة الـ store
 const allergenStyleStore = useAllergenStyleStore()
 
 const props = withDefaults(defineProps<{

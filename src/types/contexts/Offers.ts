@@ -3,10 +3,10 @@ export interface Offer {
   title: string
   type: 'percentage' | 'unifiedPrice'
   discount: number
-  startDate?: string
-  endDate?: string
-  startTime?: string
-  endTime?: string
-  isActive: boolean
-  order?: number
+  start_date?: string
+  end_date?: string
+  start_time?: string
+  end_time?: string
+  is_active: boolean
+  created_by?: string
 }

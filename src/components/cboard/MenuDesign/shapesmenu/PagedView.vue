@@ -2,74 +2,81 @@
 <template>
   <div class="paged-view">
     <div class="page-content">
-      <h5 class="category-title">{{ currentCategory.name }}</h5>
+      <h5 class="category-title" :style="{ color: props.colors.titleText }">
+        {{ currentCategory.name }}
+      </h5>
 
       <div class="cards-layout">
         <div
           v-for="product in currentCategory.products"
           :key="product.id"
           class="card"
+          :style="{ backgroundColor: props.colors.cardBackground, color: props.colors.titleText }"
         >
           <!-- ✅ صورة المنتج -->
-          <div class="card-image" v-if="imageShape !== 'hidden'">
+          <div class="card-image" v-if="props.imageShape !== 'hidden'">
             <img
               v-if="product.imageBase64"
               :src="product.imageBase64"
-              :class="['product-image', imageShape]"
+              :class="['product-image', props.imageShape]"
               alt="صورة المنتج"
             />
-            <div v-else class="product-image placeholder" :class="imageShape"></div>
+            <div v-else class="product-image placeholder" :class="props.imageShape"></div>
           </div>
 
           <div class="card-header">
             <span class="product-name">{{ product.name }}</span>
             <p v-if="product.calories !== undefined" class="product-calories">
-  🍽 {{ product.calories }} سعرة حرارية
-</p>
-
+              🍽 {{ product.calories }} سعرة حرارية
+            </p>
             <p v-if="product.description" class="product-description">
-  {{ product.description }}
-</p>
-
+              {{ product.description }}
+            </p>
           </div>
 
           <div class="card-body">
-            <div class="product-price" :class="offerStyle">
-              <template v-if="offerStyle === 'strikeOnly' && product.offerLabel">
-                <span class="old-price">{{ product.basePrice }} <span v-html="currencySymbol"></span></span>
-                <span class="final-price">{{ product.finalPrice }} <span v-html="currencySymbol"></span></span>
+            <div
+              class="product-price"
+              :class="props.offerStyle"
+              :style="{ backgroundColor: props.colors.priceBackground, color: props.colors.priceText }"
+            >
+              <template v-if="props.offerStyle === 'strikeOnly' && product.offerLabel">
+                <span class="old-price">{{ product.basePrice }} <span v-html="props.currencySymbol"></span></span>
+                <span class="final-price">{{ product.finalPrice }} <span v-html="props.currencySymbol"></span></span>
               </template>
 
-              <template v-else-if="offerStyle === 'strikeWithSaving' && product.offerLabel">
-                <span class="offer-label">🔥 وفر {{ product.basePrice - product.finalPrice }} <span v-html="currencySymbol"></span></span>
-                <span class="old-price">{{ product.basePrice }} <span v-html="currencySymbol"></span></span>
-                <span class="final-price">{{ product.finalPrice }} <span v-html="currencySymbol"></span></span>
+              <template v-else-if="props.offerStyle === 'strikeWithSaving' && product.offerLabel">
+                <span class="offer-label" :style="{ color: props.colors.offerLabel }">
+                  🔥 وفر {{ product.basePrice - product.finalPrice }} <span v-html="props.currencySymbol"></span>
+                </span>
+                <span class="old-price">{{ product.basePrice }} <span v-html="props.currencySymbol"></span></span>
+                <span class="final-price">{{ product.finalPrice }} <span v-html="props.currencySymbol"></span></span>
               </template>
 
-              <template v-else-if="offerStyle === 'strikeWithBadge' && product.offerLabel">
-                <span class="offer-label">🔖 خصم {{ Math.round((1 - product.finalPrice / product.basePrice) * 100) }}%</span>
-                <span class="old-price">{{ product.basePrice }} <span v-html="currencySymbol"></span></span>
-                <span class="final-price">{{ product.finalPrice }} <span v-html="currencySymbol"></span></span>
+              <template v-else-if="props.offerStyle === 'strikeWithBadge' && product.offerLabel">
+                <span class="offer-label" :style="{ color: props.colors.offerLabel }">
+                  🔖 خصم {{ Math.round((1 - product.finalPrice / product.basePrice) * 100) }}%
+                </span>
+                <span class="old-price">{{ product.basePrice }} <span v-html="props.currencySymbol"></span></span>
+                <span class="final-price">{{ product.finalPrice }} <span v-html="props.currencySymbol"></span></span>
               </template>
 
               <template v-else>
-                <span class="final-price">{{ product.finalPrice }} <span v-html="currencySymbol"></span></span>
+                <span class="final-price">{{ product.finalPrice }} <span v-html="props.currencySymbol"></span></span>
               </template>
             </div>
-            
-            <!-- ✅ إضافة منطق عرض مسببات الحساسية -->
+
+            <!-- ✅ مسببات الحساسية -->
             <div v-if="product.hasAllergens && product.allergens?.length" class="allergens-display">
               <span
                 v-for="allergen in product.allergens"
                 :key="allergen"
                 class="allergen-icon"
-                :class="allergenIconStyle"
+                :class="props.allergenIconStyle"
               >
-                {{ getAllergenSymbol(allergenIconStyle ?? 'boxedA') }}
+                {{ getAllergenSymbol(props.allergenIconStyle ?? 'boxedA') }}
               </span>
             </div>
-            <!-- نهاية منطق عرض مسببات الحساسية -->
-            
           </div>
         </div>
       </div>
@@ -77,7 +84,7 @@
 
     <div class="page-controls">
       <button @click="prevPage" :disabled="index === 0">← السابق</button>
-      <button @click="nextPage" :disabled="index === categories.length - 1">التالي →</button>
+      <button @click="nextPage" :disabled="index === props.categories.length - 1">التالي →</button>
     </div>
   </div>
 </template>
@@ -85,44 +92,46 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 
-const { categories, currencySymbol, currencyKey, imageShape, offerStyle, allergenIconStyle } = defineProps<{
-  categories: {
-    id: string
-    name: string
-    products: {
-      id: string
-      name: string
-      basePrice: number
-      finalPrice: number
-      offerLabel?: string
-      imageBase64?: string
-      // ✅ إضافة خصائص مسببات الحساسية للمنتج
-      allergens?: string[]
-      hasAllergens?: boolean
-      description?: string
-      calories?: number
-    }[]
-  }[]
+interface Product {
+  id: string
+  name: string
+  basePrice: number
+  finalPrice: number
+  offerLabel?: string
+  imageBase64?: string
+  allergens?: string[]
+  hasAllergens?: boolean
+  description?: string
+  calories?: number
+}
+
+interface Category {
+  id: string
+  name: string
+  products: Product[]
+}
+
+const props = defineProps<{
+  categories: Category[]
   currencySymbol: string
   currencyKey: string
   imageShape: 'circle' | 'roundedSquare' | 'rectangle' | 'hidden'
   offerStyle: 'strikeOnly' | 'strikeWithSaving' | 'strikeWithBadge'
-  // ✅ إضافة خصائص نمط الأيقونة
   allergenIconStyle?: 'colored' | 'outlined' | 'monochrome' | 'hidden' | 'boxedA' | 'boldA' | 'warningTriangle'
+  colors: Record<string, string>
 }>()
 
 const index = ref(0)
-const currentCategory = computed(() => categories[index.value])
+const currentCategory = computed(() => props.categories[index.value])
 
 function nextPage() {
-  if (index.value < categories.length - 1) index.value++
+  if (index.value < props.categories.length - 1) index.value++
 }
 
 function prevPage() {
   if (index.value > 0) index.value--
 }
 
-// ✅ إضافة دالة المساعد (Helper Function)
 function getAllergenSymbol(style: string): string {
   switch (style) {
     case 'boxedA':
@@ -141,6 +150,7 @@ function getAllergenSymbol(style: string): string {
   }
 }
 </script>
+
 
 
 <style scoped>

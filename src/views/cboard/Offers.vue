@@ -1,6 +1,7 @@
 <template>
   <div class="offers-page">
-    <h2>📦 إدارة العروض</h2>
+    <h2>{{ t('cboard.offers.title') }}</h2>
+
 
     <!-- قائمة العروض -->
     <OfferList />
@@ -9,6 +10,9 @@
 
 <script setup lang="ts">
 import OfferList from '@/components/cboard/Offers/OfferList.vue'
+import { useI18n } from 'vue-i18n'
+const { t } = useI18n()
+
 </script>
 
 <style scoped>

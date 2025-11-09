@@ -34,7 +34,7 @@
     <div class="image-preview">
       <label>الصورة:</label>
       <div>
-        <button v-if="product.imageBlob" @click="previewImage(product.imageBlob)">
+        <button v-if="product.image_blob" @click="previewImage(product.image_blob)">
           📷 معاينة
         </button>
         <span v-else>لا يوجد صورة</span>

@@ -1,9 +1,10 @@
 import { openDB } from 'idb'
 import type { OperatingHours , PaymentMethod } from '@/types/contexts/OrderInfoView'
+import type { social_key, SocialField  } from '@/types/contexts/social'
 
 
 const DB_NAME = 'menuDB'
-const DB_VERSION = 12
+const DB_VERSION = 13
 
 export const dbPromise = openDB(DB_NAME, DB_VERSION, {
   upgrade(db) {
@@ -24,12 +25,12 @@ export const dbPromise = openDB(DB_NAME, DB_VERSION, {
 
     // 📡 إعدادات التواصل
     if (!db.objectStoreNames.contains('social')) {
-      db.createObjectStore('social', { keyPath: 'id' })
+      db.createObjectStore('social', { keyPath: 'key' })
     }
 
     // ⚙️ إعدادات عامة
-    if (!db.objectStoreNames.contains('settings')) {
-      db.createObjectStore('settings', { keyPath: 'id' })
+    if (!db.objectStoreNames.contains('home')) {
+      db.createObjectStore('home', { keyPath: 'id' })
     }
 
     // 🧱 خيارات التخصيص (template_options)
@@ -195,6 +196,47 @@ async getPaymentMethods(id = 'default') {
 async savePaymentMethods(methods: PaymentMethod[], id = 'default') {
   const db = await dbPromise
   await db.put('payment_methods', { id, methods })
+},
+
+// جلب إعدادات التواصل
+async getSocialField(key: social_key): Promise<SocialField | undefined> {
+  const db = await dbPromise
+  return db.get('social', key)
 }
+,
+
+// حفظ إعدادات التواصل
+async saveSocialField(field: SocialField) {
+  const db = await dbPromise
+  await db.put('social', field) // field يحتوي على key و value و is_public
+}
+,
+
+// حذف إعدادات التواصل
+async deleteSocialField(key: social_key) {
+  const db = await dbPromise
+  await db.delete('social', key)
+}
+,
+async getAllSocialFields(): Promise<SocialField []> {
+  const db = await dbPromise
+  return db.getAll('social')
+}
+,
+// جلب إعداد من جدول home
+async getHomeSetting(key: string) {
+  const db = await dbPromise
+  const settings = await db.get('home', 'home')
+  return settings?.[key] ?? null
+},
+
+// حفظ إعداد في جدول home
+async saveHomeSetting(key: string, value: any) {
+  const db = await dbPromise
+  const current = (await db.get('home', 'home')) || { id: 'home' }
+  current[key] = value
+  await db.put('home', current)
+},
+
 
 }

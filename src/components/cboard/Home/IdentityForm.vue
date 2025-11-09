@@ -3,28 +3,34 @@
     <div class="identity-row">
       <!-- اسم المنشأة -->
       <div class="field">
-        <label for="restaurantName">اسم المنشأة التجاري:</label>
+        <label for="restaurantName">{{ t('cboard.home.identity.restaurantNameLabel') }}</label>
         <input
-          id="restaurantName"
-          v-model="restaurantName"
-          type="text"
-          placeholder="مثلاً: كوفي طارق"
-        />
+  id="restaurantName"
+  :value="restaurantName"
+  @input="onRestaurantNameInput"
+  @focus="startEditingName"
+  @blur="confirmEditingName"
+  :class="{ editing: isEditingName }"
+  type="text"
+  :placeholder="t('cboard.home.identity.restaurantNamePlaceholder')"
+/>
+
       </div>
 
       <!-- النشاط التجاري -->
       <div class="field">
-        <label for="businessType">النشاط التجاري:</label>
+        <label for="businessType">{{ t('cboard.home.identity.businessTypeLabel') }}</label>
         <select id="businessType" v-model="businessType">
-          <option value="مطعم">مطعم</option>
-          <option value="لاونج">لاونج</option>
-          <option value="مقهى">مقهى</option>
+          <option disabled value="">{{ t('cboard.home.identity.businessTypePlaceholder') }}</option>
+          <option value="مطعم">{{ t('cboard.home.identity.businessTypeOptions.restaurant') }}</option>
+          <option value="لاونج">{{ t('cboard.home.identity.businessTypeOptions.lounge') }}</option>
+          <option value="مقهى">{{ t('cboard.home.identity.businessTypeOptions.cafe') }}</option>
         </select>
       </div>
 
       <!-- الشعار -->
       <div class="field logo-field">
-        <label>الشعار:</label>
+        <label>{{ t('cboard.home.identity.logoLabel') }}</label>
 
         <input
           v-if="!logoUrl"
@@ -37,8 +43,8 @@
           <img :src="logoUrl" alt="شعار المطعم" class="logo-preview" />
 
           <div class="logo-actions">
-            <button type="button" @click="triggerFileInput">تغيير الشعار</button>
-            <button type="button" class="remove-btn" @click="removeLogo">إزالة الشعار</button>
+            <button type="button" @click="triggerFileInput">{{ t('cboard.home.identity.changeLogo') }}</button>
+            <button type="button" class="remove-btn" @click="removeLogo">{{ t('cboard.home.identity.removeLogo') }}</button>
           </div>
 
           <input
@@ -55,29 +61,45 @@
 </template>
 
 <script setup lang="ts">
-import { useHomeStore } from '@/stores/cboard/homeStore'
-import { computed, ref } from 'vue'
+import { useIdentityStore } from '@/stores/cboard/home/identityStore'
+import { ref, onMounted, watch, computed } from 'vue'
+import { useI18n } from 'vue-i18n'
+const { t } = useI18n()
 
-const home = useHomeStore()
-
-const restaurantName = computed<string>({
-  get: () => home.restaurantName,
-  set: (val: string) => home.setRestaurantName(val)
-})
-
-const businessType = computed<string>({
-  get: () => home.businessType,
-  set: (val: string) => home.setBusinessType(val)
-})
-
-const logoUrl = computed(() => home.logoUrl)
+const identity = useIdentityStore()
 const fileInput = ref<HTMLInputElement | null>(null)
 
+const restaurantName = ref('')
+const isEditingName = ref(false)
+
+onMounted(async () => {
+  await identity.loadFromIndexedDB()
+  restaurantName.value = identity.restaurantName
+})
+
+function startEditingName() {
+  isEditingName.value = true
+}
+
+function confirmEditingName() {
+  isEditingName.value = false
+  identity.setRestaurantName(restaurantName.value)
+}
+
+const businessType = ref(identity.businessType)
+
+watch(businessType, async (val: string) => {
+  if (!val || val === '') return
+  await identity.setBusinessType(val)
+})
+
+const logoUrl = computed(() => identity.logoUrl)
+
 function handleLogoUpload(event: Event) {
-  const input = event.target as HTMLInputElement
-  const file = input.files?.[0]
-  if (file) {
-    home.setLogoBlob(file)
+  const input = event.target as HTMLInputElement | null
+  const file = input?.files?.[0]
+  if (file && file.type.startsWith('image/')) {
+    identity.uploadLogoToStorage(file)
   }
 }
 
@@ -86,8 +108,15 @@ function triggerFileInput() {
 }
 
 function removeLogo() {
-  home.setLogoUrl(null)
+  identity.deleteLogoFromStorage()
 }
+
+function onRestaurantNameInput(event: Event) {
+  const input = event.currentTarget as HTMLInputElement
+  restaurantName.value = input.value
+}
+
+
 </script>
 
 <style scoped>
@@ -102,7 +131,6 @@ function removeLogo() {
   gap: 2rem;
 }
 
-/* توزيع الحقول في صف واحد */
 .identity-row {
   display: flex;
   gap: 1.5rem;
@@ -132,6 +160,11 @@ select {
   font-size: 1rem;
   background-color: #FFFFFF;
   color: #1C1C1C;
+}
+
+input.editing {
+  border-color: orange;
+  outline: none;
 }
 
 .logo-field {
@@ -182,7 +215,6 @@ select {
   display: none;
 }
 
-/* استجابة للشاشات الصغيرة */
 @media (max-width: 768px) {
   .identity-row {
     flex-direction: column;

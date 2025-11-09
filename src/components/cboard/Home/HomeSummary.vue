@@ -1,10 +1,10 @@
 <template>
   <section class="summary-section">
-    <h2 class="section-title">ملخص النشاط</h2>
+    <h2 class="section-title">{{ t('cboard.home.summary.title') }}</h2>
     <div class="summary-cards">
-      <SummaryCard title="👁️ إجمالي الزيارات" :value="totalVisits + ' زيارة'" />
-      <SummaryCard title="📅 زيارات اليوم" :value="todayVisits + ' زيارة'" />
-      <SummaryCard title="🕒 آخر تعديل" :value="homeStore.lastUpdated" />
+      <SummaryCard :title="t('cboard.home.summary.totalVisits')" :value="totalVisits + ' ' + t('cboard.home.summary.Visits')" />
+      <SummaryCard :title="t('cboard.home.summary.todayVisits')" :value="todayVisits + ' ' + t('cboard.home.summary.Visits')" />
+      <SummaryCard :title="t('cboard.home.summary.lastUpdated')" :value="todayVisits + ' ' + t('cboard.home.summary.Visits')" />
     </div>
   </section>
 </template>
@@ -12,16 +12,15 @@
 <script setup lang="ts">
 import { useHomeStore } from '@/stores/cboard/homeStore'
 import SummaryCard from './SummaryCard.vue'
-import { computed } from 'vue'
+import { ref } from 'vue'
+import { useI18n } from 'vue-i18n'
+const { t } = useI18n()
 
 const homeStore = useHomeStore()
 
-const totalVisits = computed(() => homeStore.activityLog.length)
+const totalVisits = ref(3)
 
-const todayVisits = computed(() => {
-  const today = new Date().toISOString().slice(0, 10)
-  return homeStore.activityLog.filter(log => log.startsWith(today)).length
-})
+const todayVisits = ref(3)
 </script>
 
 <style scoped>

@@ -3,16 +3,19 @@
 <template>
   <div class="sectioned-layout">
     <!-- ✅ شريط الأقسام -->
-    <div class="section-buttons">
-      <button
-        v-for="section in sections"
-        :key="section.id"
-        :class="{ active: section.id === activeSectionId }"
-        @click="activeSectionId = section.id"
-      >
-        {{ section.name }}
-      </button>
-    </div>
+<div class="section-buttons">
+  <button
+    v-for="section in sections"
+    :key="section.id"
+    @click="activeSectionId = section.id"
+    :style="section.id === activeSectionId
+      ? { backgroundColor: colors.sectionBackground, color: 'white' }
+      : { backgroundColor: colors.bodyBackground, color: colors.sectionTitleText }"
+  >
+    {{ section.name }}
+  </button>
+</div>
+
 
     <!-- ✅ المنتجات الخاصة بالقسم المختار -->
     <div class="products">
@@ -340,6 +343,10 @@ font-family: var(--font-family);
   font-size: 0.75rem;
   color: var(--caloriesText-color, #888);
   margin-top: 0.3rem;
+}
+.section-buttons button.active {
+  background-color: var(--offerLabel-bg, #007bff);
+  color: white;
 }
 
 /* نهاية تنسيقات مسببات الحساسية */

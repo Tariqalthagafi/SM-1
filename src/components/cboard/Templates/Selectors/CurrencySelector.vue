@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { ref, watch, computed, onMounted } from 'vue'
 import { useCurrencyStore } from '@/stores/cboard/templates/currencyStore'
+import { useI18n } from 'vue-i18n'
+const { t } = useI18n()
 
 const currencyStore = useCurrencyStore()
 
@@ -29,7 +31,7 @@ const previewImage = computed(() => {
 
 <template>
   <div class="currency-selector">
-    <label for="currency-select">اختر العملة:</label>
+    <label for="currency-select"> {{ t('cboard.templates.selectors.currency.label') }} </label>
     <div class="row">
       <select
         id="currency-select"
@@ -54,7 +56,7 @@ const previewImage = computed(() => {
         <span class="currency-symbol" v-else>
           {{ localCurrency }}
         </span>
-        <small>معاينة الرمز</small>
+        <small>{{ t('cboard.templates.selectors.currency.preview') }}</small>
       </div>
     </div>
   </div>

@@ -1,7 +1,7 @@
 <template>
   <section class="offer-list">
     <!-- زر إضافة عرض جديد -->
-    <button class="add-button" @click="startNewOffer">➕ إضافة عرض جديد</button>
+    <button class="add-button" @click="startNewOffer">{{ t('cboard.offers.list.addButton') }}</button>
 
     <!-- نموذج الإضافة -->
     <div v-if="!editingId && showNewForm" class="offer-row">
@@ -30,13 +30,13 @@
       <template v-else>
         <OfferEditor :edit="offer" mode="view" />
         <div class="row-actions">
-          <button @click="startEdit(offer)">✏️</button>
-          <button @click="deleteOffer(offer.id)">🗑️</button>
+          <button @click="startEdit(offer)">{{ t('cboard.offers.list.edit') }}</button>
+          <button @click="deleteOffer(offer.id)">{{ t('cboard.offers.list.delete') }}</button>
           <button
           class="toggle-switch"
-         :class="{ active: offer.isActive }"
+         :class="{ active: offer.is_active }"
          @click="toggleOfferActive(offer.id)"
-         :aria-label="offer.isActive ? 'تعطيل العرض' : 'تفعيل العرض'">
+         :aria-label="offer.is_active? t('cboard.offers.list.toggle.disable'): t('cboard.offers.list.toggle.enable')">
           </button>
 
         </div>
@@ -50,15 +50,18 @@ import { ref, onMounted } from 'vue'
 import { useOffersStore } from '@/stores/cboard/offers'
 import type { Offer } from '@/types/contexts/Offers'
 import OfferEditor from './OfferEditor.vue'
+import { useI18n } from 'vue-i18n'
+const { t } = useI18n()
 
 const offersStore = useOffersStore()
 const editingId = ref<string | null>(null)
 const showNewForm = ref(false)
 const tempOffer = ref<Offer>(offersStore.createEmptyOffer())
 
-onMounted(() => {
-  offersStore.load()
+onMounted(async () => {
+  await offersStore.syncFromSupabase()
 })
+
 
 function startNewOffer() {
   tempOffer.value = offersStore.createEmptyOffer()

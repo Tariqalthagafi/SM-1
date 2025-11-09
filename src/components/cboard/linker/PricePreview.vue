@@ -1,10 +1,12 @@
 <template>
-  <span>{{ finalPrice }} ريال</span>
+  <span>{{ finalPrice }} {{ t('cboard.linker.row.currency') }}</span>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useOffersStore } from '@/stores/cboard/offers'
+import { useI18n } from 'vue-i18n'
+const { t } = useI18n()
 
 const props = defineProps<{
   basePrice: number

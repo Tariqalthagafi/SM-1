@@ -2,22 +2,22 @@
   <div class="product-section-row">
     <!-- اسم المنتج -->
     <div class="field">
-      <label>اسم المنتج</label>
+      <label>{{ t('cboard.linker.row.fields.productName') }}</label>
       <strong>{{ product.name }}</strong>
     </div>
 
     <!-- اختيار القسم -->
     <div class="field">
-      <label>القسم</label>
+      <label>{{ t('cboard.linker.row.fields.section') }}</label>
       <SectionSelector
-        :selectedId="product.sectionId ?? ''"
+        :selectedId="product.section_id ?? ''"
         @select="handleSectionChange"
       />
     </div>
 
     <!-- السعر الأساسي -->
     <div class="field">
-      <label>السعر الأساسي</label>
+      <label>{{ t('cboard.linker.row.fields.basePrice') }}</label>
       <input
         type="number"
         v-model.number="localBasePrice"
@@ -28,7 +28,7 @@
 
     <!-- العرض المطبق -->
     <div class="field">
-      <label>العرض المطبق</label>
+      <label>{{ t('cboard.linker.row.fields.offer') }}</label>
       <OfferSelector
         v-model="localSelectedOfferId"
         @change="save"
@@ -37,7 +37,7 @@
 
     <!-- السعر بعد العرض -->
     <div class="field">
-      <label>السعر بعد العرض</label>
+      <label>{{ t('cboard.linker.row.fields.finalPrice') }}</label>
       <PricePreview
         :basePrice="localBasePrice || 0"
         :offerId="localSelectedOfferId ?? ''"
@@ -46,11 +46,11 @@
 
     <!-- الحالة -->
     <div class="field">
-      <label>الحالة</label>
+      <label>{{ t('cboard.linker.row.fields.status') }}</label>
       <select v-model="localStatus" @change="save">
-        <option value="visible">ظاهر</option>
-        <option value="hidden">مخفي</option>
-        <option value="expired">منتهي</option>
+        <option value="visible">{{ t('cboard.linker.row.status.visible') }}</option>
+        <option value="hidden">{{ t('cboard.linker.row.status.hidden') }}</option>
+        <option value="expired">{{ t('cboard.linker.row.status.expired') }}</option>
       </select>
     </div>
   </div>
@@ -67,6 +67,8 @@ import { useOffersStore } from '@/stores/cboard/offers'
 import SectionSelector from './SectionSelector.vue'
 import OfferSelector from './OfferSelector.vue'
 import PricePreview from './PricePreview.vue'
+import { useI18n } from 'vue-i18n'
+const { t } = useI18n()
 
 const props = defineProps<{ product: Product }>()
 
@@ -74,24 +76,24 @@ const productsStore = useProductsStore()
 const sectionsStore = useSectionStore()
 const offersStore = useOffersStore()
 
-const localBasePrice = ref(props.product.basePrice ?? 0)
-const localSelectedOfferId = ref(props.product.selectedOfferId ?? '')
+const localBasePrice = ref(props.product.base_price ?? 0)
+const localSelectedOfferId = ref(props.product.selected_offer_id ?? '')
 const localStatus = ref(props.product.status ?? 'visible')
 
 function handleSectionChange(newSectionId: string) {
   const section = sectionsStore.sections.find((s: Section) => s.id === newSectionId)
   productsStore.updateProduct(props.product.id, {
-    sectionId: newSectionId,
-    sectionName: section?.name ?? ''
+    section_id: newSectionId,
+    section_name: section?.name ?? ''
   })
 }
 
 function save() {
   const offer = offersStore.offers.find(o => o.id === localSelectedOfferId.value)
   productsStore.updateProduct(props.product.id, {
-    basePrice: localBasePrice.value,
-    selectedOfferId: localSelectedOfferId.value || undefined,
-    selectedOfferTitle: offer?.title || '',
+    base_price: localBasePrice.value,
+    selected_offer_id: localSelectedOfferId.value || undefined,
+    selected_offer_title: offer?.title || '',
     status: localStatus.value
   })
 }

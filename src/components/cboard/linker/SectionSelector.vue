@@ -1,7 +1,7 @@
 <template>
   <div class="section-selector">
     <select :value="selectedId" @change="handleChange" :disabled="disabled">
-      <option value="">بدون قسم</option>
+      <option value="">{{ t('cboard.linker.row.sectionSelector.none') }}</option>
       <option
         v-for="section in sectionsStore.sections"
         :key="section.id"
@@ -15,7 +15,8 @@
 
 <script setup lang="ts">
 import { useSectionStore } from '@/stores/cboard/sections'
-
+import { useI18n } from 'vue-i18n'
+const { t } = useI18n()
 const props = defineProps<{
   selectedId: string
   disabled?: boolean

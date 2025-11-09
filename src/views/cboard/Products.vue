@@ -1,7 +1,7 @@
 <template>
   <div class="menu-content">
-    <h1 class="page-title">إدارة المنتجات في المنيو</h1>
-    <div class="product-count">عدد المنتجات: {{ productStore.products.length }}</div>
+    <h1 class="page-title">{{ t('cboard.products.title') }}</h1>
+    <div class="product-count">{{ t('cboard.products.count', { count: productStore.products.length }) }}</div>
 
     <section>
       <ProductList />
@@ -12,6 +12,8 @@
 <script setup lang="ts">
 import ProductList from '@/components/cboard/Products/ProductList.vue'
 import { useProductsStore } from '@/stores/cboard/products'
+import { useI18n } from 'vue-i18n'
+const { t } = useI18n()
 
 const productStore = useProductsStore()
 </script>

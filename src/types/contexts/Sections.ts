@@ -2,5 +2,5 @@ export interface Section {
   id: string
   name: string
   description?: string
-  isActive: boolean
+  is_active: boolean
 }

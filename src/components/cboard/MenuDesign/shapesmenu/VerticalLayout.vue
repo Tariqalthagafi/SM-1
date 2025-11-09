@@ -1,77 +1,86 @@
 <template>
-  <div class="vertical-layout">
+  <div class="vertical-layout" :style="{ backgroundColor: props.colors.bodyBackground }">
     <div
-      v-for="section in sections"
+      v-for="section in props.sections"
       :key="section.id"
       class="section-block"
     >
-      <h5 class="section-title">{{ section.name }}</h5>
+      <h5 class="section-title" :style="{ color: props.colors.sectionTitleText }">
+        {{ section.name }}
+      </h5>
 
       <div class="product-list">
         <div
-          v-for="product in products.filter(p => p.sectionId === section.id && p.status === 'visible')"
+          v-for="product in props.products.filter(p => p.sectionId === section.id && p.status === 'visible')"
           :key="product.id"
           class="product-item"
+          :style="{ backgroundColor: props.colors.productBackground, color: props.colors.titleText }"
         >
           <!-- ✅ صورة المنتج -->
-          <div class="product-image-wrapper" v-if="imageShape !== 'hidden'">
+          <div class="product-image-wrapper" v-if="props.imageShape !== 'hidden'">
             <img
               v-if="product.imageBase64"
               :src="product.imageBase64"
-              :class="['product-image', imageShape]"
+              :class="['product-image', props.imageShape]"
               alt="صورة المنتج"
             />
-            <div v-else class="product-image placeholder" :class="imageShape"></div>
+            <div v-else class="product-image placeholder" :class="props.imageShape"></div>
           </div>
-          
+
           <!-- ✅ تجميع اسم المنتج وعلامة الحساسية -->
           <div class="product-info-group">
             <span class="product-name">{{ product.name }}</span>
             <p v-if="product.calories !== undefined" class="product-calories">
-  🍽 {{ product.calories }} سعرة حرارية
-</p>
+              🍽 {{ product.calories }} سعرة حرارية
+            </p>
 
             <p v-if="product.description" class="product-description">
-  {{ product.description }}
-</p>
+              {{ product.description }}
+            </p>
 
-            
             <div v-if="product.hasAllergens && product.allergens?.length" class="allergens-display">
               <span
                 v-for="allergen in product.allergens"
                 :key="allergen"
                 class="allergen-icon"
-                :class="allergenIconStyle"
+                :class="props.allergenIconStyle"
               >
-                {{ getAllergenSymbol(allergenIconStyle ?? 'boxedA') }}
+                {{ getAllergenSymbol(props.allergenIconStyle ?? 'boxedA') }}
               </span>
             </div>
           </div>
-          <!-- نهاية تجميع اسم المنتج وعلامة الحساسية -->
 
-          <div class="product-price" :class="offerStyle">
-            <template v-if="offerStyle === 'strikeOnly' && product.offerLabel">
-              <span class="old-price">{{ product.basePrice }} <span v-html="currencySymbol"></span></span>
-              <span class="final-price">{{ product.finalPrice }} <span v-html="currencySymbol"></span></span>
+          <!-- ✅ السعر -->
+          <div
+            class="product-price"
+            :class="props.offerStyle"
+            :style="{ backgroundColor: props.colors.priceBackground, color: props.colors.priceText }"
+          >
+            <template v-if="props.offerStyle === 'strikeOnly' && product.offerLabel">
+              <span class="old-price">{{ product.basePrice }} <span v-html="props.currencySymbol"></span></span>
+              <span class="final-price">{{ product.finalPrice }} <span v-html="props.currencySymbol"></span></span>
             </template>
 
-            <template v-else-if="offerStyle === 'strikeWithSaving' && product.offerLabel">
-              <span class="offer-label">🔥 وفر {{ product.basePrice - product.finalPrice }} <span v-html="currencySymbol"></span></span>
-              <span class="old-price">{{ product.basePrice }} <span v-html="currencySymbol"></span></span>
-              <span class="final-price">{{ product.finalPrice }} <span v-html="currencySymbol"></span></span>
+            <template v-else-if="props.offerStyle === 'strikeWithSaving' && product.offerLabel">
+              <span class="offer-label" :style="{ color: props.colors.offerLabel }">
+                🔥 وفر {{ product.basePrice - product.finalPrice }} <span v-html="props.currencySymbol"></span>
+              </span>
+              <span class="old-price">{{ product.basePrice }} <span v-html="props.currencySymbol"></span></span>
+              <span class="final-price">{{ product.finalPrice }} <span v-html="props.currencySymbol"></span></span>
             </template>
 
-            <template v-else-if="offerStyle === 'strikeWithBadge' && product.offerLabel">
-              <span class="offer-label">🔖 خصم {{ Math.round((1 - product.finalPrice / product.basePrice) * 100) }}%</span>
-              <span class="old-price">{{ product.basePrice }} <span v-html="currencySymbol"></span></span>
-              <span class="final-price">{{ product.finalPrice }} <span v-html="currencySymbol"></span></span>
+            <template v-else-if="props.offerStyle === 'strikeWithBadge' && product.offerLabel">
+              <span class="offer-label" :style="{ color: props.colors.offerLabel }">
+                🔖 خصم {{ Math.round((1 - product.finalPrice / product.basePrice) * 100) }}%
+              </span>
+              <span class="old-price">{{ product.basePrice }} <span v-html="props.currencySymbol"></span></span>
+              <span class="final-price">{{ product.finalPrice }} <span v-html="props.currencySymbol"></span></span>
             </template>
 
             <template v-else>
-              <span class="final-price">{{ product.finalPrice }} <span v-html="currencySymbol"></span></span>
+              <span class="final-price">{{ product.finalPrice }} <span v-html="props.currencySymbol"></span></span>
             </template>
           </div>
-          
         </div>
       </div>
     </div>
@@ -79,7 +88,7 @@
 </template>
 
 <script setup lang="ts">
-defineProps<{
+const props = defineProps<{
   products: {
     id: string
     name: string
@@ -89,7 +98,6 @@ defineProps<{
     status: string
     imageBase64?: string
     offerLabel?: string
-    // ✅ إضافة خصائص مسببات الحساسية للمنتج
     allergens?: string[]
     hasAllergens?: boolean
     description?: string
@@ -104,11 +112,9 @@ defineProps<{
   currencyKey: string
   imageShape: 'circle' | 'roundedSquare' | 'rectangle' | 'hidden'
   offerStyle: 'strikeOnly' | 'strikeWithSaving' | 'strikeWithBadge'
-  // ✅ إضافة خصائص نمط الأيقونة
   allergenIconStyle?: 'colored' | 'outlined' | 'monochrome' | 'hidden' | 'boxedA' | 'boldA' | 'warningTriangle'
 }>()
 
-// ✅ إضافة دالة المساعد (Helper Function)
 function getAllergenSymbol(style: string): string {
   switch (style) {
     case 'boxedA':
@@ -127,7 +133,6 @@ function getAllergenSymbol(style: string): string {
   }
 }
 </script>
-
 
 <style scoped>
 .vertical-layout {

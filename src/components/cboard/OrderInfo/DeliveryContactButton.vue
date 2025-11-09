@@ -1,6 +1,11 @@
 <template>
   <div class="contact-button-container none">
-    <button class="main-contact-btn" @click="isOpen = !isOpen">
+    <button
+  class="main-contact-btn"
+  @click="isOpen = !isOpen"
+  :style="{ backgroundColor: props.colors.topIconsBackground }"
+>
+
       <v-icon name="fa-truck" />
     </button>
 
@@ -34,7 +39,10 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { useOrderInfoStore } from '@/stores/OrderInfo'
+import { useOrderInfoStore } from '@/stores/cboard/orderInfo1'
+const props = defineProps<{
+  colors: Record<string, string>
+}>()
 
 const store = useOrderInfoStore()
 const isOpen = ref(false)

@@ -1,18 +1,18 @@
 <template>
   <section class="section-editor-card">
-    <h2 class="card-title">➕ إضافة قسم جديد</h2>
+    <h2 class="card-title">{{ t('cboard.sections.editor.title') }}</h2>
 
     <form @submit.prevent="handleAdd" class="form-row">
-      <input
-        v-model="form.name"
-        type="text"
-        placeholder="ادخل اسم القسم ثم إضافه"
-        required
-        name="section-name"
-        id="section-name"
-      />
-      <button type="submit" class="add-btn">إضافة</button>
-    </form>
+     <input
+     v-model="form.name"
+     type="text"
+     :placeholder="t('cboard.sections.editor.placeholder')"
+     required
+     name="section-name"
+     id="section-name"
+     />
+         <button type="submit" class="add-btn"> {{ t('cboard.sections.editor.button') }} </button>
+</form>
   </section>
 </template>
 
@@ -20,6 +20,8 @@
 import { reactive } from 'vue'
 import { useSectionStore } from '@/stores/cboard/sections'
 import type { Section } from '@/types/contexts/Sections'
+import { useI18n } from 'vue-i18n'
+const { t } = useI18n()
 
 const sectionStore = useSectionStore()
 const form = reactive<{ name: string }>({ name: '' })
@@ -30,14 +32,14 @@ function handleAdd() {
 
   const exists = sectionStore.sections.find(s => s.name === name)
   if (exists) {
-    alert('⚠️ القسم موجود مسبقًا')
+    alert(t('cboard.sections.editor.duplicateAlert'))
     return
   }
 
   const newSection: Section = {
     id: crypto.randomUUID(),
     name,
-    isActive: true
+    is_active: true
   }
 
   sectionStore.add(newSection)

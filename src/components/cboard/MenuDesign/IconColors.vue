@@ -1,6 +1,6 @@
 <template>
   <div class="icon-colors">
-    <h6>🧩 تخصيص ألوان الرموز</h6>
+    <h6>{{ t('cboard.menuDesign.colorEditor.iconColors.title') }}</h6>
 
     <div
       class="color-row"
@@ -8,7 +8,7 @@
       :key="key"
     >
       <label class="color-label">
-        {{ label }}:
+        {{ t(`cboard.menuDesign.colorEditor.iconColors.fields.${key}`) }}:
         <input
           type="color"
           :value="colors[key as IconColorKey]"
@@ -21,17 +21,18 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { useColorEditorStore } from '@/stores/cboard/MenuDesign/ColorEditorStore'
-import type { ColorSettings } from '@/types/contexts/MenuDesign'
+import { useI18n } from 'vue-i18n'
+const { t } = useI18n()
 
+import { useColorEditorStore } from '@/stores/cboard/MenuDesign/ColorEditorStore'
 const store = useColorEditorStore()
 const colors = computed(() => store.colors)
 
 const iconColorKeys = {
-  allergenIcon: 'رمز الحساسية',
-  offerLabel: 'وسم العرض',
-  currencyIcon: 'رمز العملة',
-  expiredProductIcon: 'رمز المنتج المنتهي'
+  allergenIcon: 'allergenIcon',
+  offerLabel: 'offerLabel',
+  currencyIcon: 'currencyIcon',
+  expiredProductIcon: 'expiredProductIcon'
 } as const
 
 type IconColorKey = keyof typeof iconColorKeys

@@ -1,7 +1,7 @@
 <template>
   <section class="product-list">
     <!-- زر إضافة منتج جديد -->
-    <button class="add-button" @click="startNewProduct">➕ إضافة منتج جديد</button>
+    <button class="add-button" @click="startNewProduct"> {{ t('cboard.products.list.addButton') }} </button>
 
     <!-- نموذج إضافة منتج -->
     <ProductEditor
@@ -30,8 +30,9 @@ import { ref, onMounted } from 'vue'
 import { useProductsStore } from '@/stores/cboard/products'
 import type { Product } from '@/types/contexts/Products'
 import draggable from 'vuedraggable'
-
 import ProductEditor from './ProductEditor.vue'
+import { useI18n } from 'vue-i18n'
+const { t } = useI18n()
 
 const productsStore = useProductsStore()
 const tempProduct = ref<Product>(productsStore.createEmptyProduct())
@@ -41,25 +42,30 @@ onMounted(() => {
   productsStore.load()
 })
 
-function startNewProduct() {
+async function startNewProduct() {
   const newProduct = {
     ...productsStore.createEmptyProduct(),
     id: crypto.randomUUID(),
-    order: 0
+    sequ: 0
   }
-  productsStore.products.unshift(newProduct)
-  productsStore.directSave(newProduct)
-  showNewForm.value = false
+
+  try {
+    await productsStore.addProduct(newProduct) // ✅ إرسال إلى Supabase
+    showNewForm.value = false
+  } catch (error) {
+    console.error('❌ فشل إضافة المنتج إلى Supabase:', error)
+  }
 }
+
   
 async function saveOrder() {
   await Promise.all(
     productsStore.products.map((p, i) => {
-      p.order = i
+      p.sequ = i
       return productsStore.directSave(p)
     })
   )
-  productsStore.products.sort((a, b) => a.order - b.order)
+  productsStore.products.sort((a, b) => a.sequ - b.sequ)
 }
 </script>
 

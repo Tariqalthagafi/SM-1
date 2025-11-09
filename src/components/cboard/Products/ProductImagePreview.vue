@@ -1,17 +1,21 @@
 <template>
   <div class="product-image">
-    <button v-if="validImageUrl && !hasError" @click="show = true" class="preview-btn">
-      👁️ معاينة
-    </button>
+    <button v-if="validImageUrl && !hasError" @click="show = true" class="preview-btn"> {{ t('cboard.products.preview.button') }} </button>
 
     <div v-if="show" class="popup" @click.self="show = false">
-      <img :src="validImageUrl" :alt="altText || 'صورة المنتج'" @error="handleError" />
+      <img
+  :src="validImageUrl"
+  :alt="altText || t('cboard.products.preview.alt')"
+  @error="handleError"
+/>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
+import { useI18n } from 'vue-i18n'
+const { t } = useI18n()
 
 const props = defineProps<{
   imageUrl?: string

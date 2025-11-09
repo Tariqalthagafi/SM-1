@@ -1,6 +1,6 @@
 <template>
   <div class="background-colors">
-    <h6>🖼️ تخصيص ألوان الخلفيات</h6>
+    <h6>{{ t('cboard.menuDesign.colorEditor.backgroundColors.title') }}</h6>
 
     <div
       class="color-row"
@@ -8,7 +8,7 @@
       :key="key"
     >
       <label class="color-label">
-        {{ label }}:
+        {{ t(`cboard.menuDesign.colorEditor.backgroundColors.fields.${key}`) }}:
         <input
           type="color"
           :value="colors[key as BackgroundKey]"
@@ -21,20 +21,21 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { useColorEditorStore } from '@/stores/cboard/MenuDesign/ColorEditorStore'
-import type { ColorSettings } from '@/types/contexts/MenuDesign'
+import { useI18n } from 'vue-i18n'
+const { t } = useI18n()
 
+import { useColorEditorStore } from '@/stores/cboard/MenuDesign/ColorEditorStore'
 const store = useColorEditorStore()
 const colors = computed(() => store.colors)
 
 const backgroundColorKeys = {
-  headerBackground: 'خلفية العنوان',
-  sectionBackground: 'خلفية القسم',
-  cardBackground: 'خلفية البطاقة',
-  bodyBackground: 'خلفية البودي',
-  productBackground: 'خلفية المنتج',
-  priceBackground: 'خلفية السعر',
-  currencyBackground: 'خلفية العملة'
+  menuPageBackground: 'menuPageBackground',
+  topIconsBackground: 'topIconsBackground',
+  sectionBackground: 'sectionBackground',
+  cardBackground: 'cardBackground',
+  bodyBackground: 'bodyBackground',
+  productBackground: 'productBackground',
+  priceBackground: 'priceBackground'
 } as const
 
 type BackgroundKey = keyof typeof backgroundColorKeys

@@ -1,6 +1,6 @@
 <template>
   <div class="image-shape-selector">
-    <label for="image-shape-select">شكل الصورة:</label>
+    <label for="image-shape-select"> {{ t('cboard.templates.selectors.imageShape.label') }} </label>
     <div class="row">
       <select
         id="image-shape-select"
@@ -20,7 +20,7 @@
       <!-- معاينة مصغرة -->
       <div class="image-preview">
         <div :class="['preview-image', localShape]"></div>
-        <small>معاينة شكل الصورة</small>
+        <small> {{ t('cboard.templates.selectors.imageShape.preview') }} </small>
       </div>
     </div>
   </div>
@@ -29,6 +29,8 @@
 <script setup lang="ts">
 import { ref, watch, withDefaults } from 'vue'
 import type { ImageShape } from '@/types/contexts/templates'
+import { useI18n } from 'vue-i18n'
+const { t } = useI18n()
 
 const props = withDefaults(defineProps<{
   selected: ImageShape

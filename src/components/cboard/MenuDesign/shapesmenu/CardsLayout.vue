@@ -1,9 +1,10 @@
 <template>
-  <div class="cards-layout">
+  <div class="cards-layout" :style="{ backgroundColor: colors.bodyBackground }">
     <div
       v-for="product in products"
       :key="product.id"
       class="card"
+      :style="{ backgroundColor: colors.cardBackground, color: colors.titleText }"
     >
       <div class="card-image" v-if="imageShape !== 'hidden'">
         <img
@@ -17,31 +18,38 @@
 
       <div class="card-header">
         <span class="product-name">{{ product.name }}</span>
-        <p v-if="product.calories !== undefined" class="product-calories">
-  🍽 {{ product.calories }} سعرة حرارية
-</p>
+        <p v-if="product.calories !== undefined" class="product-calories" :style="{ color: colors.descriptionText }">
+          🍽 {{ product.calories }} سعرة حرارية
+        </p>
 
-        <p v-if="product.description" class="product-description">
-  {{ product.description }}
-</p>
-
+        <p v-if="product.description" class="product-description" :style="{ color: colors.descriptionText }">
+          {{ product.description }}
+        </p>
       </div>
 
-      <div class="card-body">
-        <div class="product-price" :class="offerStyle">
+      <div class="card-body" :style="{ backgroundColor: colors.productBackground }">
+        <div
+          class="product-price"
+          :class="offerStyle"
+          :style="{ backgroundColor: colors.priceBackground, color: colors.priceText }"
+        >
           <template v-if="offerStyle === 'strikeOnly' && product.offerLabel">
             <span class="old-price">{{ product.basePrice }} <span v-html="currencySymbol"></span></span>
             <span class="final-price">{{ product.finalPrice }} <span v-html="currencySymbol"></span></span>
           </template>
 
           <template v-else-if="offerStyle === 'strikeWithSaving' && product.offerLabel">
-            <span class="offer-label">🔥 وفر {{ product.basePrice - product.finalPrice }} <span v-html="currencySymbol"></span></span>
+            <span class="offer-label" :style="{ color: colors.offerLabel }">
+              🔥 وفر {{ product.basePrice - product.finalPrice }} <span v-html="currencySymbol"></span>
+            </span>
             <span class="old-price">{{ product.basePrice }} <span v-html="currencySymbol"></span></span>
             <span class="final-price">{{ product.finalPrice }} <span v-html="currencySymbol"></span></span>
           </template>
 
           <template v-else-if="offerStyle === 'strikeWithBadge' && product.offerLabel">
-            <span class="offer-label">🔖 خصم {{ Math.round((1 - product.finalPrice / product.basePrice) * 100) }}%</span>
+            <span class="offer-label" :style="{ color: colors.offerLabel }">
+              🔖 خصم {{ Math.round((1 - product.finalPrice / product.basePrice) * 100) }}%
+            </span>
             <span class="old-price">{{ product.basePrice }} <span v-html="currencySymbol"></span></span>
             <span class="final-price">{{ product.finalPrice }} <span v-html="currencySymbol"></span></span>
           </template>
@@ -57,6 +65,7 @@
             :key="allergen"
             class="allergen-icon"
             :class="allergenIconStyle"
+            :style="{ color: colors.allergenIcon }"
           >
             {{ getAllergenSymbol(allergenIconStyle ?? 'boxedA') }}
           </span>
@@ -85,6 +94,7 @@ const props = defineProps<{
   imageShape: 'circle' | 'roundedSquare' | 'rectangle' | 'hidden'
   offerStyle: 'strikeOnly' | 'strikeWithSaving' | 'strikeWithBadge'
   allergenIconStyle?: 'colored' | 'outlined' | 'monochrome' | 'hidden' | 'boxedA' | 'boldA' | 'warningTriangle'
+  colors: Record<string, string>
 }>()
 
 function getAllergenSymbol(style: string): string {
@@ -105,7 +115,6 @@ function getAllergenSymbol(style: string): string {
   }
 }
 </script>
-
 
 <style scoped>
 .cards-layout {

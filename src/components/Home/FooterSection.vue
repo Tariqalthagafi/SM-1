@@ -1,18 +1,19 @@
 <template>
   <footer class="footer">
     <div class="footer-content">
-      <p>© 2025 أداة المنيو. جميع الحقوق محفوظة.</p>
+      <p>{{ t('home.footer.copyright') }}</p>
+
       <nav class="footer-links">
-        <a href="#">سياسة الخصوصية</a>
-        <a href="#">تواصل معنا</a>
-        <a href="#">المدونة</a>
+
       </nav>
     </div>
   </footer>
 </template>
 
 <script setup lang="ts">
-// لا حاجة لسكريبت هنا الآن، إلا إذا أضفنا تفاعل لاحقًا
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 </script>
 
 <style scoped>

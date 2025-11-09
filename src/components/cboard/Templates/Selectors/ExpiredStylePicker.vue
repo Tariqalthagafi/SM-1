@@ -1,6 +1,6 @@
 <template>
   <div class="expired-style-selector">
-    <label for="expired-style-select">نمط العنصر المنتهي:</label>
+    <label for="expired-style-select"> {{ t('cboard.templates.selectors.expiredStyle.label') }} </label>
     <div class="row">
       <select
         id="expired-style-select"
@@ -20,10 +20,10 @@
       <!-- معاينة مصغرة -->
       <div class="expired-preview">
         <div class="preview-box" :class="localSelected">
-          <span class="product-name">منتج منتهي</span>
-          <span class="product-price">35 ر.س</span>
+          <span class="product-name" :data-badge="t('cboard.templates.selectors.expiredStyle.sample.badge')" > {{ t('cboard.templates.selectors.expiredStyle.sample.name') }} </span>
+          <span class="product-price"> {{ t('cboard.templates.selectors.expiredStyle.sample.price') }} </span>
         </div>
-        <small>معاينة النمط</small>
+        <small> {{ t('cboard.templates.selectors.expiredStyle.preview') }} </small>
       </div>
     </div>
   </div>
@@ -32,6 +32,8 @@
 <script setup lang="ts">
 import { ref, watch, withDefaults } from 'vue'
 import type { ExpiredStyle } from '@/types/contexts/templates'
+import { useI18n } from 'vue-i18n'
+const { t } = useI18n()
 
 const props = withDefaults(defineProps<{
   selected: ExpiredStyle
@@ -135,7 +137,7 @@ label {
 
 /* ✅ نمط الشارة الصغيرة */
 .preview-box.badge .product-name::after {
-  content: 'منتهي';
+  content: attr(data-badge);
   background: #FF7A00;
   color: white;
   font-size: 0.7rem;

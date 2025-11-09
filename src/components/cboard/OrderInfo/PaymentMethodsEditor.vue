@@ -1,22 +1,26 @@
 <template>
   <section class="info-section" v-if="isReady">
-    <h3>طرق الدفع</h3>
+    <h3>{{ t('cboard.orderInfo.paymentMethods.title') }}</h3>
+
     <div class="methods-grid">
       <div
         class="method-card"
-        v-for="method in typedPaymentMethods"
+        v-for="method in paymentMethods"
         :key="method.name"
       >
-<div class="method-icon">
-  <img
-    v-if="method.icon.endsWith('.svg')"
-    :src="`/icons/payments/${method.icon}`"
-    class="svg-icon"
-    :alt="method.name"
-  />
-  <span v-else>{{ method.icon }}</span>
+        <div class="method-icon">
+          <img
+            v-if="isImage(method.icon)"
+            :src="`/icons/payments/${method.icon}`"
+            class="svg-icon"
+            :alt="method.name"
+          />
+          <span v-else>{{ method.icon }}</span>
+        </div>
+        <div class="method-name">
+  {{ t(`cboard.orderInfo.paymentMethods.methods.${method.name}`) }}
 </div>
-        <div class="method-name">{{ method.name }}</div>
+
         <label class="switch">
           <input type="checkbox" v-model="method.enabled" />
           <span class="slider"></span>
@@ -28,13 +32,19 @@
 
 <script setup lang="ts">
 import { ref, watch, toRaw, onMounted } from 'vue'
-import { useOrderInfoStore } from '@/stores/OrderInfo'
+import { useOrderInfoStore } from '@/stores/cboard/orderInfo1'
 import { indexedDBService } from '@/services/indexedDBService'
 import type { PaymentMethod } from '@/types/contexts/OrderInfo'
+import { useI18n } from 'vue-i18n'
+const { t } = useI18n()
 
 const store = useOrderInfoStore()
-const typedPaymentMethods = store.paymentMethods as PaymentMethod[]
+const paymentMethods = store.paymentMethods
 const isReady = ref(false)
+
+function isImage(filename: string): boolean {
+  return /\.(svg|png|webp)$/i.test(filename)
+}
 
 onMounted(async () => {
   const saved = await indexedDBService.getPaymentMethods('default')
@@ -42,15 +52,16 @@ onMounted(async () => {
     (saved?.methods ?? []).map((m: PaymentMethod) => [m.name, m.enabled])
   )
 
-  typedPaymentMethods.forEach(method => {
+  paymentMethods.forEach(method => {
     method.enabled = savedMap.get(method.name) ?? method.enabled
   })
 
   isReady.value = true
 })
 
-watch(typedPaymentMethods, () => {
-  indexedDBService.savePaymentMethods(toRaw(store.paymentMethods), 'default')
+watch(paymentMethods, () => {
+  indexedDBService.savePaymentMethods(toRaw(paymentMethods), 'default')
+  store.syncPaymentMethodsToSupabase?.()
 }, { deep: true })
 </script>
 
@@ -99,7 +110,6 @@ watch(typedPaymentMethods, () => {
   text-align: center;
 }
 
-/* ✅ زر التبديل */
 .switch {
   position: relative;
   display: inline-block;
@@ -142,11 +152,11 @@ input:checked + .slider {
 input:checked + .slider:before {
   transform: translateX(16px);
 }
+
 .svg-icon {
   width: 40px;
   height: 40px;
   object-fit: contain;
   display: block;
 }
-
 </style>

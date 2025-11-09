@@ -1,155 +1,227 @@
 <template>
   <section class="info-section" v-if="isReady">
-    <h3>مواعيد العمل</h3>
+    <h3>{{ t('cboard.orderInfo.operatingHours.title') }}</h3>
     <div class="days-grid">
-      <div v-for="day in allDays" :key="day" class="day-card">
-        <h4>{{ day }}</h4>
+      <div v-for="day in typedDays" :key="day" class="day-card">
+        <h4>{{ t(`cboard.orderInfo.operatingHours.days.${day}`) }}</h4>
+
 
         <div class="period-options">
-          <!-- الفترة الأولى -->
-          <div class="option-row" :class="{ active: getPeriod(day, 'first')?.enabled }">
-            <button @click="togglePeriod(day, 'first')">الفترة الأولى</button>
+          <div
+            v-for="type in periodTypes"
+            :key="type"
+            class="option-row"
+            :class="{ active: getPeriod(day, type)?.enabled === true }"
+          >
+            <button @click="togglePeriod(day, type)">
+              {{ type === 'first' ? t('cboard.orderInfo.operatingHours.periodLabels.first') : type === 'second' ? t('cboard.orderInfo.operatingHours.periodLabels.second') : t('cboard.orderInfo.operatingHours.periodLabels.full') }}
+            </button>
 
-            <div class="period-info" v-if="getPeriod(day, 'first')?.enabled">
-              <input type="time" v-model="getPeriod(day, 'first').from" />
-              إلى
-              <input type="time" v-model="getPeriod(day, 'first').to" />
+            <div class="period-info" v-if="getPeriod(day, type)?.enabled === true">
+              <template v-if="type === 'full'">
+                {{ t('cboard.orderInfo.operatingHours.periodLabels.full') }}
+              </template>
+              <template v-else>
+                <input
+                  type="time"
+                  :value="getPeriod(day, type)?.from ?? ''"
+                  @change="e => updateTime(day, type, 'from', e)"
+                />
+                إلى
+                <input
+                  type="time"
+                  :value="getPeriod(day, type)?.to ?? ''"
+                  @change="e => updateTime(day, type, 'to', e)"
+                />
+              </template>
             </div>
+
             <div class="period-info" v-else>
-              08:00 إلى 12:00
+              {{ getDefaultTime(type) }}
             </div>
 
             <label class="switch">
-              <input type="checkbox" :checked="getPeriod(day, 'first')?.enabled" @change="togglePeriod(day, 'first')" />
-              <span class="slider"></span>
-            </label>
-          </div>
-
-          <!-- الفترة الثانية -->
-          <div class="option-row" :class="{ active: getPeriod(day, 'second')?.enabled }">
-            <button @click="togglePeriod(day, 'second')">الفترة الثانية</button>
-
-            <div class="period-info" v-if="getPeriod(day, 'second')?.enabled">
-              <input type="time" v-model="getPeriod(day, 'second').from" />
-              إلى
-              <input type="time" v-model="getPeriod(day, 'second').to" />
-            </div>
-            <div class="period-info" v-else>
-              16:00 إلى 22:00
-            </div>
-
-            <label class="switch">
-              <input type="checkbox" :checked="getPeriod(day, 'second')?.enabled" @change="togglePeriod(day, 'second')" />
-              <span class="slider"></span>
-            </label>
-          </div>
-
-          <!-- 24 ساعة -->
-          <div class="option-row" :class="{ active: getPeriod(day, 'full')?.enabled }">
-            <button @click="togglePeriod(day, 'full')">24 ساعة</button>
-
-            <div class="period-info" v-if="getPeriod(day, 'full')?.enabled">
-              <input type="time" v-model="getPeriod(day, 'full').from" />
-              إلى
-              <input type="time" v-model="getPeriod(day, 'full').to" />
-            </div>
-            <div class="period-info" v-else>
-              00:00 إلى 23:59
-            </div>
-
-            <label class="switch">
-              <input type="checkbox" :checked="getPeriod(day, 'full')?.enabled" @change="togglePeriod(day, 'full')" />
+              <input
+                type="checkbox"
+                :checked="getPeriod(day, type)?.enabled === true"
+                :disabled="shouldDisableSwitch(day, type)"
+                @change="togglePeriod(day, type)"
+              />
               <span class="slider"></span>
             </label>
           </div>
         </div>
       </div>
     </div>
+
+    <!-- Toast تنبيه -->
+<Teleport to="body">
+  <div v-if="alertMessage" class="toast">
+    {{ alertMessage }}
+    <button @click="alertMessage = ''">{{ t('cboard.orderInfo.operatingHours.alerts.close') }}</button>
+  </div>
+</Teleport>
+
   </section>
 </template>
 
-
 <script setup lang="ts">
-import { ref, watch, toRaw, onMounted } from 'vue'
-import { useOrderInfoStore } from '@/stores/cboard/OrderInfo'
+import { ref, onMounted, toRaw } from 'vue'
+import { useOrderInfoStore } from '@/stores/cboard/orderInfo1'
 import { indexedDBService } from '@/services/indexedDBService'
 import type { OperatingHours, TimePeriod } from '@/types/contexts/OrderInfo'
+import { useI18n } from 'vue-i18n'
+const { t } = useI18n()
+
+const dayKeys = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'] as const
+type DayKey = typeof dayKeys[number]
+const typedDays: readonly DayKey[] = dayKeys
 
 
+const periodTypes = ['first', 'second', 'full'] as const
+type PeriodType = typeof periodTypes[number]
 
-const allDays = ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت']
 const store = useOrderInfoStore()
 const operatingHours = store.operatingHours
 const isReady = ref(false)
+const alertMessage = ref('')
 
 onMounted(async () => {
-  const saved = await indexedDBService.getOperatingHours('default')
-  allDays.forEach(day => {
-    operatingHours.value[day] = saved?.[day] ?? []
+  const saved = await indexedDBService.getOperatingHours('default') as Partial<OperatingHours>
+  typedDays.forEach((day) => {
+    operatingHours[day] = (saved?.[day] ?? []) as TimePeriod[]
   })
   isReady.value = true
 })
 
-watch(operatingHours, () => {
-  const cleanData = JSON.parse(JSON.stringify(toRaw(operatingHours.value)))
-  indexedDBService.saveOperatingHours(cleanData, 'default')
-}, { deep: true })
+async function saveHours() {
+  const raw = toRaw(operatingHours)
+  const cleanData: OperatingHours = structuredClone(raw)
 
-function getPeriodValues(type: 'first' | 'second' | 'full'): TimePeriod {
-  if (type === 'first') return { type: 'first', from: '08:00', to: '12:00', enabled: true }
-  if (type === 'second') return { type: 'second', from: '16:00', to: '22:00', enabled: true }
-  return { type: 'full', from: '00:00', to: '23:59', enabled: true }
+  // حفظ محلي
+  await indexedDBService.saveOperatingHours(cleanData, 'default')
+
+  // حفظ في Supabase
+  await store.syncOperatingHoursToSupabase()
 }
 
 
-function hasPeriod(day: string, type: 'first' | 'second' | 'full') {
-  return operatingHours.value[day].some(p => p.type === type && p.enabled)
+function getPeriodValues(type: PeriodType): TimePeriod {
+  if (type === 'first') return { type, from: '08:00', to: '12:00', enabled: true }
+  if (type === 'second') return { type, from: '16:00', to: '22:00', enabled: true }
+  return { type, from: '00:00', to: '23:59', enabled: true }
 }
 
-function getPeriod(day: string, type: 'first' | 'second' | 'full') {
-  const index = operatingHours.value[day].findIndex(p => p.type === type)
-  return operatingHours.value[day][index] ?? getPeriodValues(type)
+function getDefaultTime(type: PeriodType): string {
+  const p = getPeriodValues(type)
+  return `${p.from} إلى ${p.to}`
 }
 
-function togglePeriod(day: string, type: 'first' | 'second' | 'full') {
-  const periods = operatingHours.value[day]
-  const index = periods.findIndex(p => p.type === type)
+function getPeriod(day: DayKey, type: PeriodType): TimePeriod | null {
+  const periods = operatingHours[day]
+  if (!periods) return null
+  const index = periods.findIndex((p: TimePeriod) => p.type === type)
+  return index !== -1 ? periods[index] : null
+}
+
+function shouldDisableSwitch(day: DayKey, type: PeriodType): boolean {
+  const periods = operatingHours[day]
+  if (!periods) return false
+
+  const fullEnabled = periods.some(p => p.type === 'full' && p.enabled)
+  const firstEnabled = periods.some(p => p.type === 'first' && p.enabled)
+  const secondEnabled = periods.some(p => p.type === 'second' && p.enabled)
+
+  if (type === 'full') return firstEnabled || secondEnabled
+  if (type === 'first' || type === 'second') return fullEnabled
+  return false
+}
+
+function togglePeriod(day: DayKey, type: PeriodType): void {
+  const periods = operatingHours[day]
+  if (!periods) return
+
+  const fullEnabled = periods.some(p => p.type === 'full' && p.enabled)
+  const firstEnabled = periods.some(p => p.type === 'first' && p.enabled)
+  const secondEnabled = periods.some(p => p.type === 'second' && p.enabled)
+
+  if (type === 'full' && (firstEnabled || secondEnabled)) {
+    alertMessage.value = 'لا يمكن تفعيل خيار 24 ساعة إلا بعد تعطيل الفترتين الأولى والثانية.'
+    return
+  }
+
+  if ((type === 'first' || type === 'second') && fullEnabled) {
+    alertMessage.value = 'لا يمكن تفعيل الفترات الجزئية إلا بعد تعطيل خيار 24 ساعة.'
+    return
+  }
+
+  alertMessage.value = ''
+
+  const index = periods.findIndex((p: TimePeriod) => p.type === type)
 
   if (index !== -1) {
     periods[index].enabled = !periods[index].enabled
   } else {
-    // إذا كانت 24 ساعة مفعلة، نلغيها أولاً
-    const fullIndex = periods.findIndex(p => p.type === 'full')
-    if (fullIndex !== -1) periods.splice(fullIndex, 1)
+    if (type === 'full') {
+      ['first', 'second'].forEach(t => {
+        const i = periods.findIndex(p => p.type === t)
+        if (i !== -1) periods.splice(i, 1)
+      })
+    } else {
+      const i = periods.findIndex(p => p.type === 'full')
+      if (i !== -1) periods.splice(i, 1)
+    }
 
     periods.push(getPeriodValues(type))
   }
+
+  saveHours()
 }
 
+function updateTime(day: DayKey, type: PeriodType, field: 'from' | 'to', e: Event): void {
+  const target = e.target as HTMLInputElement
+  const value = target?.value
+  if (value) {
+    const period = getPeriod(day, type)
+    if (period) {
+      period[field] = value
+      saveHours()
+    }
+  }
+}
 </script>
 
+
 <style scoped>
-.info-section h3 {
-  font-size: 1rem;
-  font-weight: 600;
-  margin-bottom: 0.5rem;
-  color: var(--sectionTitle-color, #000);
-  border-bottom: 1px solid var(--sectionTitle-color, #000);
-  padding-bottom: 0.3rem;
+/* ✅ تنسيق عام */
+.info-section {
+  padding: 1rem;
+  font-family: 'Tajawal', sans-serif;
+  direction: rtl;
 }
 
+.info-section h3 {
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  color: var(--sectionTitle-color, #000);
+  border-bottom: 2px solid var(--sectionTitle-color, #000);
+  padding-bottom: 0.5rem;
+}
+
+/* ✅ شبكة الأيام */
 .days-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   gap: 1rem;
 }
 
+/* ✅ بطاقة اليوم */
 .day-card {
   background: #fff;
   border: 1px solid #E0E0E0;
   border-radius: 10px;
   padding: 1rem;
-  font-family: 'Tajawal', sans-serif;
   box-shadow: 0 2px 6px rgba(0,0,0,0.05);
 }
 
@@ -162,6 +234,7 @@ function togglePeriod(day: string, type: 'first' | 'second' | 'full') {
   padding-bottom: 0.3rem;
 }
 
+/* ✅ خيارات الفترات */
 .period-options {
   display: flex;
   flex-direction: column;
@@ -191,6 +264,7 @@ function togglePeriod(day: string, type: 'first' | 'second' | 'full') {
   color: #333;
 }
 
+/* ✅ معلومات الفترة */
 .period-info {
   font-size: 0.8rem;
   color: #666;
@@ -198,6 +272,7 @@ function togglePeriod(day: string, type: 'first' | 'second' | 'full') {
   display: flex;
   align-items: center;
   gap: 0.4rem;
+  flex-wrap: wrap;
 }
 
 .period-info input[type="time"] {
@@ -205,10 +280,11 @@ function togglePeriod(day: string, type: 'first' | 'second' | 'full') {
   border: 1px solid #ccc;
   border-radius: 6px;
   font-size: 0.8rem;
-  font-family: inherit;
+  width: 80px;
+  box-sizing: border-box;
 }
 
-/* زر التبديل */
+/* ✅ زر التبديل */
 .switch {
   position: relative;
   display: inline-block;
@@ -225,8 +301,10 @@ function togglePeriod(day: string, type: 'first' | 'second' | 'full') {
 .slider {
   position: absolute;
   cursor: pointer;
-  top: 0; left: 0;
-  right: 0; bottom: 0;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   background-color: #ccc;
   border-radius: 20px;
   transition: 0.3s;
@@ -251,20 +329,39 @@ input:checked + .slider {
 input:checked + .slider:before {
   transform: translateX(16px);
 }
-.period-info {
+
+input:disabled + .slider {
+  background-color: #eee;
+  cursor: not-allowed;
+}
+
+input:disabled + .slider:before {
+  background-color: #ccc;
+}
+
+/* ✅ Toast تنبيه */
+.toast {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: #fff3f3;
+  color: #d00;
+  padding: 0.8rem 1rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  font-size: 0.9rem;
   display: flex;
   align-items: center;
-  gap: 0.4rem;
-  flex-wrap: wrap;
-  max-width: 100%;
+  gap: 1rem;
+  z-index: 1000;
 }
 
-.period-info input[type="time"] {
-  width: 80px;
-  min-width: 70px;
-  max-width: 100px;
-  box-sizing: border-box;
+.toast button {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  color: #d00;
 }
 
-
-</style>
+ </style>

@@ -36,13 +36,15 @@ export const useAllergenStyleStore = defineStore('allergenStyleStore', () => {
     } catch (error) {
       console.error("Failed to load allergen style:", error);
     }
-  }  async function saveAllergenStyle() {
+  } 
+   async function saveAllergenStyle() {
     try {
       await indexedDBService.saveSetting('allergenIconStyle', allergenIconStyle.value)
     } catch (error) {
       console.error("Failed to save allergen style:", error);
     }
-  }  function resetAllergenStyle() { allergenIconStyle.value = 'colored' }
+  } 
+   function resetAllergenStyle() { allergenIconStyle.value = 'colored' }
 
 
   async function seedAllergenStyleOptions() {

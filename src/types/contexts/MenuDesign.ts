@@ -19,8 +19,7 @@ export interface LayoutSettings {
 // 🎨 أنواع الألوان
 export interface ColorSettings {
   headerBackground: string
-  sectionBackground: string
-  cardBackground: string
+  
   titleText: string
   priceText: string
   descriptionText: string
@@ -29,11 +28,14 @@ export interface ColorSettings {
   offerLabel: string
   currencyIcon: string         // ✅ جديد
   expiredProductIcon: string   // ✅ جديد
+  
+  menuPageBackground: string
+  topIconsBackground: string
+  sectionBackground: string,
+  cardBackground: string
   bodyBackground: string
   productBackground: string
   priceBackground: string
-  currencyBackground: string
-  
 }
 
 // 🧠 إعدادات التصميم الكاملة (تجميع)

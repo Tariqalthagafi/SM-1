@@ -78,7 +78,7 @@ export const minimalBlack: TemplateConfig = {
     font: true,
     offerStyles: ['strikeOnly'],
     expiredStyles: ['strike', 'badge'],
-    imageShapes: ['circle', 'roundedSquare', 'rectangle', 'none'],
+    imageShapes: ['circle', 'roundedSquare', 'rectangle', 'hidden'],
     allergenIconStyles: ['colored', 'outlined', 'monochrome'],
     allergenIconColor: '#ff0000'
   }

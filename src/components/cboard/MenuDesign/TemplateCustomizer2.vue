@@ -1,6 +1,6 @@
 <template>
   <div class="template-customizer-2">
-    <h4>{{ t('تخصيص المنيو') }}</h4>
+    <h4>{{ t('cboard.menuDesign.title') }}</h4>
 
     <!-- اختيار التخطيط -->
     <LayoutEditor />
@@ -12,7 +12,8 @@
 </template>
 
 <script setup lang="ts">
-import { t } from '@/translations'
+import { useI18n } from 'vue-i18n'
+const { t } = useI18n()
 import ColorEditor from './ColorEditor.vue'
 import LayoutEditor from './LayoutEditor.vue'
 </script>

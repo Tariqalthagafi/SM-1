@@ -1,131 +1,180 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { indexedDBService } from '@/services/indexedDBService'
+import { supabase } from '@/supabase'
 
 export const useHomeStore = defineStore('homeStore', () => {
-  // 👤 بيانات المستخدم
-  const username = ref('عبدالله')
-
-  // 🆔 معرف المنيو (ثابت)
+  // 🏷️ الحقول الأساسية
+  const restaurantName = ref('')
+  const businessType = ref('مطعم')
+  const logoUrl = ref<string | null>(null)
   const menuId = ref<string | null>(null)
 
-  // 📅 بيانات الزيارة والنشاط
-  const lastVisit = ref<string | null>(null)
-  const activityLog = ref<string[]>([])
-  const showTips = ref(true)
-
-  // 🧮 إحصائيات الصفحة
-  const productCount = ref(0)
-  const categoryCount = ref(0)
-  const lastUpdated = ref('غير محدد')
-
-  // 🏷️ الهوية التجارية
-  const restaurantName = ref('')
-  const logoUrl = ref<string | null>(null)
-  const logoBlob = ref<Blob | null>(null)
-  const businessType = ref<string>('مطعم') // ✅ النشاط التجاري
-
-  // 📌 تحميل البيانات من IndexedDB أو إنشاؤها إذا لم تكن موجودة
+  // 📌 تحميل البيانات من IndexedDB و Supabase
   async function initStore() {
-    // Menu ID
-    const savedMenuId = await indexedDBService.get('settings', 'menuId')
+    await ensureHomeSettings()
+    await loadFromSupabase()
+
+    const savedName = await indexedDBService.get('home', 'restaurantName')
+    if (savedName) restaurantName.value = savedName.value
+
+    const savedType = await indexedDBService.get('home', 'businessType')
+    if (savedType) businessType.value = savedType.value
+
+    const savedLogo = await indexedDBService.get('home', 'logoUrl')
+    if (savedLogo) logoUrl.value = savedLogo.value
+
+    const savedMenuId = await indexedDBService.get('home', 'menuId')
     if (savedMenuId) {
       menuId.value = savedMenuId.value
     } else {
       menuId.value = 'MENU-' + Math.floor(100000 + Math.random() * 900000)
-      await indexedDBService.put('settings', { id: 'menuId', value: menuId.value })
-    }
-
-    // اسم المطعم
-    const savedName = await indexedDBService.get('settings', 'restaurantName')
-    if (savedName) {
-      restaurantName.value = savedName.value
-    }
-
-    // الشعار
-    const savedLogo = await indexedDBService.get('settings', 'logoUrl')
-    if (savedLogo) {
-      logoUrl.value = savedLogo.value
-    }
-
-    // النشاط التجاري
-    const savedType = await indexedDBService.get('settings', 'businessType')
-    if (savedType) {
-      businessType.value = savedType.value
+      await indexedDBService.put('home', { id: 'menuId', value: menuId.value })
     }
   }
 
-  // 🖼️ ضبط الشعار من ملف
-  async function setLogoBlob(blob: Blob) {
-    logoBlob.value = blob
-    logoUrl.value = URL.createObjectURL(blob)
-    await indexedDBService.put('settings', { id: 'logoUrl', value: logoUrl.value })
-  }
-
-  // 🖼️ ضبط أو إزالة الشعار
-  async function setLogoUrl(url: string | null) {
-    logoUrl.value = url
-    await indexedDBService.put('settings', { id: 'logoUrl', value: url })
-  }
-
-  // 🏷️ ضبط اسم المطعم
+  // ✏️ تحديث الحقول بشكل منفصل
   async function setRestaurantName(name: string) {
     restaurantName.value = name
-    await indexedDBService.put('settings', { id: 'restaurantName', value: name })
+    await indexedDBService.put('home', { id: 'restaurantName', value: name })
+
+    const { data: userData } = await supabase.auth.getUser()
+    const userId = userData?.user?.id
+    if (!userId) return
+
+    await supabase
+      .from('home_settings')
+      .update({ restaurant_name: name })
+      .eq('user_id', userId)
   }
 
-  // 🏷️ ضبط النشاط التجاري
   async function setBusinessType(type: string) {
     businessType.value = type
-    await indexedDBService.put('settings', { id: 'businessType', value: type })
+    await indexedDBService.put('home', { id: 'businessType', value: type })
+
+    const { data: userData } = await supabase.auth.getUser()
+    const userId = userData?.user?.id
+    if (!userId) return
+
+    await supabase
+      .from('home_settings')
+      .update({ business_type: type })
+      .eq('user_id', userId)
   }
 
-  // 📅 تسجيل الزيارة
-  function markVisit() {
-    lastVisit.value = new Date().toISOString()
+  async function setLogoUrl(url: string | null) {
+    logoUrl.value = url
+    await indexedDBService.put('home', { id: 'logoUrl', value: url })
+
+    const { data: userData } = await supabase.auth.getUser()
+    const userId = userData?.user?.id
+    if (!userId) return
+
+    await supabase
+      .from('home_settings')
+      .update({ logo_url: url })
+      .eq('user_id', userId)
   }
 
-  // 📝 تسجيل نشاط
-  function logActivity(message: string) {
-    activityLog.value.push(`${new Date().toISOString()} - ${message}`)
+  // 🖼️ رفع الشعار إلى Supabase Storage
+  async function uploadLogoToStorage(file: File) {
+    const { data: userData } = await supabase.auth.getUser()
+    const userId = userData?.user?.id
+    if (!userId) return
+
+    const fileExt = file.name.split('.').pop()
+    const fileName = `logo-${userId}-${Date.now()}.${fileExt}`
+
+    const { error: uploadError } = await supabase.storage
+      .from('logos')
+      .upload(fileName, file, { upsert: true })
+
+    if (uploadError) {
+      console.error('❌ خطأ في رفع الشعار:', uploadError)
+      return
+    }
+
+    const { data: urlData } = supabase.storage
+      .from('logos')
+      .getPublicUrl(fileName)
+
+    logoUrl.value = urlData?.publicUrl ?? null
+    await indexedDBService.put('home', { id: 'logoUrl', value: logoUrl.value })
+    await setLogoUrl(logoUrl.value)
   }
 
-  // 💡 إظهار/إخفاء النصائح
-  function toggleTips() {
-    showTips.value = !showTips.value
+  // 🗑️ حذف الشعار من Supabase Storage
+  async function deleteLogoFromStorage() {
+    const { data: userData } = await supabase.auth.getUser()
+    const userId = userData?.user?.id
+    if (!userId || !logoUrl.value) return
+
+    const fileName = logoUrl.value.split('/').pop()
+    if (!fileName) return
+
+    await supabase.storage.from('logos').remove([fileName])
+    logoUrl.value = null
+    await indexedDBService.put('home', { id: 'logoUrl', value: null })
+    await setLogoUrl(null)
   }
 
-  // 📊 تحديث الإحصائيات
-  function updateStats({ products, categories }: { products: number; categories: number }) {
-    productCount.value = products
-    categoryCount.value = categories
-    lastUpdated.value = new Date().toLocaleString('ar-EG')
+  // ☁️ تحميل من Supabase
+  async function loadFromSupabase() {
+    const { data: userData } = await supabase.auth.getUser()
+    const userId = userData?.user?.id
+    if (!userId) return
+
+    const { data } = await supabase
+      .from('home_settings')
+      .select('*')
+      .eq('user_id', userId)
+      .single()
+
+    if (data) {
+      restaurantName.value = data.restaurant_name
+      businessType.value = data.business_type
+      logoUrl.value = data.logo_url
+      menuId.value = data.menu_id
+    }
+  }
+
+  // ✅ إنشاء صف إذا لم يكن موجودًا
+  async function ensureHomeSettings() {
+    const { data: userData } = await supabase.auth.getUser()
+    const userId = userData?.user?.id
+    if (!userId) return
+
+    const { data } = await supabase
+      .from('home_settings')
+      .select('user_id')
+      .eq('user_id', userId)
+      .maybeSingle()
+
+    if (!data) {
+      const payload = {
+        user_id: userId,
+        restaurant_name: restaurantName.value,
+        business_type: businessType.value,
+        logo_url: logoUrl.value,
+        menu_id: menuId.value ?? 'MENU-' + Math.floor(100000 + Math.random() * 900000)
+      }
+
+      await supabase
+        .from('home_settings')
+        .upsert([payload], { onConflict: 'user_id' })
+    }
   }
 
   return {
-    // الحالة
-    username,
-    menuId,
-    lastVisit,
-    activityLog,
-    showTips,
-    productCount,
-    categoryCount,
-    lastUpdated,
     restaurantName,
+    businessType,
     logoUrl,
-    logoBlob,
-    businessType, // ✅ مضاف
-
-    // الدوال
+    menuId,
     initStore,
     setRestaurantName,
+    setBusinessType,
     setLogoUrl,
-    setLogoBlob,
-    setBusinessType, // ✅ مضاف
-    markVisit,
-    logActivity,
-    toggleTips,
-    updateStats
+    uploadLogoToStorage,
+    deleteLogoFromStorage
   }
 })

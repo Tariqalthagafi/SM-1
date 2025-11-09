@@ -1,8 +1,13 @@
 <template>
   <div class="contact-button-container none">
-    <button class="main-contact-btn" @click="isOpen = !isOpen">
-      <v-icon name="fa-credit-card" />
-    </button>
+   <button
+  class="main-contact-btn"
+  @click="isOpen = !isOpen"
+  :style="{ backgroundColor: props.colors.topIconsBackground }"
+>
+  <v-icon name="fa-credit-card" />
+</button>
+
 
     <div v-if="isOpen" class="contact-popover">
       <h6 class="popover-title">طرق الدفع</h6>
@@ -35,9 +40,10 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-import { useOrderInfoStore } from '@/stores/OrderInfo'
+import { useOrderInfoStore } from '@/stores/cboard/orderInfo1' // ✅ الصحيح
 
-defineProps<{ position: string }>()
+
+
 
 const store = useOrderInfoStore()
 const isOpen = ref(false)
@@ -50,6 +56,11 @@ onMounted(() => {
 const activeMethods = computed(() =>
   store.paymentMethods.filter(method => method.enabled && method.name && method.icon)
 )
+const props = defineProps<{
+  position: string
+  colors: Record<string, string>
+}>()
+
 </script>
 
 <style scoped>

@@ -1,8 +1,9 @@
 <template>
   <div class="top-contact-bar">
-    <SocialContactButton position="none" />
-    <PaymentContactButton position="none" />
-    <DeliveryContactButton position="none" />
+    <SocialContactButton position="none" :colors="colors" />
+    <PaymentContactButton position="none" :colors="colors" />
+    <DeliveryContactButton position="none" :colors="colors" />
+    <OperatingHoursButton position="none" :colors="colors" />
   </div>
 </template>
 
@@ -10,6 +11,11 @@
 import SocialContactButton from '@/components/cboard/Social/SocialContactButton.vue'
 import DeliveryContactButton from '@/components/cboard/OrderInfo/DeliveryContactButton.vue'
 import PaymentContactButton from '@/components/cboard/OrderInfo/PaymentContactButton.vue'
+import OperatingHoursButton from '@/components/cboard/OrderInfo/OperatingHoursButton.vue'
+const props = defineProps<{
+  colors: Record<string, string>
+}>()
+
 </script>
 
 <style scoped>

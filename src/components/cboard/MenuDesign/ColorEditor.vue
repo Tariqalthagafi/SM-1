@@ -1,66 +1,90 @@
 <template>
   <div class="color-editor">
-    
-
     <!-- اختيار نمط جاهز -->
     <div class="preset-selector">
-      <label for="preset-select">اختر نمط الألوان:</label>
+      <label for="preset-select">
+        {{ t('cboard.menuDesign.colorEditor.presetLabel') }}
+      </label>
       <div class="preset-row">
         <select
           id="preset-select"
           v-model="selectedPreset"
           @change="applyPreset(selectedPreset)"
         >
-          <option disabled value="">-- اختر نمطاً --</option>
-         <!-- عرض النمط الافتراضي أولاً -->
-<option
-  v-if="defaultPreset && colorPresets[defaultPreset]"
-  :value="defaultPreset"
->
-  ⭐ : {{ defaultPreset }}
-</option>
+          <option disabled value="">
+            {{ t('cboard.menuDesign.colorEditor.presetPlaceholder') }}
+          </option>
 
-<!-- عرض باقي الأنماط بدون تكرار الافتراضي -->
-<template v-for="[name, preset] in Object.entries(colorPresets)">
-  <option
-    v-if="name !== defaultPreset"
-    :key="name"
-    :value="name"
-  >
-    {{ name }}
-  </option>
-</template>
+          <!-- عرض النمط الافتراضي أولاً -->
+          <option
+            v-if="defaultPreset && colorPresets[defaultPreset]"
+            :value="defaultPreset"
+          >
+            {{ t('cboard.menuDesign.colorEditor.defaultPresetPrefix') }}{{ defaultPreset }}
+          </option>
 
+          <!-- عرض باقي الأنماط بدون تكرار الافتراضي -->
+          <template v-for="[name, preset] in Object.entries(colorPresets)">
+            <option
+              v-if="name !== defaultPreset"
+              :key="name"
+              :value="name"
+            >
+              {{ t(`cboard.menuDesign.colorEditor.presets.${name}`, name) }}
+
+            </option>
+          </template>
         </select>
+
         <!-- زر إعادة ضبط -->
-        <button @click="showResetConfirm = true" class="reset-button" title="إعادة ضبط"> ⟳ </button>
-        <button @click="showConfirm = true" class="default-button" title="تعيين كافتراضي"> ⭐ </button>
+        <button
+          @click="showResetConfirm = true"
+          class="reset-button"
+          :title="t('cboard.menuDesign.colorEditor.resetButton')"
+        >
+          ⟳
+        </button>
 
-<!-- نافذة تأكيد التعيين كافتراضي -->
-<div v-if="showConfirm" class="confirm-overlay">
-  <div class="confirm-box">
-    <h4>تأكيد التعيين</h4>
-    <p>هل تريد تعيين هذا النمط كافتراضي؟</p>
-    <div class="confirm-actions">
-      <button class="yes-btn" @click="confirmDefault">نعم</button>
-      <button class="no-btn" @click="showConfirm = false">لا</button>
-    </div>
-  </div>
-</div>
+        <!-- زر تعيين كافتراضي -->
+        <button
+          @click="showConfirm = true"
+          class="default-button"
+          :title="t('cboard.menuDesign.colorEditor.defaultButton')"
+        >
+          ⭐
+        </button>
 
-<!-- نافذة تأكيد إعادة الضبط -->
-<div v-if="showResetConfirm" class="confirm-overlay">
-  <div class="confirm-box">
-    <h4>تأكيد إعادة الضبط</h4>
-    <p>هل تريد إعادة الألوان إلى الحالة الأصلية لهذا النمط؟</p>
-    <div class="confirm-actions">
-      <button class="yes-btn" @click="confirmReset">نعم</button>
-      <button class="no-btn" @click="showResetConfirm = false">لا</button>
-    </div>
-  </div>
-</div>
+        <!-- نافذة تأكيد التعيين كافتراضي -->
+        <div v-if="showConfirm" class="confirm-overlay">
+          <div class="confirm-box">
+            <h4>{{ t('cboard.menuDesign.colorEditor.confirmDefault.title') }}</h4>
+            <p>{{ t('cboard.menuDesign.colorEditor.confirmDefault.message') }}</p>
+            <div class="confirm-actions">
+              <button class="yes-btn" @click="confirmDefault">
+                {{ t('cboard.menuDesign.colorEditor.confirmDefault.yes') }}
+              </button>
+              <button class="no-btn" @click="showConfirm = false">
+                {{ t('cboard.menuDesign.colorEditor.confirmDefault.no') }}
+              </button>
+            </div>
+          </div>
+        </div>
 
-
+        <!-- نافذة تأكيد إعادة الضبط -->
+        <div v-if="showResetConfirm" class="confirm-overlay">
+          <div class="confirm-box">
+            <h4>{{ t('cboard.menuDesign.colorEditor.confirmReset.title') }}</h4>
+            <p>{{ t('cboard.menuDesign.colorEditor.confirmReset.message') }}</p>
+            <div class="confirm-actions">
+              <button class="yes-btn" @click="confirmReset">
+                {{ t('cboard.menuDesign.colorEditor.confirmReset.yes') }}
+              </button>
+              <button class="no-btn" @click="showResetConfirm = false">
+                {{ t('cboard.menuDesign.colorEditor.confirmReset.no') }}
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -70,19 +94,24 @@
         :class="{ active: selectedGroup === 'text' }"
         @click="selectedGroup = 'text'"
       >
-        🎨 النصوص
+        <img src="/icons/menudesign/text-color-icon.svg" alt="نصوص" class="group-icon" />
+        {{ t('cboard.menuDesign.colorEditor.groups.text') }}
       </button>
+
       <button
         :class="{ active: selectedGroup === 'icons' }"
         @click="selectedGroup = 'icons'"
       >
-        🧩 الرموز
+        <img src="/icons/menudesign/shapes-color-icon.svg" alt="رموز" class="group-icon" />
+        {{ t('cboard.menuDesign.colorEditor.groups.icons') }}
       </button>
+
       <button
         :class="{ active: selectedGroup === 'backgrounds' }"
         @click="selectedGroup = 'backgrounds'"
       >
-        🖼️ الخلفيات
+        <img src="/icons/menudesign/background-color-icon.svg" alt="خلفيات" class="group-icon" />
+        {{ t('cboard.menuDesign.colorEditor.groups.backgrounds') }}
       </button>
     </div>
 
@@ -94,24 +123,21 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
-import { t } from '@/translations'
-import { indexedDBService } from '@/services/indexedDBService'
+import { ref, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
+const { t } = useI18n()
 
+import { indexedDBService } from '@/services/indexedDBService'
 import TextColors from './TextColors.vue'
 import IconColors from './IconColors.vue'
 import BackgroundColors from './BackgroundColors.vue'
-
 import { colorPresets } from '@/types/contexts/colorPresets'
 import type { ColorPresetName } from '@/types/contexts/colorPresets'
 import { useColorEditorStore } from '@/stores/cboard/MenuDesign/ColorEditorStore'
 
-import { onMounted } from 'vue'
-
 const defaultPreset = ref<ColorPresetName | null>(null)
 const showConfirm = ref(false)
 const showResetConfirm = ref(false)
-
 const selectedGroup = ref<'text' | 'icons' | 'backgrounds'>('text')
 const selectedPreset = ref<ColorPresetName>('مخصص 1')
 const colorStore = useColorEditorStore()
@@ -141,7 +167,6 @@ async function applyPreset(name: ColorPresetName) {
   colorStore.setColors(presetColors)
   await colorStore.saveColors(name)
 
-  // ✅ حفظ النسخة الأصلية مرة واحدة فقط
   const alreadySaved = await indexedDBService.getSetting(`preset-default-${name}`)
   if (!alreadySaved) {
     await colorStore.saveDefaultPreset(name)
@@ -156,7 +181,6 @@ async function setAsDefault() {
   await indexedDBService.saveSetting('activeColorPreset', selectedPreset.value)
   defaultPreset.value = selectedPreset.value
 }
-
 
 async function confirmDefault() {
   await setAsDefault()
@@ -174,7 +198,6 @@ onMounted(async () => {
     defaultPreset.value = saved
   }
 })
-
 </script>
 
 <style scoped>
@@ -309,6 +332,16 @@ onMounted(async () => {
   padding: 0.4rem 1rem;
   border-radius: 6px;
   cursor: pointer;
+}
+.group-icon {
+  width: 20px;
+  height: 20px;
+  margin-inline-end: 0.4rem;
+  vertical-align: middle;
+}
+.group-selector button:hover .group-icon {
+  transform: scale(1.1);
+  transition: transform 0.2s ease;
 }
 
 </style>

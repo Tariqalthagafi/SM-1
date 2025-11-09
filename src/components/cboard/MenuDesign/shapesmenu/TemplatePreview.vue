@@ -1,8 +1,9 @@
 <template>
   <div v-if="sections.length && products.length">
-    <h4>معاينة القالب</h4>
+    <h4>{{ t('cboard.menuDesign.templatePreview.title') }}</h4>
     
-<ContactBar />
+<ContactBar :colors="colorStore.colors" />
+
     
     <!-- ✅ عرض بالقسم التفاعلي -->
     <SectionedLayout
@@ -19,31 +20,24 @@
 
 
     <!-- ✅ باقي النماذج -->
-    <component
-      v-else
-      :is="layoutComponent"
-      v-bind="isCategoryLayout
-       ? {
-      categories,
-      currencySymbol,
-      currencyKey,
-      imageShape,
-      offerStyle,
-      allergenIconStyle
-        }
-      : {
-      products,
-      sections,
-      currencySymbol,
-      currencyKey,
-      imageShape,
-      offerStyle,
-      allergenIconStyle
-        }"
-    />
+<component
+  v-else
+  :is="layoutComponent"
+  :products="products"
+  :sections="sections"
+  :categories="categories"
+  :currency-symbol="currencySymbol"
+  :currency-key="currencyKey"
+  :image-shape="imageShape"
+  :offer-style="offerStyle"
+  :allergen-icon-style="allergenIconStyle"
+  :colors="colorStore.colors"
+/>
+
   </div>
 
-  <p v-else>جاري تحميل المعاينة...</p>
+  <p v-else>{{ t('cboard.menuDesign.templatePreview.loading') }}</p>
+
 
 </template>
 
@@ -68,6 +62,8 @@ import { useFontStore } from '@/stores/cboard/templates/fontStore'
 // ✅ إضافة استيراد متجر الحساسية (افتراض)
 import { useAllergenStyleStore } from '@/stores/cboard/templates/allergenStyleStore'
 import ContactBar from '@/components/cboard/MenuPreview/ContactBar.vue'
+import { useI18n } from 'vue-i18n'
+const { t } = useI18n()
 
 const fontStore = useFontStore()
 
@@ -99,6 +95,7 @@ function applySettingsToCSS(colors: Record<string, string>) {
     root.style.setProperty(`--${key}-color`, value)
   })
   root.style.setProperty('--font-family', fontStore.fontFamily) // ✅ ديناميكي
+  document.body.style.backgroundColor = colors.menuPageBackground
 }
 
 

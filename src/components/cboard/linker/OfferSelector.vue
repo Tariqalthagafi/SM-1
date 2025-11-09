@@ -1,6 +1,6 @@
 <template>
   <select :value="modelValue" @change="onChange">
-    <option value="">بدون عرض</option>
+    <option value="">{{ t('cboard.linker.row.none') }}</option>
     <option v-for="offer in offers" :key="offer.id" :value="offer.id">
       {{ offer.title }}
     </option>
@@ -10,7 +10,8 @@
 <script setup lang="ts">
 import { useOffersStore } from '@/stores/cboard/offers'
 import type { Offer } from '@/types/contexts/Offers'
-
+import { useI18n } from 'vue-i18n'
+const { t } = useI18n()
 const props = defineProps<{ modelValue: string | undefined}>()
 const emit = defineEmits(['update:modelValue'])
 

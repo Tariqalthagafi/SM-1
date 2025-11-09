@@ -1,23 +1,27 @@
 <template>
   <div class="layout-editor">
-    <h5>{{ t('اختيار النموذج') }}</h5>
+    <h5>{{ t('cboard.menuDesign.layoutEditor.title') }}</h5>
     <select v-model="selectedLayout">
       <option
         v-for="layout in layoutOptions"
         :key="layout.value"
         :value="layout.value"
       >
-        {{ layout.label || t(`layouts.${layout.value}`) }}
+        {{ t(`cboard.menuDesign.layouts.${layout.value}`) }}
+
       </option>
     </select>
   </div>
 </template>
 
 <script setup lang="ts">
-import { t } from '@/translations'
 import { computed, onMounted } from 'vue'
 import { useLayoutEditorStore } from '@/stores/cboard/MenuDesign/LayoutEditor'
 import type { MenuLayout } from '@/types/contexts/MenuDesign'
+import { useTemplateSettingsStore } from '@/stores/cboard/templates/templateSettingsStore'
+import { useI18n } from 'vue-i18n'
+const { t } = useI18n()
+const templateSettingsStore = useTemplateSettingsStore()
 
 const store = useLayoutEditorStore()
 
@@ -30,17 +34,18 @@ const selectedLayout = computed({
   set: (val: MenuLayout) => {
     store.setLayout(val)
     store.saveLayout()
+    templateSettingsStore.saveToSupabase()
   }
 })
 
 const layoutOptions: { value: MenuLayout; label?: string }[] = [
-  { value: 'vertical', label: 'عمودي' },
-  { value: 'grid', label: 'شبكي' },
-  { value: 'cards', label: 'بطاقات' },
-  { value: 'sectioned', label: 'عرض بالقسم' },
-  { value: 'sidebarCategories', label: 'قائمة جانبية للأقسام' },
-  { value: 'gridCategories', label: 'مربعات الأقسام' },
-  { value: 'pagedCategories', label: 'صفحات قابلة للسحب' }
+  { value: 'vertical'},
+  { value: 'grid'},
+  { value: 'cards' },
+  { value: 'sectioned' },
+  { value: 'sidebarCategories' },
+  { value: 'gridCategories' },
+  { value: 'pagedCategories' }
 ]
 
 </script>

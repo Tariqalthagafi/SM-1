@@ -1,7 +1,7 @@
 <template>
   <div class="sections-wrapper">
-    <h1 class="page-title">إدارة أقسام المنيو</h1>
-    <div class="section-count">عدد الأقسام: {{ sectionStore.sections.length }}</div>
+    <h1 class="page-title">{{ t('cboard.sections.title') }}</h1>
+    <div class="section-count"> {{ t('cboard.sections.count', { count: sectionStore.sections.length }) }} </div>
 
     <SectionEditor />
     <SectionList />
@@ -13,6 +13,8 @@ import { onMounted } from 'vue'
 import SectionEditor from '@/components/cboard/Sections/SectionEditor.vue'
 import SectionList from '@/components/cboard/Sections/SectionList.vue'
 import { useSectionStore } from '@/stores/cboard/sections'
+import { useI18n } from 'vue-i18n'
+const { t } = useI18n()
 
 const sectionStore = useSectionStore()
 

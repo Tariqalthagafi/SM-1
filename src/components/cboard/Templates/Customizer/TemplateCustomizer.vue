@@ -1,7 +1,7 @@
 <template>
   <!-- عرض مؤشر التحميل أولاً -->
   <div v-if="isLoading" class="loading-indicator">
-    <p>جاري تحميل إعدادات القالب...</p>
+    <p>{{ t('cboard.templates.loading') }}</p>
     <!-- يمكنك إضافة أيقونة تحميل هنا إذا أردت -->
   </div>
 
@@ -15,71 +15,82 @@
         @update:selectedFont="val => {
           fontStore.setFont(val)
           fontStore.saveFont()
+          templateSettingsStore.saveToSupabase()
         }"
       />
     </div>
 
     <!-- بطاقة اختيار نمط العرض -->
     <div class="card">
-      <OfferStylePicker
-        :selected="offerStyleStore.offerStyle"
-        :options="offerStyleStore.offerStyleOptions"
-        :original-price="product.originalPrice"
-        :new-price="product.discountedPrice"
-        @update:selected="val => {
-          offerStyleStore.setOfferStyle(val)
-          offerStyleStore.saveOfferStyle()
-        }"
-      />
+<OfferStylePicker
+  :selected="offerStyleStore.offerStyle"
+  :options="offerStyleStore.offerStyleOptions"
+  :original-price="product.originalPrice"
+  :new-price="product.discountedPrice"
+  @update:selected="val => {
+    offerStyleStore.setOfferStyle(val)
+    offerStyleStore.saveOfferStyle()
+    templateSettingsStore.saveToSupabase()
+  }"
+/>
+
     </div>
 
     <!-- بطاقة اختيار نمط انتهاء الصلاحية -->
-    <div class="card">
-      <ExpiredStylePicker
-        :options="expiredStyleStore.expiredStyleOptions"
-        :selected="expiredStyleStore.expiredStyle"
-        @update:selected="val => {
-          expiredStyleStore.setExpiredStyle(val)
-          expiredStyleStore.saveExpiredStyle()
-        }"
-      />
-    </div>
+<div class="card">
+  <ExpiredStylePicker
+    :options="expiredStyleStore.expiredStyleOptions"
+    :selected="expiredStyleStore.expiredStyle"
+    @update:selected="val => {
+      expiredStyleStore.setExpiredStyle(val)
+      expiredStyleStore.saveExpiredStyle()
+      templateSettingsStore.saveToSupabase()
+    }"
+  />
+</div>
+
 
     <!-- بطاقة اختيار شكل الصورة -->
-    <div class="card">
-      <ImageShapeSelector
-        :options="imageShapeStore.imageShapeOptions"
-        :selected="imageShapeStore.imageShape"
-        @update:selected="val => {
-          imageShapeStore.setImageShape(val)
-          imageShapeStore.saveImageShape()
-        }"
-      />
-    </div>
+<div class="card">
+  <ImageShapeSelector
+    :options="imageShapeStore.imageShapeOptions"
+    :selected="imageShapeStore.imageShape"
+    @update:selected="val => {
+      imageShapeStore.setImageShape(val)
+      imageShapeStore.saveImageShape()
+      templateSettingsStore.saveToSupabase()
+    }"
+  />
+</div>
+
 
     <!-- بطاقة اختيار العملة -->
-    <div class="card">
-      <CurrencySelector
-        :options="currencyStore.currencyOptions"
-        :selected="currencyStore.currencySymbol"
-        @update:selected="(val: string) => {
-          currencyStore.setCurrency(val)
-          currencyStore.saveCurrency()
-        }"
-      />
-    </div>
+<div class="card">
+  <CurrencySelector
+    :options="currencyStore.currencyOptions"
+    :selected="currencyStore.currencySymbol"
+    @update:selected="(val: string) => {
+      currencyStore.setCurrency(val)
+      currencyStore.saveCurrency()
+      templateSettingsStore.saveToSupabase()
+    }"
+  />
+</div>
+
 
     <!-- بطاقة اختيار نمط مسببات الحساسية -->
-    <div class="card">
-      <AllergenStyle
-        :options="allergenStyleStore.allergenStyleOptions"
-        :selected="allergenStyleStore.allergenIconStyle"
-        @update:selected="val => {
-          allergenStyleStore.setAllergenStyle(val)
-          allergenStyleStore.saveAllergenStyle()
-        }"
-      />
-    </div>
+<div class="card">
+  <AllergenStyle
+    :options="allergenStyleStore.allergenStyleOptions"
+    :selected="allergenStyleStore.allergenIconStyle"
+    @update:selected="val => {
+      allergenStyleStore.setAllergenStyle(val)
+      allergenStyleStore.saveAllergenStyle()
+      templateSettingsStore.saveToSupabase()
+    }"
+  />
+</div>
+
   </div>
 </template>
 
@@ -101,6 +112,11 @@ import { useExpiredStyleStore } from '@/stores/cboard/templates/expiredStyleStor
 import { useImageShapeStore } from '@/stores/cboard/templates/imageShapeStore'
 import { useCurrencyStore } from '@/stores/cboard/templates/currencyStore'
 import { useAllergenStyleStore } from '@/stores/cboard/templates/allergenStyleStore'
+import { useTemplateSettingsStore } from '@/stores/cboard/templates/templateSettingsStore'
+import { useI18n } from 'vue-i18n'
+const { t } = useI18n()
+
+const templateSettingsStore = useTemplateSettingsStore()
 
 // 1. تعريف متغير حالة التحميل
 const isLoading = ref(true)

@@ -4,17 +4,17 @@ export interface Product {
   description?: string
   calories?: number
   allergens?: string[]
-  imageBlob?: Blob
+  image_blob?: Blob
   status?: 'visible' | 'hidden' | 'expired'
-  order: number
-  sectionName?: string   // ✅ أضفناه هنا
-  sectionId?: string
-  selectedOfferId?: string
-  selectedOfferTitle?: string // لو حابين نخزن اسم العرض أيضًا
-  basePrice?: number      // 💰 السعر الأساسي
-  finalPrice?: number     // 💰 السعر بعد الخصم
-  imageUrl?: string
-  imageBase64?: string
-  hasAllergens?: boolean
-
+  sequ: number
+  section_name?: string
+  section_id?: string
+  selected_offer_id?: string
+  selected_offer_title?: string
+  base_price?: number
+  final_price?: number
+  image_url?: string
+  image_base64?: string
+  has_allergens?: boolean
+  created_by?: string
 }

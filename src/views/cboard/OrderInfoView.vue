@@ -7,7 +7,7 @@
 </template>
 
 <script setup lang="ts">
-import { useOrderInfoStore } from '@/stores/cboard/OrderInfo'
+import { useOrderInfoStore } from '@/stores/cboard/orderInfo1' // ✅ الصحيح
 import { onMounted } from 'vue'
 import OperatingHoursEditor from '@/components/cboard/OrderInfo/OperatingHoursEditor.vue'
 import DeliveryMethodsEditor from '@/components/cboard/OrderInfo/DeliveryMethodsEditor.vue'

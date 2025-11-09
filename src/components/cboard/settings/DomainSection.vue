@@ -1,9 +1,9 @@
 <template>
   <section class="settings-section">
-    <h2>إعدادات الدومين</h2>
+    <h2>{{ t('cboard.settings.domain.title') }}</h2>
 
     <div class="domain-info">
-      <label>رابط النطاق الفرعي</label>
+      <label>{{ t('cboard.settings.domain.linkLabel') }}</label>
       <div class="domain-link">
         <a
   class="domain-link"
@@ -13,19 +13,19 @@
 >
   {{ menuUrl }}
 </a>
-<button class="copy-btn" @click="copyToClipboard">📋 نسخ</button>
+<button class="copy-btn" @click="copyToClipboard">{{ t('cboard.settings.domain.copyButton') }}</button>
       </div>
     </div>
 
     <div class="email-verification">
-      <label>حالة الرابط</label>
+      <label>{{ t('cboard.settings.domain.statusLabel') }}</label>
       <div class="toggle-wrapper">
   <label class="switch">
     <input type="checkbox" v-model="isActive" />
     <span class="slider"></span>
   </label>
   <span class="toggle-label">
-    {{ isActive ? 'الرابط مفعل 🔔' : 'الرابط غير مفعل 🔕' }}
+    {{ isActive ? t('cboard.settings.domain.active') : t('cboard.settings.domain.inactive') }}
   </span>
 </div>
 
@@ -36,7 +36,8 @@
 <script setup lang="ts">
 import { ref, computed ,onMounted, watch} from 'vue'
 import { indexedDBService } from '@/services/indexedDBService'
-
+import { useI18n } from 'vue-i18n'
+const { t } = useI18n()
 const isActive = ref(false)
 
 function toggleLink() {
@@ -54,9 +55,9 @@ const menuUrl = computed(() => {
 
 function copyToClipboard() {
   navigator.clipboard.writeText(menuUrl.value).then(() => {
-    alert('✅ تم نسخ الرابط إلى الحافظة')
+    alert(t('cboard.settings.domain.copySuccess'))
   }).catch(() => {
-    alert('❌ فشل نسخ الرابط')
+    alert(t('cboard.settings.domain.copyFailure'))
   })
 }
 
@@ -68,8 +69,6 @@ onMounted(async () => {
 watch(isActive, async (newValue) => {
   await indexedDBService.put('domain', { id: 'default', isActive: newValue })
 })
-
-
 
 </script>
 

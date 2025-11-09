@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import { supabase } from '@/supabase'
 
 // الصفحة العامة
 import HomePage from '@/views/index.vue'
@@ -45,13 +46,12 @@ const routes = [
       {
         path: 'Social',
         name: 'Social',
-        component: () => import('@/views/cboard/Social.vue'),
+        component: () => import('@/views/cboard/social.vue'),
       },
       {
-       path: 'order-info',
-       name: 'OrderInfo',
-       component: () => import('@/views/cboard/OrderInfoView.vue'),
-       meta: { requiresAuth: true }
+        path: 'order-info',
+        name: 'OrderInfo',
+        component: () => import('@/views/cboard/OrderInfoView.vue'),
       },
       {
         path: 'templates',
@@ -76,7 +76,7 @@ const routes = [
       {
         path: '/menu/:id',
         name: 'MenuPublicView',
-        component: () => import('@/views/public/MenuPublicView.vue')
+        component: () => import('@/views/public/MenuPublicView.vue'),
       }
     ],
   },
@@ -85,6 +85,19 @@ const routes = [
 export const router = createRouter({
   history: createWebHistory(),
   routes,
+})
+
+// ✅ حماية جميع صفحات لوحة التحكم
+router.beforeEach(async (to, from, next) => {
+  const { data: { user } } = await supabase.auth.getUser()
+
+  const isProtectedRoute = to.path.startsWith('/cboard') && !to.path.startsWith('/menu')
+
+  if (isProtectedRoute && !user) {
+    next('/') // ❌ ممنوع الدخول بدون تسجيل
+  } else {
+    next() // ✅ السماح بالوصول
+  }
 })
 
 export default router

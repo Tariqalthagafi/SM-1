@@ -1,26 +1,36 @@
 <template>
   <section class="settings-section">
-    <h2>إعدادات الحساب</h2>
+    <h2>{{ t('cboard.settings.account.title') }}</h2>
 
-    <div class="field">
-      <label>البريد الإلكتروني</label>
-      <input type="email" value="user@example.com" readonly />
-    </div>
+<div class="field email-field">
+  <label>{{ t('cboard.settings.account.emailLabel') }}</label>
+  <div class="input-with-icon">
+    <img src="/icons/login/google-icon.svg" alt="Google" class="google-icon" />
+    <input type="email" :value="email" readonly />
+  </div>
+</div>
 
-    <div class="field">
-      <label>كلمة المرور</label>
-      <input type="password" value="••••••••" readonly />
-      <button class="action">🔒 تغيير كلمة المرور</button>
-    </div>
 
-    <div class="danger-zone">
-      <button class="danger">🗑️ حذف الحساب</button>
-    </div>
   </section>
 </template>
 
 <script setup lang="ts">
-// لا يوجد منطق حقيقي حالياً، كل شيء وهمي
+import { ref, onMounted } from 'vue'
+import { supabase } from '@/supabase'
+import { useI18n } from 'vue-i18n'
+const { t } = useI18n()
+
+const email = ref('')
+
+onMounted(async () => {
+  const { data: { user }, error } = await supabase.auth.getUser()
+
+  if (error) {
+    console.error('❌ فشل جلب المستخدم:', error.message)
+  } else if (user) {
+    email.value = user.email || ''
+  }
+})
 </script>
 
 <style scoped>
@@ -104,4 +114,31 @@ button.danger {
 button.danger:hover {
   background-color: #a94f00;
 }
+.input-with-icon {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: #f5f5f5;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 0.5rem 0.75rem;
+}
+
+.input-with-icon input {
+  border: none;
+  background: transparent;
+  font-size: 1rem;
+  color: #1a1a1a;
+  flex: 1;
+}
+
+.input-with-icon input:focus {
+  outline: none;
+}
+
+.google-icon {
+  width: 20px;
+  height: 20px;
+}
+
 </style>

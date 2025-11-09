@@ -44,6 +44,9 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
+import { supabase } from '@/supabase'
+import { useI18n } from 'vue-i18n'
+const { locale, t } = useI18n()
 
 const isCollapsed = ref(true)
 const toggleSidebar = () => {
@@ -56,12 +59,13 @@ const route = useRoute()
 const currentLang = ref('ar')
 
 function toggleLang() {
-  currentLang.value = currentLang.value === 'ar' ? 'en' : 'ar'
-  document.documentElement.setAttribute('dir', currentLang.value === 'ar' ? 'rtl' : 'ltr')
+  locale.value = locale.value === 'ar' ? 'en' : 'ar'
+  document.documentElement.setAttribute('dir', locale.value === 'ar' ? 'rtl' : 'ltr')
 }
 
+
 onMounted(() => {
-  document.documentElement.setAttribute('dir', currentLang.value === 'ar' ? 'rtl' : 'ltr')
+  document.documentElement.setAttribute('dir', locale.value === 'ar' ? 'rtl' : 'ltr')
 
   const links = document.querySelectorAll('.sidebar-link')
   links.forEach(link => {
@@ -97,8 +101,14 @@ onMounted(() => {
   })
 })
 
-function logout() {
-  router.push('/')
+async function logout() {
+  const { error } = await supabase.auth.signOut()
+
+  if (error) {
+    console.error('❌ فشل تسجيل الخروج:', error.message)
+  } else {
+    router.push('/') // ✅ إعادة المستخدم إلى الصفحة الرئيسية بعد تسجيل الخروج
+  }
 }
 
 function handleAction(route) {
@@ -108,29 +118,28 @@ function handleAction(route) {
 
 const sidebarItems = computed(() => [
   {
-    name: currentLang.value === 'ar' ? 'English' : 'العربية',
-    icon: currentLang.value === 'ar' ? 'En' : 'ع',
+    name: locale.value === 'ar' ? 'English' : 'العربية',
+    icon: locale.value === 'ar' ? 'En' : 'ع',
     iconType: 'text',
     route: '#lang'
   },
-  { name: 'الرئيسية', icon: 'homepage-icon.svg', iconType: 'svg', route: '/cboard' },
-  { name: 'معلومات التشغيل', icon: 'working-icon.svg', iconType: 'svg', route: '/cboard/order-info' },
-  { name: 'التواصل', icon: 'socialmedia-icon.svg', iconType: 'svg', route: '/cboard/Social' },
-  { name: 'الاقسام', icon: 'sections-icon.svg', iconType: 'svg', route: '/cboard/sections' },
-  { name: 'المنتجات', icon: 'products-icon.svg', iconType: 'svg', route: '/cboard/Products' },
-  { name: 'العروض', icon: 'offer-icon.svg', iconType: 'svg', route: '/cboard/Offers' },
-  { name: 'ربط المنتجات', icon: 'connection-icon.svg', iconType: 'svg', route: '/cboard/linker' },
-  { name: 'الثيمات', icon: 'theme-icon.svg', iconType: 'svg', route: '/cboard/templates' },
-  { name: 'تصميم المنيو', icon: 'menudesign-icon.svg', iconType: 'svg', route: '/cboard/MenuDesign' },
-  { name: 'معاينة المنيو', icon: 'preview-icon.svg', iconType: 'svg', route: '/cboard/MenuPreview' },
-  { name: 'الإعدادات', icon: 'settings-icon.svg', iconType: 'svg', route: '/cboard/settings' },
-  { name: 'خروج', icon: '⏻', iconType: 'text', route: '#logout' }
+  { name: t('cboard.sidebar.home'), icon: 'homepage-icon.svg', iconType: 'svg', route: '/cboard' },
+  { name: t('cboard.sidebar.orderInfo'), icon: 'working-icon.svg', iconType: 'svg', route: '/cboard/order-info' },
+  { name: t('cboard.sidebar.social'), icon: 'socialmedia-icon.svg', iconType: 'svg', route: '/cboard/Social' },
+  { name: t('cboard.sidebar.sections'), icon: 'sections-icon.svg', iconType: 'svg', route: '/cboard/sections' },
+  { name: t('cboard.sidebar.products'), icon: 'products-icon.svg', iconType: 'svg', route: '/cboard/Products' },
+  { name: t('cboard.sidebar.offers'), icon: 'offer-icon.svg', iconType: 'svg', route: '/cboard/Offers' },
+  { name: t('cboard.sidebar.linker'), icon: 'connection-icon.svg', iconType: 'svg', route: '/cboard/linker' },
+  { name: t('cboard.sidebar.templates'), icon: 'theme-icon.svg', iconType: 'svg', route: '/cboard/templates' },
+  { name: t('cboard.sidebar.menuDesign'), icon: 'menudesign-icon.svg', iconType: 'svg', route: '/cboard/MenuDesign' },
+  { name: t('cboard.sidebar.menuPreview'), icon: 'preview-icon.svg', iconType: 'svg', route: '/cboard/MenuPreview' },
+  { name: t('cboard.sidebar.settings'), icon: 'settings-icon.svg', iconType: 'svg', route: '/cboard/settings' },
+  { name: t('cboard.sidebar.logout'), icon: '⏻', iconType: 'text', route: '#logout' }
 ])
 
 const isPublicView = computed(() => route.path.startsWith('/menu'))
 
 </script>
-
 
 <style scoped>
 .cboard-layout {

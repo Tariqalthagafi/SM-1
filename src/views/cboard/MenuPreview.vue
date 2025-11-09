@@ -1,9 +1,6 @@
 <template>
   <!-- ✅ شريط علوي مستقل للأيقونات -->
-  
-<ContactBar />
-
-  
+  <ContactBar :colors="colorMap" />
 
   <!-- ✅ فاصل مرئي -->
   <div class="menu-separator"></div>
@@ -15,7 +12,6 @@
   <p v-else>جاري تحميل المنيو...</p>
 </template>
 
-
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useFontStore } from '@/stores/cboard/templates/fontStore'
@@ -25,7 +21,7 @@ import { useImageShapeStore } from '@/stores/cboard/templates/imageShapeStore'
 import { useOfferStyleStore } from '@/stores/cboard/templates/offerStyleStore'
 import { useAllergenStyleStore } from '@/stores/cboard/templates/allergenStyleStore'
 import { indexedDBService } from '@/services/indexedDBService'
-import { useSocialStore } from '@/stores/cboard/Social'
+import { use_social_store } from '@/stores/cboard/social'
 
 // ✅ مكونات التخطيط
 import VerticalLayout from '@/components/cboard/MenuDesign/shapesmenu/VerticalLayout.vue'
@@ -36,10 +32,6 @@ import SidebarView from '@/components/cboard/MenuDesign/shapesmenu/SidebarView.v
 import GridView from '@/components/cboard/MenuDesign/shapesmenu/GridView.vue'
 import PagedView from '@/components/cboard/MenuDesign/shapesmenu/PagedView.vue'
 import ContactBar from '@/components/cboard/MenuPreview/ContactBar.vue'
-// ✅ مكونات التواصل
-import SocialContactButton from '@/components/cboard/Social/SocialContactButton.vue'
-import DeliveryContactButton from '@/components/cboard/OrderInfo/DeliveryContactButton.vue'
-import PaymentContactButton from '@/components/cboard/OrderInfo/PaymentContactButton.vue'
 
 const isLoading = ref(true)
 
@@ -49,10 +41,11 @@ const layoutStore = useLayoutEditorStore()
 const currencyStore = useCurrencyStore()
 const imageShapeStore = useImageShapeStore()
 const allergenStyleStore = useAllergenStyleStore()
-const socialStore = useSocialStore()
+const socialStore = use_social_store()
 
 const sections = ref<any[]>([])
 const products = ref<any[]>([])
+const colorMap = ref<Record<string, string>>({})
 
 const layout = computed(() => layoutStore.layout || 'grid')
 const currencyKey = computed(() => currencyStore.currencySymbol)
@@ -99,7 +92,8 @@ const layoutProps = computed(() => {
     offerStyle: offerStyle.value,
     allergenIconStyle: allergenIconStyle.value,
     getAllergenIconSymbol: getAllergenIconSymbol.value,
-    getAllergenIconStyle: getAllergenIconStyle.value
+    getAllergenIconStyle: getAllergenIconStyle.value,
+    colors: colorMap.value
   }
 
   const layoutsUsingCategories = ['gridCategories', 'pagedCategories', 'sidebarCategories']
@@ -120,6 +114,7 @@ async function loadFinalData() {
   const rawColors = await indexedDBService.getColors('default') || {}
   const colors = { ...rawColors }
   delete colors.id
+  colorMap.value = colors
 
   const root = document.documentElement
   Object.entries(colors).forEach(([key, value]) => {

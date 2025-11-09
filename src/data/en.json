@@ -1,0 +1,450 @@
+{
+  "home": {
+    "header": {
+      "langToggle": "عربي",
+      "loginButton": "Sign in",
+      "logo": {
+        "part1": "Super",
+        "part2": "Menu"
+      }
+    },
+    "hero": {
+      "headline": {
+        "part1": "Hospitality",
+        "part2": "starts with the menu"
+      },
+      "subtext": {
+        "part1": "Elevate your customer experience with an",
+        "highlight": "interactive and smart menu",
+        "part2": "that reflects your brand and displays seamlessly on every screen."
+      }
+    },
+    "footer": {
+      "copyright": "© 2025 Menu Tool. All rights reserved."
+    }
+  },
+  "cboard": {
+    "home": {
+      "welcome": {
+        "headline": "Welcome 👋",
+        "subtext": "Start by setting up your identity and activating your membership."
+      },
+      "identity": {
+      "title": "Identity Information",
+      "restaurantNameLabel": "Restaurant Name:",
+      "restaurantNamePlaceholder": "e.g., Coffee Shop",
+      "businessTypeLabel": "Business Type:",
+      "businessTypePlaceholder": "Select category",
+      "businessTypeOptions": {
+        "restaurant": "Restaurant",
+        "lounge": "Lounge",
+        "cafe": "Café"
+      },
+      "logoLabel": "Logo:",
+      "changeLogo": "Change Logo",
+      "removeLogo": "Remove Logo"
+    },
+      "membership": {
+      "title": "Membership Status",
+      "accountIdLabel": "Account ID",
+      "planLabel": "Current Plan",
+      "paid": "Paid",
+      "free": "Free",
+      "subscribeButton": "Subscribe"
+    },
+      "summary": {
+      "title": "Activity Summary",
+      "totalVisits": "👁️ Total Visits",
+      "todayVisits": "📅 Today's Visits",
+      "lastUpdated": "🕒 Last Updated",
+      "Visits": " Visits"
+    }
+    },
+    "orderInfo": {
+    "operatingHours": {
+      "title": "Operating Hours",
+      "periodLabels": {
+        "first": "First Period",
+        "second": "Second Period",
+        "full": "24 Hours"
+      },
+            "days": {
+        "sunday": "Sunday",
+        "monday": "Monday",
+        "tuesday": "Tuesday",
+        "wednesday": "Wednesday",
+        "thursday": "Thursday",
+        "friday": "Friday",
+        "saturday": "Saturday"
+      },
+      "to": "to",
+      "alert": {
+        "fullConflict": "Cannot enable 24-hour option unless both partial periods are disabled.",
+        "partialConflict": "Cannot enable partial periods unless 24-hour option is disabled.",
+        "close": "Close"
+      }
+    },
+    "deliveryMethods": {
+  "title": "Delivery Methods",
+  "methods": {
+    "local": "Local Order",
+    "pickup": "Pickup",
+    "restaurant": "Restaurant Delivery",
+    "jahez": "Jahez",
+    "hungerstation": "HungerStation",
+    "marsool": "Mrsool",
+    "keeta": "Keeta"
+  }
+},
+    "paymentMethods": {
+  "title": "Payment Methods",
+  "methods": {
+    "cash": "Cash",
+    "mada": "Mada",
+    "visa": "Visa",
+    "mastercard": "MasterCard",
+    "amex": "American Express",
+    "stcpay": "STC Pay",
+    "applepay": "Apple Pay",
+    "googlepay": "Google Pay",
+    "paypal": "PayPal",
+    "bank": "Bank Transfer",
+    "tabby": "Tabby",
+    "tamara": "Tamara"
+  }
+}
+
+  },
+  "social": {
+  "title": "📡 Social & Contact Settings",
+  "fields": {
+  "email": "Email",
+  
+  "phone": "Phone Number",
+  "phone_placeholder": "05xxxxxxxx",
+  "website": "Website",
+  "website_placeholder": "https://example.com",
+  "instagram": "Instagram",
+  
+  "twitter": "X",
+  
+  "facebook": "Facebook",
+  "facebook_placeholder": "facebook.com/username",
+  "snapchat": "Snapchat",
+  "snapchat_placeholder": "snapchat.com/add/username",
+  "tiktok": "TikTok",
+  
+  "youtube": "YouTube",
+  "youtube_placeholder": "youtube.com/channel/...",
+  "whatsapp": "WhatsApp",
+  "whatsapp_placeholder": "05xxxxxxxx",
+  "location": "Location",
+  "location_placeholder": "Map link or description"
+  },
+  "visibility": {
+  "public": "Public",
+  "private": "Private"
+}
+
+},
+"sections": {
+    "title": "Menu Sections Management",
+    "count": "Number of sections: {count}",
+    "editor": {
+      "title": "➕ Add New Section",
+      "placeholder": "Enter section name then add",
+      "button": "Add",
+      "duplicateAlert": "⚠️ Section already exists"
+    },
+    "list": {
+      "loading": "Loading sections...",
+      "dragTitle": "Drag to reorder",
+      "editTitle": "Click to edit",
+      "deleteTitle": "Delete section",
+      "modal": {
+        "title": "Delete Confirmation",
+        "message": "Are you sure you want to delete this section? This action cannot be undone.",
+        "confirm": "Yes, delete",
+        "cancel": "Cancel"
+      }
+    }
+  },
+   "products": {
+    "title": "Menu Products Management",
+    "count": "Number of products: {count}",
+    "list": {
+      "addButton": "➕ Add New Product"
+    },
+    "editor": {
+      "dragTitle": "Drag to move",
+      "deleteTitle": "Delete product",
+      "fields": {
+        "name": "Product Name",
+        "description": "Description",
+        "calories": "Calories",
+        "allergens": "Allergens",
+        "image": "Image",
+        "upload": "Upload new image"
+      },
+      "modal": {
+        "title": "Delete Confirmation",
+        "message": "Are you sure you want to delete this product? This action cannot be undone.",
+        "confirm": "Yes, delete",
+        "cancel": "Cancel"
+      }
+    },
+    "preview": {
+      "button": "👁️ Preview",
+      "alt": "Product image"
+    },
+    "picker": {
+      "placeholder": "Select allergens",
+      "allergens": [
+        "Gluten",
+        "Shellfish",
+        "Eggs",
+        "Fish",
+        "Peanuts",
+        "Soybeans",
+        "Milk",
+        "Tree nuts",
+        "Celery",
+        "Mustard",
+        "Sesame",
+        "Sulphur dioxide and sulphites",
+        "Legumes",
+        "Molluscs"
+      ]
+    }
+  },
+"offers": {
+  "title": "📦 Offers Management",
+  "list": {
+    "addButton": "➕ Add New Offer",
+    "edit": "✏️",
+    "delete": "🗑️",
+    "toggle": {
+      "enable": "Enable Offer",
+      "disable": "Disable Offer"
+    }
+  },
+   "editor": {
+    "fields": {
+      "title": "Offer Title",
+      "type": "Offer Type",
+      "discountValue": "Discount Value",
+      "unifiedPrice": "Unified Price",
+      "startDate": "Start Date",
+      "endDate": "End Date",
+      "startTime": "Start Time",
+      "endTime": "End Time"
+    },
+    "types": {
+      "percentage": "Percentage",
+      "unifiedPrice": "Unified Price"
+    },
+    "units": {
+      "percentage": "%",
+      "unifiedPrice": "SAR"
+    },
+    "fallback": "—",
+    "actions": {
+      "save": "💾 Save",
+      "cancel": "❌ Cancel"
+    }
+  }
+},
+"linker": {
+  "title": "🔗 Manage Product Pricing and Section Linking",
+  "empty": "No products to display.",
+  "row": {
+    "fields": {
+      "productName": "Product Name",
+      "section": "Section",
+      "basePrice": "Base Price",
+      "offer": "Applied Offer",
+      "finalPrice": "Final Price",
+      "status": "Status"
+    },
+    "status": {
+      "visible": "Visible",
+      "hidden": "Hidden",
+      "expired": "Expired"
+    },
+    "currency": "SAR",
+     "none": "No Offer",
+     "sectionSelector": {
+      "none": "No Section"
+    }
+  }
+},
+"templates": {
+  "title": "Customize the menu layout with dynamic visual icons",
+   "loading": "Loading template settings...",
+   "selectors": {
+      "allergenStyle": {
+        "label": "Allergen Icon Style:",
+        "preview": "Icon Preview"
+      },
+      "currency": {
+        "label": "Select Currency:",
+        "preview": "Symbol Preview"
+      },
+      "expiredStyle": {
+        "label": "Expired Item Style:",
+        "preview": "Style Preview",
+        "sample": {
+          "name": "Expired Product",
+          "price": "SAR 35",
+          "badge": "Expired"
+        }
+      },
+      "imageShape": {
+        "label": "Image Shape:",
+        "preview": "Image Shape Preview"
+      },
+      "offerStyle": {
+        "label": "Offer Style:",
+        "preview": "Style Preview",
+        "sample": {
+          "name": "Sample Product",
+          "saving": "🔥 Save {amount} SAR",
+          "discount": "🔖 -{percent}%",
+          "price": {
+            "old": "{old} SAR",
+            "new": "{new} SAR"
+          }
+        }
+      },
+      "font": {
+        "label": "Select Font:",
+        "preview": "Sample title in this font"
+      }
+    }
+},
+"menuDesign": {
+    "title": "🛠️ Menu Customization",
+    "layoutEditor": {
+      "title": "📐 Choose Layout"
+    },
+    "layouts": {
+  "vertical": "Vertical",
+  "grid": "Grid",
+  "cards": "Cards",
+  "sectioned": "Sectioned",
+  "sidebarCategories": "Sidebar Categories",
+  "gridCategories": "Grid Categories",
+  "pagedCategories": "Paged Pages"
+},
+"colorEditor": {
+  "title": "🎨 Color Customization",
+  "presetLabel": "Choose a color preset:",
+  "presetPlaceholder": "-- Select a preset --",
+  "defaultPresetPrefix": "⭐ : ",
+  "resetButton": "Reset",
+  "defaultButton": "Set as Default",
+  "confirmDefault": {
+    "title": "Confirm Default",
+    "message": "Do you want to set this preset as default?",
+    "yes": "Yes",
+    "no": "No"
+  },
+  "confirmReset": {
+    "title": "Confirm Reset",
+    "message": "Do you want to reset colors to the original state of this preset?",
+    "yes": "Yes",
+    "no": "No"
+  },
+  "groups": {
+    "text": "Text",
+    "icons": "Icons",
+    "backgrounds": "Backgrounds"
+  },
+  "textColors": {
+    "title": "🎨 Text Color Customization",
+    "fields": {
+      "titleText": "Product Title",
+      "priceText": "Price",
+      "descriptionText": "Description",
+      "sectionTitleText": "Section Title"
+    }
+  },
+  "iconColors": {
+    "title": "🧩 Icon Color Customization",
+    "fields": {
+      "allergenIcon": "Allergen Icon",
+      "offerLabel": "Offer Label",
+      "currencyIcon": "Currency Icon",
+      "expiredProductIcon": "Expired Product Icon"
+    }
+  },
+  "backgroundColors": {
+    "title": "🖼️ Background Color Customization",
+    "fields": {
+      "menuPageBackground": "Menu Page Background",
+      "topIconsBackground": "Top Icons Background",
+      "sectionBackground": "Section Background",
+      "cardBackground": "Selected Section Background",
+      "bodyBackground": "Body Background",
+      "productBackground": "Product Card",
+      "priceBackground": "Price Background"
+    }
+  },
+  "presets": {
+    "صحراوي": "Desert",
+    "بحري": "Marine",
+    "عصري": "Modern",
+    "كلاسيكي": "Classic",
+    "خشبي": "Wooden",
+    "مخصص 1": "Custom 1",
+    "مخصص 2": "Custom 2",
+    "مخصص 3": "Custom 3",
+    "مخصص 4": "Custom 4",
+    "مخصص 5": "Custom 5",
+    "مخصص 6": "Custom 6",
+    "مخصص 7": "Custom 7",
+    "مخصص 8": "Custom 8",
+    "مخصص 9": "Custom 9",
+    "مخصص 10": "Custom 10"
+  }
+},
+"templatePreview": {
+  "title": "👁️ Template Preview",
+  "loading": "Loading preview..."
+}
+
+  },
+  "settings": {
+  "account": {
+    "title": "Account Settings",
+    "emailLabel": "Email"
+  },
+  "domain": {
+    "title": "Domain Settings",
+    "linkLabel": "Subdomain Link",
+    "copyButton": "📋 Copy",
+    "statusLabel": "Link Status",
+    "active": "Link is active 🔔",
+    "inactive": "Link is inactive 🔕",
+    "copySuccess": "✅ Link copied to clipboard",
+    "copyFail": "❌ Failed to copy link"
+  }
+},
+
+
+    "sidebar": {
+    "home": "Home",
+    "orderInfo": "Order Info",
+    "social": "Social",
+    "sections": "Sections",
+    "products": "Products",
+    "offers": "Offers",
+    "linker": "Product Linking",
+    "templates": "Themes",
+    "menuDesign": "Menu Design",
+    "menuPreview": "Menu Preview",
+    "settings": "Settings",
+    "logout": "Logout"
+  }
+  }
+}

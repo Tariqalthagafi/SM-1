@@ -1,5 +1,5 @@
 // src/data/menu.js
-
+/*
 export const menu = [
   {
     category: "مشروبات",
@@ -149,3 +149,4 @@ export const menu = [
     ]
   }
 ];
+*/

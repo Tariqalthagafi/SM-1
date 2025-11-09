@@ -14,7 +14,7 @@
         <input
           type="text"
           v-model="search"
-          placeholder="اختر مسببات الحساسية"
+          :placeholder="t('cboard.products.picker.placeholder')"
           @focus="dropdownOpen = true"
         />
       </div>
@@ -35,23 +35,14 @@
 
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
+const { t , tm } = useI18n()
 
-const allergensList = [
-  'الجلوتين',
-  'المحار',
-  'البيض',
-  'السمك',
-  'الفول السوداني',
-  'فول الصويا',
-  'الحليب',
-  'المكسرات',
-  'الكرفس',
-  'الخردل',
-  'السمسم',
-  'ثاني أكسيد الكبريت والكبريتات',
-  'البقوليات',
-  'الرخويات'
-]
+const allergensList = computed(() => {
+  const raw = tm('cboard.products.picker.allergens') as unknown
+  return Array.isArray(raw) ? raw as string[] : []
+})
+
 
 const props = defineProps<{ modelValue?: string[] }>()
 const emit = defineEmits<{ (e: 'update:modelValue', value: string[]): void }>()
@@ -72,11 +63,12 @@ watch(
 )
 
 const filteredList = computed(() => {
-  return allergensList.filter(
+  return allergensList.value.filter(
     (item) =>
       item.includes(search.value) && !localValue.value.includes(item)
   )
 })
+
 
 function selectItem(item: string) {
   if (!localValue.value.includes(item)) {

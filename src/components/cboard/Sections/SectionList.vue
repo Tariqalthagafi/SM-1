@@ -1,6 +1,9 @@
 <template>
   <section class="section-list-card">
+    <div v-if="loading" class="loading-message">{{ t('cboard.sections.list.loading') }}</div>
+
     <draggable
+      v-else
       v-model="sectionStore.sections"
       item-key="id"
       class="section-list"
@@ -8,7 +11,8 @@
     >
       <template #item="{ element: section }">
         <div class="section-item">
-          <span class="drag-handle" title="اسحب لإعادة الترتيب">⠿</span>
+          <span class="drag-handle" :title="t('cboard.sections.list.dragTitle')">⠿</span>
+
 
           <div class="section-name-wrapper">
             <input
@@ -23,22 +27,21 @@
               v-else
               class="section-name"
               @click="startEdit(section)"
-              title="اضغط للتعديل"
+              :title="t('cboard.sections.list.editTitle')"
             >
               {{ section.name }}
             </div>
           </div>
 
-          <button class="delete-btn" @click="confirmDeleteId = section.id" title="حذف القسم">🗑️</button>
+          <button class="delete-btn" @click="confirmDeleteId = section.id" :title="t('cboard.sections.list.deleteTitle')">🗑️</button>
 
-          <!-- ✅ نافذة تأكيد الحذف -->
           <div v-if="confirmDeleteId === section.id" class="modal-overlay">
             <div class="modal-box">
-              <h2>تأكيد الحذف</h2>
-              <p>هل أنت متأكد من حذف هذا القسم؟ لا يمكن التراجع بعد الحذف.</p>
+              <h2>{{ t('cboard.sections.list.modal.title') }}</h2>
+              <p>{{ t('cboard.sections.list.modal.message') }}</p>
               <div class="modal-actions">
-                <button class="confirm-btn" @click="deleteSection(section.id)">نعم، احذف</button>
-                <button class="cancel-btn" @click="confirmDeleteId = null">إلغاء</button>
+                <button class="confirm-btn" @click="deleteSection(section.id)">{{ t('cboard.sections.list.modal.confirm') }}</button>
+                <button class="cancel-btn" @click="confirmDeleteId = null">{{ t('cboard.sections.list.modal.cancel') }}</button>
               </div>
             </div>
           </div>
@@ -49,15 +52,23 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useSectionStore } from '@/stores/cboard/sections'
 import draggable from 'vuedraggable'
+import { useI18n } from 'vue-i18n'
+const { t } = useI18n()
 
 const sectionStore = useSectionStore()
+const loading = ref(true)
 
 const editingId = ref<string | null>(null)
 const editableName = ref('')
 const confirmDeleteId = ref<string | null>(null)
+
+onMounted(async () => {
+  await sectionStore.syncFromSupabase()
+  loading.value = false
+})
 
 function startEdit(section: { id: string; name: string }) {
   editingId.value = section.id
@@ -66,17 +77,14 @@ function startEdit(section: { id: string; name: string }) {
 
 async function saveEdit(id: string) {
   const name = editableName.value.trim()
-  editingId.value = null // ✅ إغلاق التحرير فورًا
-
+  editingId.value = null
   if (!name) return
 
-  // ✅ الحفظ يتم بعد الخروج من التحرير
   await sectionStore.update({
     ...sectionStore.sections.find(s => s.id === id)!,
     name
   })
 }
-
 
 function deleteSection(id: string) {
   sectionStore.remove(id)
@@ -94,6 +102,13 @@ function deleteSection(id: string) {
   flex-direction: column;
   gap: 1rem;
   font-family: 'Tajawal', sans-serif;
+}
+
+.loading-message {
+  font-size: 1rem;
+  color: #999;
+  text-align: center;
+  padding: 1rem;
 }
 
 .section-list {
@@ -131,14 +146,14 @@ function deleteSection(id: string) {
 .section-input {
   font-size: 1rem;
   padding: 0.3rem 0.4rem;
-  border: 2px solid #FF7A00; /* ✅ برتقالي عند التحرير */
+  border: 2px solid #FF7A00;
   border-radius: 6px;
   width: 100%;
-  background-color: #FFFBEF; /* ✨ خلفية خفيفة */
+  background-color: #FFFBEF;
 }
 
 .section-input:focus {
-  outline: none; /* ✅ إزالة الحدود السوداء الافتراضية */
+  outline: none;
 }
 
 .delete-btn {
@@ -152,7 +167,6 @@ function deleteSection(id: string) {
   color: #d32f2f;
 }
 
-/* ✅ نافذة تأكيد الحذف */
 .modal-overlay {
   position: absolute;
   top: 0;

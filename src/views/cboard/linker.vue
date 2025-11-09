@@ -1,6 +1,6 @@
 <template>
   <div class="linker-page">
-<h2>🔗 إدارة تسعير المنتجات وربطها بالأقسام</h2>
+<h2>{{ t('cboard.linker.title') }}</h2>
 
     <div v-if="productsStore.products.length">
       <ProductlinkerRow
@@ -10,9 +10,7 @@
       />
     </div>
 
-    <div v-else class="empty-state">
-      لا توجد منتجات لعرضها.
-    </div>
+    <div v-else class="empty-state">{{ t('cboard.linker.empty') }}</div>
   </div>
 </template>
 
@@ -22,18 +20,21 @@ import { useProductsStore } from '@/stores/cboard/products'
 import { useOffersStore } from '@/stores/cboard/offers'
 import { useSectionStore } from '@/stores/cboard/sections'
 import ProductlinkerRow from '@/components/cboard/linker/ProductlinkerRow.vue'
+import { useI18n } from 'vue-i18n'
 
+const { t } = useI18n()
 const productsStore = useProductsStore()
 const offersStore = useOffersStore()
 const sectionsStore = useSectionStore()
 
 onMounted(() => {
   Promise.all([
-    offersStore.load(),
-     sectionsStore.load(),
-    productsStore.load(),
+    offersStore.syncFromSupabase(),
+    sectionsStore.syncFromSupabase(),
+    productsStore.syncFromSupabase(),
   ])
 })
+
 </script>
 
 <style scoped>

@@ -1,22 +1,24 @@
 <template>
   <section class="info-section" v-if="isReady">
-    <h3>طرق استلام الطلب</h3>
+    <h3>{{ t('cboard.orderInfo.deliveryMethods.title') }}</h3>
+
     <div class="methods-grid">
       <div
         class="method-card"
-        v-for="method in typedDeliveryMethods"
+        v-for="method in deliveryMethods"
         :key="method.name"
       >
-<div class="method-icon">
-  <img
-    v-if="isImage(method.icon)"
-    :src="`/icons/delivery/${method.icon}`"
-    class="svg-icon"
-    :alt="method.name"
-  />
-  <span v-else>{{ method.icon }}</span>
-</div>
-        <div class="method-name">{{ method.name }}</div>
+        <div class="method-icon">
+          <img
+            v-if="isImage(method.icon)"
+            :src="`/icons/delivery/${method.icon}`"
+            class="svg-icon"
+            :alt="method.name"
+          />
+          <span v-else>{{ method.icon }}</span>
+        </div>
+        <div class="method-name">{{ t(`cboard.orderInfo.deliveryMethods.methods.${method.name}`) }}</div>
+
         <label class="switch">
           <input type="checkbox" v-model="method.enabled" />
           <span class="slider"></span>
@@ -26,39 +28,42 @@
   </section>
 </template>
 
-
 <script setup lang="ts">
 import { ref, watch, toRaw, onMounted } from 'vue'
-import { useOrderInfoStore } from '@/stores/OrderInfo'
+import { useOrderInfoStore } from '@/stores/cboard/orderInfo1'
 import { indexedDBService } from '@/services/indexedDBService'
 import type { DeliveryMethod } from '@/types/contexts/OrderInfo'
+import { useI18n } from 'vue-i18n'
+const { t } = useI18n()
 
 const store = useOrderInfoStore()
-const typedDeliveryMethods = store.deliveryMethods as DeliveryMethod[]
+const deliveryMethods = store.deliveryMethods
 const isReady = ref(false)
+
 function isImage(filename: string): boolean {
   return /\.(svg|png|webp)$/i.test(filename)
 }
 
 onMounted(async () => {
+  // تحميل من IndexedDB
   const saved = await indexedDBService.getOrderMethods('default')
   const savedMap = new Map<string, boolean>(
     (saved?.methods ?? []).map((m: DeliveryMethod) => [m.name, m.enabled])
   )
 
-  typedDeliveryMethods.forEach(method => {
+  deliveryMethods.forEach(method => {
     method.enabled = savedMap.get(method.name) ?? method.enabled
   })
 
   isReady.value = true
 })
 
-watch(typedDeliveryMethods, () => {
-  indexedDBService.saveOrderMethods(toRaw(store.deliveryMethods), 'default')
+watch(deliveryMethods, () => {
+  // حفظ محلي وسحابي
+  indexedDBService.saveOrderMethods(toRaw(deliveryMethods), 'default')
+  store.syncDeliveryMethodsToSupabase?.()
 }, { deep: true })
-
 </script>
-
 
 <style scoped>
 .info-section h3 {
@@ -105,7 +110,6 @@ watch(typedDeliveryMethods, () => {
   text-align: center;
 }
 
-/* ✅ زر التبديل */
 .switch {
   position: relative;
   display: inline-block;
@@ -148,11 +152,11 @@ input:checked + .slider {
 input:checked + .slider:before {
   transform: translateX(16px);
 }
+
 .svg-icon {
   width: 32px;
   height: 32px;
   object-fit: contain;
   display: block;
 }
-
 </style>

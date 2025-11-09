@@ -1,6 +1,6 @@
 <template>
   <div class="text-colors">
-    <h6>🎨 تخصيص ألوان النصوص</h6>
+    <h6>{{ t('cboard.menuDesign.colorEditor.textColors.title') }}</h6>
 
     <div
       class="color-row"
@@ -8,7 +8,7 @@
       :key="key"
     >
       <label class="color-label">
-        {{ label }}:
+        {{ t(`cboard.menuDesign.colorEditor.textColors.fields.${key}`) }}:
         <input
           type="color"
           :value="colors[key as TextColorKey]"
@@ -21,17 +21,18 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { useColorEditorStore } from '@/stores/cboard/MenuDesign/ColorEditorStore'
-import type { ColorSettings } from '@/types/contexts/MenuDesign'
+import { useI18n } from 'vue-i18n'
+const { t } = useI18n()
 
+import { useColorEditorStore } from '@/stores/cboard/MenuDesign/ColorEditorStore'
 const store = useColorEditorStore()
 const colors = computed(() => store.colors)
 
 const textColorKeys = {
-  titleText: 'عنوان المنتج',
-  priceText: 'السعر',
-  descriptionText: 'الوصف',
-  sectionTitleText: 'عنوان القسم'
+  titleText: 'titleText',
+  priceText: 'priceText',
+  descriptionText: 'descriptionText',
+  sectionTitleText: 'sectionTitleText'
 } as const
 
 type TextColorKey = keyof typeof textColorKeys

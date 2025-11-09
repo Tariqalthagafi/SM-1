@@ -2,6 +2,10 @@
   <main class="home">
     <!-- 🔼 الهيدر -->
     <HeaderSection />
+<!-- 🔵 زر تسجيل الدخول -->
+<section class="login-section">
+
+</section>
 
     <!-- 🟠 السلايدر التسويقي -->
     <FeatureSlider />
@@ -14,6 +18,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { supabase } from '@/supabase'
 
 import HeaderSection from '@/components/Home/HeaderSection.vue'
 import FeatureSlider from '@/components/Home/FeatureSlider.vue'
@@ -27,9 +32,18 @@ function toggleLang() {
   document.documentElement.setAttribute('dir', currentLang.value === 'ar' ? 'rtl' : 'ltr')
 }
 
-function fakeLogin() {
-  router.push('/cboard')
+async function loginWithGoogle() {
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: 'google'
+  })
+
+  if (error) {
+    console.error('❌ فشل تسجيل الدخول:', error.message)
+  } else {
+    window.location.href = data.url // ✅ فتح نافذة تسجيل الدخول
+  }
 }
+
 
 onMounted(() => {
   document.documentElement.setAttribute('dir', currentLang.value === 'ar' ? 'rtl' : 'ltr')
@@ -59,4 +73,26 @@ onMounted(() => {
     padding: 2rem 1rem;
   }
 }
+
+.login-section {
+  display: flex;
+  justify-content: center;
+  margin: 2rem 0;
+}
+
+.login-button {
+  background-color: #4285f4;
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.login-button:hover {
+  background-color: #3367d6;
+}
+
 </style>

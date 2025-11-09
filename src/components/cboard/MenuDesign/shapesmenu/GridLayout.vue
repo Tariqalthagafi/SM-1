@@ -1,11 +1,10 @@
-// شبكي
-
 <template>
-  <div class="grid-layout">
+  <div class="grid-layout" :style="{ backgroundColor: colors.bodyBackground }">
     <div
       v-for="product in products"
       :key="product.id"
       class="product-card"
+      :style="{ backgroundColor: colors.cardBackground, color: colors.titleText }"
     >
       <!-- ✅ صورة المنتج -->
       <div class="product-image-wrapper" v-if="imageShape !== 'hidden'">
@@ -18,32 +17,35 @@
         <div v-else class="product-image placeholder" :class="imageShape"></div>
       </div>
 
-      <div class="product-name">{{ product.name }}
-<p v-if="product.calories !== undefined" class="product-calories">
-  🍽 {{ product.calories }} سعرة حرارية
-</p>
-
+      <div class="product-name">
+        {{ product.name }}
+        <p v-if="product.calories !== undefined" class="product-calories">
+          🍽 {{ product.calories }} سعرة حرارية
+        </p>
         <p v-if="product.description" class="product-description">
-  {{ product.description }}
-</p>
-
+          {{ product.description }}
+        </p>
       </div>
 
       <!-- ✅ السعر حسب نمط العرض -->
-      <div class="product-price" :class="offerStyle">
+      <div class="product-price" :class="offerStyle" :style="{ backgroundColor: colors.priceBackground, color: colors.priceText }">
         <template v-if="offerStyle === 'strikeOnly' && product.offerLabel">
           <span class="old-price">{{ product.basePrice }} <span v-html="currencySymbol"></span></span>
           <span class="final-price">{{ product.finalPrice }} <span v-html="currencySymbol"></span></span>
         </template>
 
         <template v-else-if="offerStyle === 'strikeWithSaving' && product.offerLabel">
-          <span class="offer-label">🔥 وفر {{ product.basePrice - product.finalPrice }} <span v-html="currencySymbol"></span></span>
+          <span class="offer-label" :style="{ color: colors.offerLabel }">
+            🔥 وفر {{ product.basePrice - product.finalPrice }} <span v-html="currencySymbol"></span>
+          </span>
           <span class="old-price">{{ product.basePrice }} <span v-html="currencySymbol"></span></span>
           <span class="final-price">{{ product.finalPrice }} <span v-html="currencySymbol"></span></span>
         </template>
 
         <template v-else-if="offerStyle === 'strikeWithBadge' && product.offerLabel">
-          <span class="offer-label">🔖 خصم {{ Math.round((1 - product.finalPrice / product.basePrice) * 100) }}%</span>
+          <span class="offer-label" :style="{ color: colors.offerLabel }">
+            🔖 خصم {{ Math.round((1 - product.finalPrice / product.basePrice) * 100) }}%
+          </span>
           <span class="old-price">{{ product.basePrice }} <span v-html="currencySymbol"></span></span>
           <span class="final-price">{{ product.finalPrice }} <span v-html="currencySymbol"></span></span>
         </template>
@@ -52,8 +54,8 @@
           <span class="final-price">{{ product.finalPrice }} <span v-html="currencySymbol"></span></span>
         </template>
       </div>
-      
-      <!-- ✅ إضافة منطق عرض مسببات الحساسية -->
+
+      <!-- ✅ مسببات الحساسية -->
       <div v-if="product.hasAllergens && product.allergens?.length" class="allergens-display">
         <span
           v-for="allergen in product.allergens"
@@ -64,14 +66,12 @@
           {{ getAllergenSymbol(allergenIconStyle ?? 'boxedA') }}
         </span>
       </div>
-      <!-- نهاية منطق عرض مسببات الحساسية -->
-      
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-defineProps<{
+const props = defineProps<{
   products: {
     id: string
     name: string
@@ -79,7 +79,6 @@ defineProps<{
     finalPrice: number
     offerLabel?: string
     imageBase64?: string
-    // ✅ خصائص مسببات الحساسية للمنتج
     allergens?: string[]
     hasAllergens?: boolean
     description?: string
@@ -90,11 +89,10 @@ defineProps<{
   currencyKey: string
   imageShape: 'circle' | 'roundedSquare' | 'rectangle' | 'hidden'
   offerStyle: 'strikeOnly' | 'strikeWithSaving' | 'strikeWithBadge'
-  // ✅ إضافة نمط الأيقونة فقط
   allergenIconStyle?: 'colored' | 'outlined' | 'monochrome' | 'hidden' | 'boxedA' | 'boldA' | 'warningTriangle'
+  colors: Record<string, string>
 }>()
 
-// ✅ إضافة دالة المساعد (Helper Function) من CardsLayout.vue
 function getAllergenSymbol(style: string): string {
   switch (style) {
     case 'boxedA':
@@ -119,14 +117,11 @@ function getAllergenSymbol(style: string): string {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
   gap: 1rem;
-  background-color: var(--bodyBackground-bg, #f0f0f0);
   padding: 1rem;
   border-radius: 8px;
 }
 
 .product-card {
-  background-color: var(--cardBackground-bg, #ffffff);
-  color: var(--titleText-color, #000);
   padding: 0.75rem;
   border-radius: 8px;
   text-align: center;
@@ -181,8 +176,6 @@ function getAllergenSymbol(style: string): string {
 }
 
 .product-price {
-  color: var(--priceText-color, #333);
-  background-color: var(--priceBackground-bg, transparent);
   padding: 0.3rem 0.5rem;
   border-radius: 4px;
   display: inline-block;
@@ -202,12 +195,10 @@ function getAllergenSymbol(style: string): string {
 .offer-label {
   font-size: 0.75rem;
   font-weight: 500;
-  color: #FF7A00;
   margin-top: 0.2rem;
   display: block;
 }
 
-/* ✅ تنسيقات مسببات الحساسية المضافة */
 .allergens-display {
   margin-top: 0.5rem;
   display: flex;
@@ -251,16 +242,15 @@ function getAllergenSymbol(style: string): string {
 .allergen-icon.hidden {
   display: none;
 }
+
 .product-description {
   font-size: 0.8rem;
-  color: var(--descriptionText-color, #666);
   margin-top: 0.4rem;
   line-height: 1.4;
 }
+
 .product-calories {
   font-size: 0.75rem;
-  color: var(--caloriesText-color, #888);
   margin-top: 0.3rem;
 }
-
 </style>

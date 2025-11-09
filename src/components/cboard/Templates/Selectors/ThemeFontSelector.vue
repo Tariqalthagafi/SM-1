@@ -1,6 +1,6 @@
 <template>
   <div class="font-selector">
-    <label for="font-select">اختر الخط:</label>
+    <label for="font-select">{{ t('cboard.templates.selectors.font.label') }}</label>
     <div class="row">
       <select
         id="font-select"
@@ -19,15 +19,15 @@
       </select>
 
       <!-- معاينة مصغرة -->
-      <div class="font-preview" :style="{ fontFamily: localFont }">
-        عنوان تجريبي بهذا الخط
-      </div>
+      <div class="font-preview" :style="{ fontFamily: localFont }"> {{ t('cboard.templates.selectors.font.preview') }} </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
+const { t } = useI18n()
 
 const props = defineProps<{
   selectedFont: string,
