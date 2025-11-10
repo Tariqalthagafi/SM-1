@@ -8,8 +8,8 @@
 </template>
 
 <script setup lang="ts">
-import { useOffersStore } from '@/stores/cboard/offers'
-import type { Offer } from '@/types/contexts/Offers'
+import { useOffersStore } from '@/stores/cboard/offers.ts'
+import type { Offer } from '@/types/contexts/offers.ts'
 import { useI18n } from 'vue-i18n'
 const { t } = useI18n()
 const props = defineProps<{ modelValue: string | undefined}>()

@@ -97,7 +97,7 @@
 
 <script setup lang="ts">
 import { ref, watch, computed } from 'vue'
-import type { Offer } from '@/types/contexts/Offers'
+import type { Offer } from '@/types/contexts/offers.ts'
 import { useI18n } from 'vue-i18n'
 const { t } = useI18n()
 

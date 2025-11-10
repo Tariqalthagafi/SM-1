@@ -86,10 +86,10 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import type { Product } from '@/types/contexts/Products'
+import type { Product } from '@/types/contexts/products.ts'
 import ProductImagePreview from './ProductImagePreview.vue'
 import AllergensPicker from './AllergensPicker.vue'
-import { useProductsStore } from '@/stores/cboard/products'
+import { useProductsStore } from '@/stores/cboard/products.ts'
 import { useI18n } from 'vue-i18n'
 const { t } = useI18n()
 

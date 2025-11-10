@@ -3,7 +3,7 @@
 import { defineStore } from 'pinia'
 import { ref, watch } from 'vue'
 import { indexedDBService } from '@/services/indexedDBService'
-import type { OfferStyle } from '@/types/contexts/templates'
+import type { OfferStyle } from '@/types/contexts/templates.ts'
 
 export const useOfferStyleStore = defineStore('offerStyleStore', () => {
   // ✅ النمط المختار حاليًا

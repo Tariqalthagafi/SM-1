@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { reactive, toRaw } from 'vue'
 import { menuTemplates } from './templatesConfig'
-import type { TemplateConfig, TemplateInstance, TemplateSettings } from '@/types/contexts/templates'
+import type { TemplateConfig, TemplateInstance, TemplateSettings } from '@/types/contexts/templates.ts'
 import { templixDBService } from '@/services/templixDBService'
 
 // 🖌️ دالة مساعدة لحقن CSS القالب

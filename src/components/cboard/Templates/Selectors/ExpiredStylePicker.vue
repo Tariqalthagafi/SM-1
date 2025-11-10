@@ -31,7 +31,7 @@
 
 <script setup lang="ts">
 import { ref, watch, withDefaults } from 'vue'
-import type { ExpiredStyle } from '@/types/contexts/templates'
+import type { ExpiredStyle } from '@/types/contexts/templates.ts'
 import { useI18n } from 'vue-i18n'
 const { t } = useI18n()
 

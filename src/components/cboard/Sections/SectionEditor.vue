@@ -18,8 +18,8 @@
 
 <script setup lang="ts">
 import { reactive } from 'vue'
-import { useSectionStore } from '@/stores/cboard/sections'
-import type { Section } from '@/types/contexts/Sections'
+import { useSectionStore } from '@/stores/cboard/sections.ts'
+import type { Section } from '@/types/contexts/sections.ts'
 import { useI18n } from 'vue-i18n'
 const { t } = useI18n()
 

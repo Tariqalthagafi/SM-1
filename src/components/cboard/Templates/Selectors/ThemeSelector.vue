@@ -18,9 +18,9 @@
 
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
-import { menuTemplates } from '@/stores/cboard/theme/templates/templatesConfig'
-import { usePreviewManager } from '@/stores/cboard/theme/templates/previewManager'
-import type { TemplateConfig } from '@/types/contexts/templates'
+import { menuTemplates } from '@/stores/cboard/theme/templates/templatesConfig.ts'
+import { usePreviewManager } from '@/stores/cboard/theme/templates/previewManager.ts'
+import type { TemplateConfig } from '@/types/contexts/templates.ts'
 
 const props = defineProps<{ preset: 'custom1' | 'custom2' }>()
 const previewManager = usePreviewManager()

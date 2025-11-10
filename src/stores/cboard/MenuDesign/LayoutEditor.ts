@@ -2,7 +2,7 @@
 
 import { defineStore } from 'pinia'
 import { ref, watch } from 'vue'
-import type { MenuLayout } from '@/types/contexts/MenuDesign'
+import type { MenuLayout } from '@/types/contexts/menuDesign.ts'
 import { indexedDBService } from '@/services/indexedDBService'
 
 export const useLayoutEditorStore = defineStore('layoutEditorStore', () => {

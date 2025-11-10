@@ -1,6 +1,6 @@
 import { openDB } from 'idb'
-import type { OperatingHours , PaymentMethod } from '@/types/contexts/OrderInfoView'
-import type { social_key, SocialField  } from '@/types/contexts/social'
+import type { OperatingHours , PaymentMethod } from '@/types/contexts/orderInfoView.ts'
+import type { social_key, SocialField  } from '@/types/contexts/social.ts'
 
 
 const DB_NAME = 'menuDB'

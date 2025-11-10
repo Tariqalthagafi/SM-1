@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-import type { SocialField, social_key } from '@/types/contexts/social'
+import type { SocialField, social_key } from '@/types/contexts/social.ts'
 import { indexedDBService } from '@/services/indexedDBService'
 import { supabase } from '@/supabase'
 

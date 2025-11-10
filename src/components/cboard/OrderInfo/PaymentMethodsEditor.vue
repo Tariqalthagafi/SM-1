@@ -32,9 +32,9 @@
 
 <script setup lang="ts">
 import { ref, watch, toRaw, onMounted } from 'vue'
-import { useOrderInfoStore } from '@/stores/cboard/orderInfo1'
+import { useOrderInfoStore } from '@/stores/cboard/orderInfo1.ts'
 import { indexedDBService } from '@/services/indexedDBService'
-import type { PaymentMethod } from '@/types/contexts/OrderInfo'
+import type { PaymentMethod } from '@/types/contexts/orderInfo.ts'
 import { useI18n } from 'vue-i18n'
 const { t } = useI18n()
 

@@ -1,4 +1,4 @@
-import type { TemplateConfig } from '@/types/contexts/templates'
+import type { TemplateConfig } from '@/types/contexts/templates.ts'
 
 
 export const cafeBrown: TemplateConfig = {

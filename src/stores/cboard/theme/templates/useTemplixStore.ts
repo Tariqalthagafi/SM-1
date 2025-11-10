@@ -1,11 +1,11 @@
 import { defineStore } from 'pinia'
 import { templixDBService } from '@/services/templixDBService'
-import type { TemplateConfig, TemplateSettings } from '@/types/contexts/templates'
+import type { TemplateConfig, TemplateSettings } from '@/types/contexts/templates.ts'
 
 // 🗂️ استيراد القوالب الافتراضية من ملفات التعريفات
-import { cafeBrown } from '@/stores/cboard/theme/templates/definitions/cafeBrown'
-import { modernBlue } from '@/stores/cboard/theme/templates/definitions/modernBlue'
-import { freshGreen } from '@/stores/cboard/theme/templates/definitions/freshGreen'
+import { cafeBrown } from '@/stores/cboard/theme/templates/definitions/cafeBrown.ts'
+import { modernBlue } from '@/stores/cboard/theme/templates/definitions/modernBlue.ts'
+import { freshGreen } from '@/stores/cboard/theme/templates/definitions/freshGreen.ts'
 
 // 📦 تجميع القوالب في Array واحدة
 const defaultTemplatesData: TemplateConfig[] = [

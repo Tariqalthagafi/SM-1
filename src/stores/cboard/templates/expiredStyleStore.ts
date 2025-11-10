@@ -3,7 +3,7 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { indexedDBService } from '@/services/indexedDBService'
-import type { ExpiredStyle } from '@/types/contexts/templates'
+import type { ExpiredStyle } from '@/types/contexts/templates.ts'
 
 export const useExpiredStyleStore = defineStore('expiredStyleStore', () => {
   const expiredStyle = ref<ExpiredStyle>('strike') // القيمة الافتراضية

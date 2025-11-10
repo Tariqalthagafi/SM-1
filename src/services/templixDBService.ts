@@ -4,7 +4,7 @@ import type {
   TemplateInstance,
   TemplateSettings,
   TemplixDBSchema
-} from '@/types/contexts/templates'
+} from '@/types/contexts/templates.ts'
 
 const DB_NAME = 'Templix'
 const DB_VERSION = 3 // رفعنا الإصدار بسبب تغيير الجداول

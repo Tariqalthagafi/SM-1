@@ -27,8 +27,8 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { useProductsStore } from '@/stores/cboard/products'
-import type { Product } from '@/types/contexts/Products'
+import { useProductsStore } from '@/stores/cboard/products.ts'
+import type { Product } from '@/types/contexts/products.ts'
 import draggable from 'vuedraggable'
 import ProductEditor from './ProductEditor.vue'
 import { useI18n } from 'vue-i18n'

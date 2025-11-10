@@ -3,7 +3,7 @@
 import { defineStore } from 'pinia'
 import { ref , type StyleValue} from 'vue'
 import { indexedDBService } from '@/services/indexedDBService'
-import type { AllergenIconStyle } from '@/types/contexts/templates'
+import type { AllergenIconStyle } from '@/types/contexts/templates.ts'
 
 // ==================================================================
 // 1. مصدر الحقيقة الواحد (Single Source of Truth)

@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-import type { ColorSettings } from '@/types/contexts/MenuDesign'
+import type { ColorSettings } from '@/types/contexts/menuDesign.ts'
 import { indexedDBService } from '@/services/indexedDBService'
 import { supabase } from '@/supabase'
 
