@@ -5,7 +5,7 @@ import { cafeBrown } from './definitions/cafeBrown.ts'
 import { freshGreen } from './definitions/freshGreen.ts'
 // لاحقًا نضيف باقي القوالب هنا
 
-import type { TemplateConfig } from '@/types/contexts/templates.ts'
+import type { TemplateConfig } from '@/types/contexts/templates1.ts'
 
 export const menuTemplates: Record<string, TemplateConfig> = {
   [classicGold.id]: classicGold,

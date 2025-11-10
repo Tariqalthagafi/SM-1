@@ -131,8 +131,8 @@ import { indexedDBService } from '@/services/indexedDBService'
 import TextColors from './TextColors.vue'
 import IconColors from './IconColors.vue'
 import BackgroundColors from './BackgroundColors.vue'
-import { colorPresets } from '@/types/contexts/colorPresets.ts'
-import type { ColorPresetName } from '@/types/contexts/colorPresets.ts'
+import { colorPresets } from '@/types/contexts/colorPresets1.ts'
+import type { ColorPresetName } from '@/types/contexts/colorPresets1.ts'
 import { useColorEditorStore } from '@/stores/cboard/MenuDesign/ColorEditorStore.ts'
 
 const defaultPreset = ref<ColorPresetName | null>(null)

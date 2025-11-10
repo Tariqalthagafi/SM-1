@@ -34,7 +34,7 @@
 
 <script setup lang="ts">
 import { ref, watch, withDefaults } from 'vue'
-import type { AllergenIconStyle } from '@/types/contexts/templates.ts'
+import type { AllergenIconStyle } from '@/types/contexts/templates1.ts'
 import { useAllergenStyleStore } from '@/stores/cboard/templates/allergenStyleStore.ts'
 import { useI18n } from 'vue-i18n'
 const { t } = useI18n()

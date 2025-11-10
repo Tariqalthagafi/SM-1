@@ -34,7 +34,7 @@
 import { ref, watch, toRaw, onMounted } from 'vue'
 import { useOrderInfoStore } from '@/stores/cboard/orderInfo1.ts'
 import { indexedDBService } from '@/services/indexedDBService'
-import type { PaymentMethod } from '@/types/contexts/orderInfo.ts'
+import type { PaymentMethod } from '@/types/contexts/orderInfo1.ts'
 import { useI18n } from 'vue-i18n'
 const { t } = useI18n()
 

@@ -44,7 +44,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { indexedDBService } from '@/services/indexedDBService'
-import type { OperatingHours, TimePeriod } from '@/types/contexts/orderInfo.ts'
+import type { OperatingHours, TimePeriod } from '@/types/contexts/orderInfo1.ts'
 const props = defineProps<{
   colors: Record<string, string>
 }>()

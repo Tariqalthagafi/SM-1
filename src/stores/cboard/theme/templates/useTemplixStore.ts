@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { templixDBService } from '@/services/templixDBService'
-import type { TemplateConfig, TemplateSettings } from '@/types/contexts/templates.ts'
+import type { TemplateConfig, TemplateSettings } from '@/types/contexts/templates1.ts'
 
 // 🗂️ استيراد القوالب الافتراضية من ملفات التعريفات
 import { cafeBrown } from '@/stores/cboard/theme/templates/definitions/cafeBrown.ts'

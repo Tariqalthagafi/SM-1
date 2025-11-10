@@ -36,7 +36,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { use_social_store } from '@/stores/cboard/social.ts'
-import type { social_key } from '@/types/contexts/social.ts'
+import type { social_key } from '@/types/contexts/social1.ts'
 
 const props = defineProps<{
   position: 'bottom-center' | 'bottom-right' | 'top-right' | 'top-center' | 'none'

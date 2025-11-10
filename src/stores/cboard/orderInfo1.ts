@@ -8,7 +8,7 @@ import type {
   PaymentMethod,
   TimePeriod,
   OrderInfoSettings
-} from '@/types/contexts/orderInfo.ts'
+} from '@/types/contexts/orderInfo1.ts'
 
 const allDays = ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت']
 

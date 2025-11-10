@@ -44,7 +44,7 @@
 </template>
 
 <script setup lang="ts">
-import type { Product } from '@/types/contexts/products.ts'
+import type { Product } from '@/types/contexts/products1.ts'
 
 const props = defineProps<{ product: Product }>()
 const emit = defineEmits(['edit', 'delete'])

@@ -3,7 +3,7 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { indexedDBService } from '@/services/indexedDBService'
-import type { ImageShape } from '@/types/contexts/templates.ts'
+import type { ImageShape } from '@/types/contexts/templates1.ts'
 
 export const useImageShapeStore = defineStore('imageShapeStore', () => {
   const imageShape = ref<ImageShape>('circle') // القيمة الافتراضية

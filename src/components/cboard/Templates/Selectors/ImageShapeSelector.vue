@@ -28,7 +28,7 @@
 
 <script setup lang="ts">
 import { ref, watch, withDefaults } from 'vue'
-import type { ImageShape } from '@/types/contexts/templates.ts'
+import type { ImageShape } from '@/types/contexts/templates1.ts'
 import { useI18n } from 'vue-i18n'
 const { t } = useI18n()
 

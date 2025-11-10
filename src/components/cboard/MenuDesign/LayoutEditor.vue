@@ -17,7 +17,7 @@
 <script setup lang="ts">
 import { computed, onMounted } from 'vue'
 import { useLayoutEditorStore } from '@/stores/cboard/MenuDesign/LayoutEditor.ts'
-import type { MenuLayout } from '@/types/contexts/menuDesign.ts'
+import type { MenuLayout } from '@/types/contexts/menuDesign1.ts'
 import { useTemplateSettingsStore } from '@/stores/cboard/templates/templateSettingsStore.ts'
 import { useI18n } from 'vue-i18n'
 const { t } = useI18n()

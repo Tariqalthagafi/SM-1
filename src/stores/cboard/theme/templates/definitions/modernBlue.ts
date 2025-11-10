@@ -1,4 +1,4 @@
-import type { TemplateConfig } from '@/types/contexts/templates.ts'
+import type { TemplateConfig } from '@/types/contexts/templates1.ts'
 
 export const modernBlue: TemplateConfig = {
   id: 'modern-blue',

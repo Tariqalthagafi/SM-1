@@ -73,7 +73,7 @@
 
 <script setup lang="ts">
 import { ref, watch, withDefaults, computed } from 'vue'
-import type { OfferStyle } from '@/types/contexts/templates.ts'
+import type { OfferStyle } from '@/types/contexts/templates1.ts'
 import { useI18n } from 'vue-i18n'
 const { t } = useI18n()
 

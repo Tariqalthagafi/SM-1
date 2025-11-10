@@ -69,7 +69,7 @@
 import { ref, onMounted, toRaw } from 'vue'
 import { useOrderInfoStore } from '@/stores/cboard/orderInfo1'
 import { indexedDBService } from '@/services/indexedDBService'
-import type { OperatingHours, TimePeriod } from '@/types/contexts/orderInfo.ts'
+import type { OperatingHours, TimePeriod } from '@/types/contexts/orderInfo1.ts'
 import { useI18n } from 'vue-i18n'
 const { t } = useI18n()
 

@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-import type { Section } from '@/types/contexts/sections.ts'
+import type { Section } from '@/types/contexts/sections1.ts'
 import { indexedDBService } from '@/services/indexedDBService'
 import { supabase } from '@/supabase'
 

@@ -20,7 +20,7 @@
 import { ref, computed, watch } from 'vue'
 import { menuTemplates } from '@/stores/cboard/theme/templates/templatesConfig.ts'
 import { usePreviewManager } from '@/stores/cboard/theme/templates/previewManager.ts'
-import type { TemplateConfig } from '@/types/contexts/templates.ts'
+import type { TemplateConfig } from '@/types/contexts/templates1.ts'
 
 const props = defineProps<{ preset: 'custom1' | 'custom2' }>()
 const previewManager = usePreviewManager()

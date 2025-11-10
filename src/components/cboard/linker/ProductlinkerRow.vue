@@ -58,8 +58,8 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import type { Product } from '@/types/contexts/products.ts'
-import type { Section } from '@/types/contexts/sections.ts'
+import type { Product } from '@/types/contexts/products1.ts'
+import type { Section } from '@/types/contexts/sections1.ts'
 import { useSectionStore } from '@/stores/cboard/sections.ts'
 import { useProductsStore } from '@/stores/cboard/products.ts'
 import { useOffersStore } from '@/stores/cboard/offers.ts'

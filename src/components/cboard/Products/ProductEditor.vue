@@ -86,7 +86,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import type { Product } from '@/types/contexts/products.ts'
+import type { Product } from '@/types/contexts/products1.ts'
 import ProductImagePreview from './ProductImagePreview.vue'
 import AllergensPicker from './AllergensPicker.vue'
 import { useProductsStore } from '@/stores/cboard/products.ts'
