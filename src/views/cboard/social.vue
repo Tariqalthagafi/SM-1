@@ -21,7 +21,7 @@
 
 <script setup lang="ts">
 import { onMounted } from 'vue'
-import { use_social_store } from '@/stores/cboard/social'
+import { use_social_store } from '@/stores/cboard/social.ts'
 
 import EmailField from '@/components/cboard/Social/EmailField.vue'
 import PhoneField from '@/components/cboard/Social/PhoneField.vue'

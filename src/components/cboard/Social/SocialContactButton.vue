@@ -35,7 +35,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-import { use_social_store } from '@/stores/cboard/social'
+import { use_social_store } from '@/stores/cboard/social.ts'
 import type { social_key } from '@/types/contexts/social'
 
 const props = defineProps<{
