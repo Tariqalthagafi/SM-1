@@ -18,20 +18,23 @@ const { t } = useI18n()
 
 <style scoped>
 .footer {
-  background-color: #1C1C1C; /* أسود ناعم */
+  background-color: #1C1C1C;
   color: #fff;
-  padding: 2rem 1rem;
-  font-size: 0.9rem;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
   text-align: center;
   margin-top: auto;
+  height: auto;          /* لا يوجد ارتفاع ثابت */
+  line-height: 1;        /* أقل ارتفاع للنص */
 }
 
+
 .footer-content {
-  max-width: 800px;
+  max-width: 600px;      /* تقليل العرض الأقصى */
   margin: 0 auto;
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 0.5rem;           /* تقليل المسافة بين العناصر */
 }
 
 .footer-links {

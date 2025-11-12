@@ -6,7 +6,6 @@
   <span class="logo-en">{{ t('home.header.logo.part2') }}</span>
 </div>
 
-
       <div class="actions">
         <button class="lang-toggle" @click="toggleLang">
   {{ t('home.header.langToggle') }}
@@ -17,21 +16,8 @@
   {{ t('home.header.loginButton') }}
 </button>
 
-
       </div>
     </nav>
-
-    <!-- ✅ خط فاصل تحت اللوقو والأزرار -->
-    <div class="nav-divider"></div>
-
-    <div class="hero-message">
-      <h1 class="headline">
-        <span class="highlight">{{ t('home.hero.headline.part1') }}</span> {{ t('home.hero.headline.part2') }}
-      </h1>
-      <p class="subtext">
-        {{ t('home.hero.subtext.part1') }} <span class="highlight">{{ t('home.hero.subtext.highlight') }}</span> {{ t('home.hero.subtext.part2') }}
-      </p>
-    </div>
   </header>
 </template>
 
@@ -42,7 +28,6 @@ import { supabase } from '@/supabase'
 import { useI18n } from 'vue-i18n'
 
 const { t, locale } = useI18n()
-
 
 const router = useRouter()
 const currentLang = ref<'ar' | 'en'>('ar')
@@ -58,24 +43,24 @@ function toggleLang() {
 // ✅ تسجيل الدخول عبر Google
 async function loginWithGoogle() {
   const { data, error } = await supabase.auth.signInWithOAuth({
-    provider: 'google'
+    provider: 'google',
+    options: {
+      redirectTo: `${window.location.origin}/cboard`
+    }
   })
 
   if (error) {
     console.error('❌ فشل تسجيل الدخول:', error.message)
   } else {
-    window.location.href = data.url // ✅ فتح نافذة تسجيل الدخول
+    location.replace(data.url) // ✅ بدون وميض
   }
 }
+
 
 // ✅ التوجيه إلى لوحة التحكم بعد العودة من Google
 onMounted(async () => {
   document.documentElement.setAttribute('dir', currentLang.value === 'ar' ? 'rtl' : 'ltr')
 
-  const { data: user } = await supabase.auth.getUser()
-  if (user?.user) {
-    router.push('/cboard') // ✅ توجيه المستخدم إلى لوحة التحكم
-  }
 })
 </script>
 
@@ -106,11 +91,15 @@ onMounted(async () => {
 .logo-ar {
   color: #FF7A00;
   font-family: 'Tajawal', sans-serif;
+  font-weight: bold;
+  font-size: 2rem;
 }
 
 .logo-en {
   color: #1C1C1C;
-  font-family: 'Inter', sans-serif;
+  font-family: 'Tajawal', sans-serif;
+  font-weight: bold;
+  font-size: 2rem;
 }
 
 .actions {
@@ -148,12 +137,6 @@ onMounted(async () => {
   background-color: #e96b00;
 }
 
-/* ✅ الخط الفاصل */
-.nav-divider {
-  width: 100%;
-  height: 1px;
-  background-color: #EAEAEA;
-}
 
 .hero-message {
   text-align: center;
@@ -174,10 +157,6 @@ onMounted(async () => {
   font-family: 'Tajawal', sans-serif;
 }
 
-.highlight {
-  color: #FF7A00;
-  font-weight: bold;
-}
 
 .login-button {
   display: flex;

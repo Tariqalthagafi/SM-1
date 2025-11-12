@@ -2,47 +2,35 @@
   <div class="slide">
     <h2>دعم فني سريع ومباشر</h2>
     <p>
-      فريقنا جاهز لمساعدتك في أي وقت عبر المحادثة أو البريد الإلكتروني.  
+      فريقنا جاهز لمساعدتك في أي وقت عبر المحادثة أو البريد الإلكتروني.<br>
       لا حاجة للانتظار أو التنقل بين الصفحات، الدعم مباشر وسريع.
     </p>
-    <button class="cta">ابدأ الآن</button>
   </div>
 </template>
+
 
 <style scoped>
 .slide {
   text-align: center;
-  padding: 2rem;
-  background-color: #F9F5F0;
-  border-radius: 12px;
-  box-shadow: 0 0 10px rgba(0,0,0,0.05);
+  padding: 1.5rem 0;
+  background-color: transparent;
+  border-radius: 0;
+  box-shadow: none;
 }
 
 h2 {
-  color: #FF7A00; /* برتقالي */
-  font-size: 1.8rem;
+  color: #FF7A00;
+  font-size: 2rem;
+  font-family: 'Tajawal', sans-serif;
   margin-bottom: 1rem;
 }
 
 p {
-  color: #1C1C1C; /* أسود ناعم */
+  color: #1C1C1C;
   font-size: 1.1rem;
-  margin-bottom: 1.5rem;
+  font-family: 'Tajawal', sans-serif;
   line-height: 1.6;
+  margin-bottom: 0;
 }
 
-.cta {
-  background-color: #FF7A00;
-  color: #fff;
-  border: none;
-  padding: 0.7rem 1.4rem;
-  border-radius: 8px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-
-.cta:hover {
-  background-color: #e96b00;
-}
 </style>
