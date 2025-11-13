@@ -1,7 +1,6 @@
 <template>
   <section class="info-section" v-if="isReady">
-    <h3>{{ t('cboard.orderInfo.paymentMethods.title') }}</h3>
-
+  
     <div class="methods-grid">
       <div
         class="method-card"

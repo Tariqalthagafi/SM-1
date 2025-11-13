@@ -1,10 +1,10 @@
 <template>
   <section class="info-section" v-if="isReady">
-    <h3>{{ t('cboard.orderInfo.operatingHours.title') }}</h3>
+
+
     <div class="days-grid">
       <div v-for="day in typedDays" :key="day" class="day-card">
         <h4>{{ t(`cboard.orderInfo.operatingHours.days.${day}`) }}</h4>
-
 
         <div class="period-options">
           <div
@@ -13,10 +13,31 @@
             class="option-row"
             :class="{ active: getPeriod(day, type)?.enabled === true }"
           >
-            <button @click="togglePeriod(day, type)">
-              {{ type === 'first' ? t('cboard.orderInfo.operatingHours.periodLabels.first') : type === 'second' ? t('cboard.orderInfo.operatingHours.periodLabels.second') : t('cboard.orderInfo.operatingHours.periodLabels.full') }}
+            <!-- زر التفعيل -->
+            <button
+              :disabled="shouldDisableSwitch(day, type)"
+              @click="!shouldDisableSwitch(day, type) && togglePeriod(day, type)"
+            >
+              {{ type === 'first'
+                ? t('cboard.orderInfo.operatingHours.periodLabels.first')
+                : type === 'second'
+                ? t('cboard.orderInfo.operatingHours.periodLabels.second')
+                : t('cboard.orderInfo.operatingHours.periodLabels.full') }}
             </button>
 
+            <!-- ❓ أيقونة الاستفهام -->
+            <div class="tooltip-wrapper" v-if="shouldDisableSwitch(day, type)">
+              <span class="info-icon" @click="showTooltip(day, type)">❓</span>
+
+              <div
+                v-if="tooltipMessage[`${day}-${type}`]"
+                class="tooltip"
+              >
+                {{ tooltipMessage[`${day}-${type}`] }}
+              </div>
+            </div>
+
+            <!-- معلومات الفترة -->
             <div class="period-info" v-if="getPeriod(day, type)?.enabled === true">
               <template v-if="type === 'full'">
                 {{ t('cboard.orderInfo.operatingHours.periodLabels.full') }}
@@ -40,6 +61,7 @@
               {{ getDefaultTime(type) }}
             </div>
 
+            <!-- زر التبديل -->
             <label class="switch">
               <input
                 type="checkbox"
@@ -53,17 +75,9 @@
         </div>
       </div>
     </div>
-
-    <!-- Toast تنبيه -->
-<Teleport to="body">
-  <div v-if="alertMessage" class="toast">
-    {{ alertMessage }}
-    <button @click="alertMessage = ''">{{ t('cboard.orderInfo.operatingHours.alerts.close') }}</button>
-  </div>
-</Teleport>
-
   </section>
 </template>
+
 
 <script setup lang="ts">
 import { ref, onMounted, toRaw } from 'vue'
@@ -71,12 +85,12 @@ import { useOrderInfoStore } from '@/stores/cboard/orderInfo1'
 import { indexedDBService } from '@/services/indexedDBService'
 import type { OperatingHours, TimePeriod } from '@/types/contexts/orderInfo1.ts'
 import { useI18n } from 'vue-i18n'
+
 const { t } = useI18n()
 
 const dayKeys = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'] as const
 type DayKey = typeof dayKeys[number]
 const typedDays: readonly DayKey[] = dayKeys
-
 
 const periodTypes = ['first', 'second', 'full'] as const
 type PeriodType = typeof periodTypes[number]
@@ -84,7 +98,7 @@ type PeriodType = typeof periodTypes[number]
 const store = useOrderInfoStore()
 const operatingHours = store.operatingHours
 const isReady = ref(false)
-const alertMessage = ref('')
+const tooltipMessage = ref<Record<string, string>>({})
 
 onMounted(async () => {
   const saved = await indexedDBService.getOperatingHours('default') as Partial<OperatingHours>
@@ -97,14 +111,9 @@ onMounted(async () => {
 async function saveHours() {
   const raw = toRaw(operatingHours)
   const cleanData: OperatingHours = structuredClone(raw)
-
-  // حفظ محلي
   await indexedDBService.saveOperatingHours(cleanData, 'default')
-
-  // حفظ في Supabase
   await store.syncOperatingHoursToSupabase()
 }
-
 
 function getPeriodValues(type: PeriodType): TimePeriod {
   if (type === 'first') return { type, from: '08:00', to: '12:00', enabled: true }
@@ -120,8 +129,7 @@ function getDefaultTime(type: PeriodType): string {
 function getPeriod(day: DayKey, type: PeriodType): TimePeriod | null {
   const periods = operatingHours[day]
   if (!periods) return null
-  const index = periods.findIndex((p: TimePeriod) => p.type === type)
-  return index !== -1 ? periods[index] : null
+  return periods.find(p => p.type === type) ?? null
 }
 
 function shouldDisableSwitch(day: DayKey, type: PeriodType): boolean {
@@ -141,24 +149,7 @@ function togglePeriod(day: DayKey, type: PeriodType): void {
   const periods = operatingHours[day]
   if (!periods) return
 
-  const fullEnabled = periods.some(p => p.type === 'full' && p.enabled)
-  const firstEnabled = periods.some(p => p.type === 'first' && p.enabled)
-  const secondEnabled = periods.some(p => p.type === 'second' && p.enabled)
-
-  if (type === 'full' && (firstEnabled || secondEnabled)) {
-    alertMessage.value = 'لا يمكن تفعيل خيار 24 ساعة إلا بعد تعطيل الفترتين الأولى والثانية.'
-    return
-  }
-
-  if ((type === 'first' || type === 'second') && fullEnabled) {
-    alertMessage.value = 'لا يمكن تفعيل الفترات الجزئية إلا بعد تعطيل خيار 24 ساعة.'
-    return
-  }
-
-  alertMessage.value = ''
-
   const index = periods.findIndex((p: TimePeriod) => p.type === type)
-
   if (index !== -1) {
     periods[index].enabled = !periods[index].enabled
   } else {
@@ -189,7 +180,30 @@ function updateTime(day: DayKey, type: PeriodType, field: 'from' | 'to', e: Even
     }
   }
 }
+
+function showTooltip(day: DayKey, type: PeriodType): void {
+  const key = `${day}-${type}`
+  const periods = operatingHours[day]
+  if (!periods) return
+
+  const fullEnabled = periods.some(p => p.type === 'full' && p.enabled)
+  const firstEnabled = periods.some(p => p.type === 'first' && p.enabled)
+  const secondEnabled = periods.some(p => p.type === 'second' && p.enabled)
+
+  if (type === 'full' && (firstEnabled || secondEnabled)) {
+    tooltipMessage.value[key] = '⚠️ لا يمكن تفعيل خيار 24 ساعة إلا بعد تعطيل الفترتين الأولى والثانية.'
+  } else if ((type === 'first' || type === 'second') && fullEnabled) {
+    tooltipMessage.value[key] = '⚠️ لا يمكن تفعيل الفترات الجزئية إلا بعد تعطيل خيار 24 ساعة.'
+  } else {
+    tooltipMessage.value[key] = ''
+  }
+
+  setTimeout(() => {
+    tooltipMessage.value[key] = ''
+  }, 3000)
+}
 </script>
+
 
 
 <style scoped>
@@ -339,29 +353,32 @@ input:disabled + .slider:before {
   background-color: #ccc;
 }
 
-/* ✅ Toast تنبيه */
-.toast {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  background: #fff3f3;
-  color: #d00;
-  padding: 0.8rem 1rem;
-  border-radius: 8px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-  font-size: 0.9rem;
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  z-index: 1000;
+/* ✅ Tooltip تحذير */
+.tooltip-wrapper {
+  position: relative;
+  display: inline-block;
 }
 
-.toast button {
-  background: none;
-  border: none;
-  font-size: 1.2rem;
-  cursor: pointer;
-  color: #d00;
+.tooltip {
+  position: absolute;
+  top: -36px;
+  right: 0;
+  background-color: #ffffff; /* خلفية بيضاء */
+  color: #FF7A00; /* نص برتقالي */
+  padding: 0.4rem 0.6rem;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  white-space: nowrap;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  border: 1px solid #FF7A00; /* ✅ حدود برتقالية */
+  z-index: 10;
+  opacity: 0;
+  animation: fadeIn 0.3s forwards;
 }
 
- </style>
+@keyframes fadeIn {
+  to {
+    opacity: 1;
+  }
+}
+</style>

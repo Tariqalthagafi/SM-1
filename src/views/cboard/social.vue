@@ -1,23 +1,25 @@
 <template>
-  <div class="social-page">
-    <h2>{{ t('cboard.social.title') }}</h2>
+  <div class="page-wrapper">
+    <div class="social-dashboard">
+      <h2>{{ t('cboard.social.title') }}</h2>
 
-
-    <div class="social-group">
-      <EmailField />
-      <PhoneField />
-      <WebsiteField />
-      <InstagramField />
-      <TwitterField />
-      <FacebookField />
-      <SnapchatField />
-      <TiktokField />
-      <YoutubeField />
-      <WhatsappField />
-      <LocationField />
+      <div class="social-group">
+        <EmailField />
+        <PhoneField />
+        <WebsiteField />
+        <InstagramField />
+        <TwitterField />
+        <FacebookField />
+        <SnapchatField />
+        <TiktokField />
+        <YoutubeField />
+        <WhatsappField />
+        <LocationField />
+      </div>
     </div>
   </div>
 </template>
+
 
 <script setup lang="ts">
 import { onMounted } from 'vue'
@@ -46,17 +48,30 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-.social-page {
-  padding: 2rem;
-  background-color: #fff;
+.page-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  min-height: max-content;
+  padding: 2rem 1rem;
+  background-color: #FFFFFF;
+  overflow-x: hidden;
+}
+
+.social-dashboard {
+  width: 100%;
+  max-width: 1000px;
+  display: grid;
+  row-gap: 2rem;
+  padding: 0;
+  background-color: transparent;
   border-radius: 0;
   box-shadow: none;
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
+  box-sizing: border-box;
   font-family: 'Tajawal', sans-serif;
 }
 
+/* ✅ العنوان */
 h2 {
   font-size: 1.6rem;
   font-weight: 600;
@@ -64,8 +79,10 @@ h2 {
   border-bottom: 1px solid #E0E0E0;
   padding-bottom: 0.5rem;
   margin-bottom: 0.5rem;
+  text-align: start;
 }
 
+/* ✅ شبكة الحقول */
 .social-group {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -73,4 +90,12 @@ h2 {
   padding: 0.5rem 0;
   border-bottom: 1px solid #E0E0E0;
 }
+
+/* دعم الجوال */
+@media (max-width: 768px) {
+  .social-dashboard {
+    padding: 1rem;
+  }
+}
 </style>
+

@@ -32,29 +32,36 @@
       <div class="field logo-field">
         <label>{{ t('cboard.home.identity.logoLabel') }}</label>
 
-        <input
-          v-if="!logoUrl"
-          type="file"
-          accept="image/*"
-          @change="handleLogoUpload"
-        />
+<!-- رفع الشعار أو معاينته -->
+<div v-if="!logoUrl" class="dropzone" @dragover.prevent @drop.prevent="handleDrop" @click="triggerFileInput">
+  <span class="drop-icon">📷</span>
+  <span class="drop-text">رفع الشعار</span>
+  <input
+    ref="fileInput"
+    type="file"
+    accept="image/*"
+    class="hidden-input"
+    @change="handleLogoUpload"
+  />
+</div>
 
-        <div v-else class="logo-preview-container">
-          <img :src="logoUrl" alt="شعار المطعم" class="logo-preview" />
+<div v-else class="logo-preview-container">
+  <img :src="logoUrl ?? ''" alt="شعار المطعم" class="logo-preview" />
 
-          <div class="logo-actions">
-            <button type="button" @click="triggerFileInput">{{ t('cboard.home.identity.changeLogo') }}</button>
-            <button type="button" class="remove-btn" @click="removeLogo">{{ t('cboard.home.identity.removeLogo') }}</button>
-          </div>
+  <div class="logo-actions">
+    <button type="button" @click="triggerFileInput">{{ t('cboard.home.identity.changeLogo') }}</button>
+    <button type="button" class="remove-btn" @click="removeLogo">{{ t('cboard.home.identity.removeLogo') }}</button>
+  </div>
 
-          <input
-            ref="fileInput"
-            type="file"
-            accept="image/*"
-            class="hidden-input"
-            @change="handleLogoUpload"
-          />
-        </div>
+  <input
+    ref="fileInput"
+    type="file"
+    accept="image/*"
+    class="hidden-input"
+    @change="handleLogoUpload"
+  />
+</div>
+
       </div>
     </div>
   </section>
@@ -75,6 +82,7 @@ const isEditingName = ref(false)
 onMounted(async () => {
   await identity.loadFromIndexedDB()
   restaurantName.value = identity.restaurantName
+  businessType.value = identity.businessType
 })
 
 function startEditingName() {
@@ -114,6 +122,13 @@ function removeLogo() {
 function onRestaurantNameInput(event: Event) {
   const input = event.currentTarget as HTMLInputElement
   restaurantName.value = input.value
+}
+
+function handleDrop(event: DragEvent) {
+  const file = event.dataTransfer?.files?.[0]
+  if (file && file.type.startsWith('image/')) {
+    identity.uploadLogoToStorage(file)
+  }
 }
 
 
@@ -192,7 +207,7 @@ input.editing {
 
 .logo-actions button {
   background-color: #FFFFFF;
-  border: 1px solid #CCC;
+  border: 1px solid #FF7A00;
   color: #1C1C1C;
   padding: 0.4rem 0.8rem;
   font-size: 0.9rem;
@@ -202,13 +217,55 @@ input.editing {
 }
 
 .logo-actions button:hover {
-  background-color: #F0F0F0;
+  background-color: #FFF3E0; 
+  border-color: #FF7A00;
+  color: #FF7A00;
 }
+
 
 .logo-actions .remove-btn {
   background-color: #F8D7DA;
   border-color: #F5C2C7;
   color: #842029;
+}
+
+.hidden-input {
+  display: none;
+}
+
+.dropzone {
+  width: 100px;
+  height: 50px;
+  border: 2px dashed #FF7A00;
+  border-radius: 12px;
+  padding: 0.3rem;
+  background-color: #FFF8F0;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 0.2rem;
+}
+
+.dropzone:hover {
+  background-color: #fff0e0;
+}
+
+.drop-icon {
+  font-size: 0.9rem;
+  margin-bottom: 0.2rem;
+  color: #FF7A00;
+  line-height: 1;
+}
+
+.drop-text {
+  font-size: 0.65rem;
+  color: #1C1C1C;
+  text-align: center;
+  line-height: 1.1;
+  max-width: 80px;
 }
 
 .hidden-input {

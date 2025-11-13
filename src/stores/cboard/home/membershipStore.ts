@@ -4,36 +4,21 @@ import { ref } from 'vue'
 import { supabase } from '@/supabase' // ✅ الاستيراد الموحد
 
 export const useMembershipStore = defineStore('membershipStore', () => {
-  const isActive = ref(false)
   const menuId = ref<string | null>(null)
-  const activatedAt = ref<string | null>(null)
 
-  async function loadStatus() {
+  async function loadMenuId() {
     const { data, error } = await supabase
       .from('home_settings')
-      .select('menu_id, activated_at')
+      .select('menu_id')
       .eq('user_id', (await supabase.auth.getUser()).data?.user?.id)
       .single()
 
-    if (data) {
+    if (data?.menu_id) {
       menuId.value = data.menu_id
-      activatedAt.value = data.activated_at
-      isActive.value = !!data.activated_at
+    } else {
+      console.warn('لم يتم العثور على menu_id أو حدث خطأ:', error?.message)
     }
   }
 
-  async function activate() {
-    const userId = (await supabase.auth.getUser()).data?.user?.id
-    const { error } = await supabase
-      .from('home_settings')
-      .update({ activated_at: new Date().toISOString() })
-      .eq('user_id', userId)
-
-    if (!error) {
-      isActive.value = true
-      activatedAt.value = new Date().toISOString()
-    }
-  }
-
-  return { isActive, menuId, activatedAt, loadStatus, activate }
+  return { menuId, loadMenuId }
 })

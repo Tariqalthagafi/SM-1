@@ -42,11 +42,13 @@ function toggleLang() {
 
 // ✅ تسجيل الدخول عبر Google
 async function loginWithGoogle() {
+  const redirectTo = `${import.meta.env.VITE_SITE_URL}/cboard`
+
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: 'google',
     options: {
-      redirectTo: `${window.location.origin}/cboard`
-    }
+      redirectTo,
+    },
   })
 
   if (error) {
@@ -57,13 +59,13 @@ async function loginWithGoogle() {
 }
 
 
+
 // ✅ التوجيه إلى لوحة التحكم بعد العودة من Google
 onMounted(async () => {
   document.documentElement.setAttribute('dir', currentLang.value === 'ar' ? 'rtl' : 'ltr')
 
 })
 </script>
-
 
 <style scoped>
 .header {

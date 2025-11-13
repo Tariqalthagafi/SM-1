@@ -1,8 +1,9 @@
 <template>
   <section class="settings-section">
-    <h2>{{ t('cboard.home.membership.title') }}</h2>
+    
 
     <div class="fields-row">
+      <!-- رقم الحساب -->
       <div class="field">
         <label>{{ t('cboard.home.membership.accountIdLabel') }}</label>
         <code>
@@ -12,17 +13,22 @@
         </code>
       </div>
 
+      <!-- حالة الباقة: مجانية -->
       <div class="field">
         <label>{{ t('cboard.home.membership.planLabel') }}</label>
-        <span :class="['status', membership.isActive ? 'active' : 'inactive']">
-          {{ membership.isActive ? t('cboard.home.membership.paid') : t('cboard.home.membership.free') }}
+        <span class="status inactive">
+          {{ t('cboard.home.membership.free') }}
         </span>
       </div>
 
-      <div class="field" v-if="!membership.isActive">
-        <label>&nbsp;</label>
-        <button class="activate-btn" @click="activate">{{ t('cboard.home.membership.subscribeButton') }}</button>
-      </div>
+      <!-- زر الاشتراك (غير نشط حالياً) -->
+<div class="field">
+  <label>&nbsp;</label>
+  <button class="activate-btn" @click="noop">
+    {{ t('cboard.home.membership.subscribeButton') }}
+  </button>
+</div>
+
     </div>
   </section>
 </template>
@@ -31,17 +37,17 @@
 import { onMounted } from 'vue'
 import { useMembershipStore } from '@/stores/cboard/home/membershipStore'
 import { useI18n } from 'vue-i18n'
-const { t } = useI18n()
 
+const { t } = useI18n()
 const membership = useMembershipStore()
 
-onMounted(() => {
-  membership.loadStatus()
-})
-
-function activate() {
-  membership.activate()
+function noop() {
+  // لا شيء يحدث عند الضغط
 }
+
+onMounted(() => {
+  membership.loadMenuId()
+})
 </script>
 
 <style scoped>
@@ -105,12 +111,6 @@ code {
   text-align: center;
 }
 
-.status.active {
-  background-color: #fff6ec;
-  color: #ff9318;
-  border: 1px solid #ffd9b3;
-}
-
 .status.inactive {
   background-color: #f0f0f0;
   color: #999;
@@ -124,13 +124,10 @@ code {
   color: white;
   border: none;
   border-radius: 8px;
-  cursor: pointer;
+  cursor: pointer; /* ✅ بدل not-allowed */
   font-size: 1rem;
   transition: background-color 0.3s ease;
-}
-
-.activate-btn:hover {
-  background-color: #d86e00;
+  opacity: 1; /* ✅ بدل 0.6 */
 }
 
 @media (max-width: 768px) {

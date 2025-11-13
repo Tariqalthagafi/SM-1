@@ -4,7 +4,7 @@
     <div class="summary-cards">
       <SummaryCard :title="t('cboard.home.summary.totalVisits')" :value="totalVisits + ' ' + t('cboard.home.summary.Visits')" />
       <SummaryCard :title="t('cboard.home.summary.todayVisits')" :value="todayVisits + ' ' + t('cboard.home.summary.Visits')" />
-      <SummaryCard :title="t('cboard.home.summary.lastUpdated')" :value="todayVisits + ' ' + t('cboard.home.summary.Visits')" />
+      
     </div>
   </section>
 </template>

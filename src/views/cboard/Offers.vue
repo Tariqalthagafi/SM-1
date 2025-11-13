@@ -1,10 +1,11 @@
 <template>
-  <div class="offers-page">
-    <h2>{{ t('cboard.offers.title') }}</h2>
+  <div class="page-wrapper">
+    <div class="offers-dashboard">
+      <h2 class="page-title">{{ t('cboard.offers.title') }}</h2>
 
-
-    <!-- قائمة العروض -->
-    <OfferList />
+      <!-- قائمة العروض -->
+      <OfferList />
+    </div>
   </div>
 </template>
 
@@ -16,33 +17,46 @@ const { t } = useI18n()
 </script>
 
 <style scoped>
-.offers-page {
-  padding: 2rem;
-  background-color: #fff; /* أبيض نقي */
+.page-wrapper {
   display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
+  justify-content: center;
+  align-items: flex-start;
+  min-height: max-content;
+  padding: 2rem 1rem;
+  background-color: #FFFFFF;
+  overflow-x: hidden;
 }
 
+.offers-dashboard {
+  width: 100%;
+  max-width: 1000px;
+  display: grid;
+  row-gap: 1.5rem;
+  padding: 0;
+  background-color: transparent;
+  box-sizing: border-box;
+  font-family: 'Tajawal', sans-serif;
+}
 
-h2 {
+.page-title {
   font-size: 1.6rem;
   font-weight: 600;
   color: #1C1C1C;
-  border-bottom: 1px solid #E0E0E0; /* خط فصل بسيط */
+  border-bottom: 1px solid #E0E0E0;
   padding-bottom: 0.5rem;
   margin-bottom: 0.5rem;
 }
 
+/* ✅ صف العرض */
 .offer-row {
   display: flex;
   align-items: center;
   gap: 1rem;
   padding: 0.75rem 0;
   border-bottom: 1px solid #E0E0E0;
-  font-family: 'Tajawal', sans-serif;
 }
 
+/* ✅ زر الإضافة */
 .add-offer-btn {
   background-color: #FF7A00;
   color: white;
@@ -56,4 +70,10 @@ h2 {
   background-color: #e96c00;
 }
 
+/* دعم الجوال */
+@media (max-width: 768px) {
+  .offers-dashboard {
+    padding: 1rem;
+  }
+}
 </style>
