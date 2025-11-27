@@ -20,11 +20,7 @@
   </div>
 </template>
 
-
 <script setup lang="ts">
-import { onMounted } from 'vue'
-import { use_social_store } from '@/stores/cboard/social.ts'
-
 import EmailField from '@/components/cboard/Social/EmailField.vue'
 import PhoneField from '@/components/cboard/Social/PhoneField.vue'
 import WebsiteField from '@/components/cboard/Social/WebsiteField.vue'
@@ -37,14 +33,8 @@ import YoutubeField from '@/components/cboard/Social/YoutubeField.vue'
 import WhatsappField from '@/components/cboard/Social/WhatsappField.vue'
 import LocationField from '@/components/cboard/Social/LocationField.vue'
 import { useI18n } from 'vue-i18n'
+
 const { t } = useI18n()
-
-const store = use_social_store()
-
-onMounted(async () => {
-  await store.fetch_user_id()
-  await store.load()
-})
 </script>
 
 <style scoped>

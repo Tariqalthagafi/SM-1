@@ -1,86 +1,117 @@
 <template>
-  <section class="section-editor-card">
-    <h2 class="card-title">{{ t('cboard.sections.editor.title') }}</h2>
+  <section class="section-editor-card card-box">
+    <div class="card-header">
+      <h2 class="card-title">{{ t('cboard.sections.editor.title') }}</h2>
+      <button type="button" class="add-btn" @click="handleAdd">
+        {{ t('cboard.sections.editor.button') }}
+      </button>
+    </div>
 
-    <form @submit.prevent="handleAdd" class="form-row">
-     <input
-     v-model="form.name"
-     type="text"
-     :placeholder="t('cboard.sections.editor.placeholder')"
-     required
-     name="section-name"
-     id="section-name"
-     />
-         <button type="submit" class="add-btn"> {{ t('cboard.sections.editor.button') }} </button>
-</form>
+    <div class="section-count-text">
+      {{ t('cboard.sections.count', { count: sections.length }) }}
+    </div>
+
+    <form class="form-row">
+      <input
+        v-model="form.name"
+        type="text"
+        :placeholder="t('cboard.sections.editor.placeholder')"
+        required
+        name="section-name"
+        id="section-name"
+      />
+    </form>
   </section>
 </template>
 
 <script setup lang="ts">
 import { reactive } from 'vue'
-import { useSectionStore } from '@/stores/cboard/sections.ts'
-import type { Section } from '@/types/contexts/sections1.ts'
+import { useSections } from './useSections'
 import { useI18n } from 'vue-i18n'
-const { t } = useI18n()
 
-const sectionStore = useSectionStore()
+const { t } = useI18n()
+const { sections, addSection } = useSections()
+
 const form = reactive<{ name: string }>({ name: '' })
 
-function handleAdd() {
+async function handleAdd() {
   const name = form.name.trim()
   if (!name) return
 
-  const exists = sectionStore.sections.find(s => s.name === name)
+  const exists = sections.value.find(s => s.name === name)
   if (exists) {
     alert(t('cboard.sections.editor.duplicateAlert'))
     return
   }
 
-  const newSection: Section = {
-    id: crypto.randomUUID(),
-    name,
-    is_active: true
-  }
-
-  sectionStore.add(newSection)
+  await addSection(name)
   form.name = ''
 }
 </script>
 
 <style scoped>
+.card-box {
+  background-color: #fff;
+  border: 1px solid #FF7A00;
+  border-radius: 10px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  font-family: 'Tajawal', sans-serif;
+  width: 100%;
+  max-width: 333.333px;
+  box-sizing: border-box;
+}
+
 .section-editor-card {
-  background: transparent;
-  border-radius: 0;
-  padding: 0;
-  box-shadow: none;
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  font-family: 'Tajawal', sans-serif;
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* ✅ توزيع العنوان والزر */
+  flex-wrap: wrap;
+  gap: 0.5rem;
 }
 
 .card-title {
-  margin: 0;
   font-size: 1.2rem;
-  font-weight: bold;
-  color: #FF7A00;
-  padding-bottom: 0.5rem;
+  font-weight: 600;
+  color: #1C1C1C;
+  margin: 0;
+}
+
+.section-count-text {
+  font-size: 0.95rem;
+  color: #666;
+  margin-top: -0.5rem;
+  margin-bottom: 0.5rem;
 }
 
 .form-row {
   display: flex;
+  flex-wrap: wrap;
   gap: 0.5rem;
   align-items: center;
 }
 
 .form-row input {
-  width: 220px;
+  flex: 1;
+  min-width: 220px;
   padding: 0.4rem 0.6rem;
   font-size: 0.9rem;
   border: 1px solid #E0E0E0;
   border-radius: 6px;
   background-color: #FFFFFF;
   color: #1C1C1C;
+  transition: border-color 0.3s ease;
+}
+
+.form-row input:focus {
+  border-color: #FF7A00;
+  outline: none;
 }
 
 .add-btn {

@@ -1,23 +1,24 @@
 <template>
   <section class="product-list">
-    <!-- زر إضافة منتج جديد -->
-    <button class="add-button" @click="startNewProduct"> {{ t('cboard.products.list.addButton') }} </button>
-
-    <!-- نموذج إضافة منتج -->
-    <ProductEditor
-      v-if="showNewForm"
-      :edit="tempProduct"
+    <!-- بطاقة إضافة منتج دائمًا ظاهرة -->
+    <ProductAddCard
+      :expanded="showNewForm"
+      :productCount="products.length"
+      @toggle="expandOnly"
+      @collapse="showNewForm = false"
+      @added="showNewForm = false"
     />
 
     <!-- قائمة المنتجات مع السحب والإفلات -->
     <draggable
-      v-model="productsStore.products"
+      v-model="products"
       item-key="id"
       handle=".drag-handle"
       @end="saveOrder"
+      class="product-grid"
     >
       <template #item="{ element }">
-        <div class="product-container">
+        <div class="product-container card-box">
           <ProductEditor :edit="element" />
         </div>
       </template>
@@ -26,46 +27,31 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import { useProductsStore } from '@/stores/cboard/products.ts'
-import type { Product } from '@/types/contexts/products1.ts'
+import { ref } from 'vue'
 import draggable from 'vuedraggable'
 import ProductEditor from './ProductEditor.vue'
+import ProductAddCard from './ProductAddCard.vue'
+import { useProducts } from './useProducts'
+import type { Product } from '@/types/contexts/products1.ts'
 import { useI18n } from 'vue-i18n'
+
 const { t } = useI18n()
+const { products, updateProduct } = useProducts()
 
-const productsStore = useProductsStore()
-const tempProduct = ref<Product>(productsStore.createEmptyProduct())
-const showNewForm = ref(false)
+const showNewForm = ref(false) // ✅ البطاقة تبدأ متمددة
 
-onMounted(() => {
-  productsStore.load()
-})
-
-async function startNewProduct() {
-  const newProduct = {
-    ...productsStore.createEmptyProduct(),
-    id: crypto.randomUUID(),
-    sequ: 0
-  }
-
-  try {
-    await productsStore.addProduct(newProduct) // ✅ إرسال إلى Supabase
-    showNewForm.value = false
-  } catch (error) {
-    console.error('❌ فشل إضافة المنتج إلى Supabase:', error)
-  }
-}
-
-  
 async function saveOrder() {
   await Promise.all(
-    productsStore.products.map((p, i) => {
+    products.value.map((p: Product, i: number) => {
       p.sequ = i
-      return productsStore.directSave(p)
+      return updateProduct(p.id, { sequ: i })
     })
   )
-  productsStore.products.sort((a, b) => a.sequ - b.sequ)
+  products.value.sort((a, b) => a.sequ - b.sequ)
+}
+
+function expandOnly() {
+  if (!showNewForm.value) showNewForm.value = true
 }
 </script>
 
@@ -77,26 +63,24 @@ async function saveOrder() {
   font-family: 'Tajawal', sans-serif;
 }
 
-.add-button {
-  align-self: flex-start;
-  padding: 0.4rem 0.8rem;
-  font-size: 0.95rem;
-  background-color: #FF7A00;
-  color: #fff;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1rem;
 }
 
-.add-button:hover {
-  background-color: #e96c00;
+.card-box {
+  background-color: #fff;
+  border: 1px solid #FF7A00;
+  border-radius: 10px;
+  padding: 1rem;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 400px;
 }
 
 .product-container {
-  margin-bottom: 0.5rem;
-  padding-bottom: 0.5rem;
-  border-bottom: 1px solid #E0E0E0; /* ✅ خط رمادي بسيط */
+  width: 100%;
 }
-
 </style>

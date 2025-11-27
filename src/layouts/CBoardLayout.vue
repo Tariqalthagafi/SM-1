@@ -130,9 +130,9 @@ const sidebarItems = computed(() => [
   { name: t('cboard.sidebar.products'), icon: 'products-icon.svg', iconType: 'svg', route: '/cboard/Products' },
   { name: t('cboard.sidebar.offers'), icon: 'offer-icon.svg', iconType: 'svg', route: '/cboard/Offers' },
   { name: t('cboard.sidebar.linker'), icon: 'connection-icon.svg', iconType: 'svg', route: '/cboard/linker' },
-  { name: t('cboard.sidebar.templates'), icon: 'theme-icon.svg', iconType: 'svg', route: '/cboard/templates' },
+  // { name: t('cboard.sidebar.templates'), icon: 'theme-icon.svg', iconType: 'svg', route: '/cboard/templates' },
   { name: t('cboard.sidebar.menuDesign'), icon: 'menudesign-icon.svg', iconType: 'svg', route: '/cboard/MenuDesign' },
-  { name: t('cboard.sidebar.menuPreview'), icon: 'preview-icon.svg', iconType: 'svg', route: '/cboard/MenuPreview' },
+ // { name: t('cboard.sidebar.menuPreview'), icon: 'preview-icon.svg', iconType: 'svg', route: '/cboard/MenuPreview' },
   { name: t('cboard.sidebar.settings'), icon: 'settings-icon.svg', iconType: 'svg', route: '/cboard/settings' },
   { name: t('cboard.sidebar.logout'), icon: '⏻', iconType: 'text', route: '#logout' }
 ])

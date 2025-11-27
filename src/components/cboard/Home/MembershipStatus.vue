@@ -8,7 +8,7 @@
         <label>{{ t('cboard.home.membership.accountIdLabel') }}</label>
         <code>
           <p class="account-id">
-            <span class="id-value">{{ membership.menuId }}</span>
+            <span class="id-value">{{ membership.accountId}}</span>
           </p>
         </code>
       </div>
@@ -46,7 +46,7 @@ function noop() {
 }
 
 onMounted(() => {
-  membership.loadMenuId()
+  membership.loadAccountId()
 })
 </script>
 

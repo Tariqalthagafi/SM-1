@@ -1,7 +1,5 @@
 <template>
   <section class="info-section" v-if="isReady">
-
-
     <div class="days-grid">
       <div v-for="day in typedDays" :key="day" class="day-card">
         <h4>{{ t(`cboard.orderInfo.operatingHours.days.${day}`) }}</h4>
@@ -24,18 +22,6 @@
                 ? t('cboard.orderInfo.operatingHours.periodLabels.second')
                 : t('cboard.orderInfo.operatingHours.periodLabels.full') }}
             </button>
-
-            <!-- ❓ أيقونة الاستفهام -->
-            <div class="tooltip-wrapper" v-if="shouldDisableSwitch(day, type)">
-              <span class="info-icon" @click="showTooltip(day, type)">❓</span>
-
-              <div
-                v-if="tooltipMessage[`${day}-${type}`]"
-                class="tooltip"
-              >
-                {{ tooltipMessage[`${day}-${type}`] }}
-              </div>
-            </div>
 
             <!-- معلومات الفترة -->
             <div class="period-info" v-if="getPeriod(day, type)?.enabled === true">
@@ -61,16 +47,29 @@
               {{ getDefaultTime(type) }}
             </div>
 
-            <!-- زر التبديل -->
-            <label class="switch">
-              <input
-                type="checkbox"
-                :checked="getPeriod(day, type)?.enabled === true"
-                :disabled="shouldDisableSwitch(day, type)"
-                @change="togglePeriod(day, type)"
-              />
-              <span class="slider"></span>
-            </label>
+            <!-- ✅ زر التبديل + ❓ داخل نفس div -->
+            <div class="switch-with-tooltip">
+              <label class="switch">
+                <input
+                  type="checkbox"
+                  :checked="getPeriod(day, type)?.enabled === true"
+                  :disabled="shouldDisableSwitch(day, type)"
+                  @change="togglePeriod(day, type)"
+                />
+                <span class="slider"></span>
+              </label>
+
+              <div class="tooltip-wrapper" v-if="shouldDisableSwitch(day, type)">
+                <span class="info-icon" @click="showTooltip(day, type)">❓</span>
+                <div
+                  v-if="tooltipMessage[`${day}-${type}`]"
+                  class="tooltip"
+                >
+                  {{ tooltipMessage[`${day}-${type}`] }}
+                </div>
+              </div>
+            </div>
+            <!-- نهاية switch-with-tooltip -->
           </div>
         </div>
       </div>
@@ -78,11 +77,10 @@
   </section>
 </template>
 
-
 <script setup lang="ts">
-import { ref, onMounted, toRaw } from 'vue'
-import { useOrderInfoStore } from '@/stores/cboard/orderInfo1'
-import { indexedDBService } from '@/services/indexedDBService'
+import { ref, onMounted } from 'vue'
+import { useOperatingHoursStore } from '@/stores/cboard/orderInfo/operatingHoursStore.ts'
+import { storeToRefs } from 'pinia'   // ✅ إضافة مهمة
 import type { OperatingHours, TimePeriod } from '@/types/contexts/orderInfo1.ts'
 import { useI18n } from 'vue-i18n'
 
@@ -95,23 +93,18 @@ const typedDays: readonly DayKey[] = dayKeys
 const periodTypes = ['first', 'second', 'full'] as const
 type PeriodType = typeof periodTypes[number]
 
-const store = useOrderInfoStore()
-const operatingHours = store.operatingHours
+const store = useOperatingHoursStore()
+const { operatingHours } = storeToRefs(store)   // ✅ الآن reactive ref
 const isReady = ref(false)
 const tooltipMessage = ref<Record<string, string>>({})
 
 onMounted(async () => {
-  const saved = await indexedDBService.getOperatingHours('default') as Partial<OperatingHours>
-  typedDays.forEach((day) => {
-    operatingHours[day] = (saved?.[day] ?? []) as TimePeriod[]
-  })
+  await store.syncOperatingHoursFromSupabase()
+  console.log('📥 Loaded operating hours:', operatingHours.value)
   isReady.value = true
 })
 
 async function saveHours() {
-  const raw = toRaw(operatingHours)
-  const cleanData: OperatingHours = structuredClone(raw)
-  await indexedDBService.saveOperatingHours(cleanData, 'default')
   await store.syncOperatingHoursToSupabase()
 }
 
@@ -127,13 +120,13 @@ function getDefaultTime(type: PeriodType): string {
 }
 
 function getPeriod(day: DayKey, type: PeriodType): TimePeriod | null {
-  const periods = operatingHours[day]
+  const periods = operatingHours.value[day]   // ✅ استخدم .value
   if (!periods) return null
   return periods.find(p => p.type === type) ?? null
 }
 
 function shouldDisableSwitch(day: DayKey, type: PeriodType): boolean {
-  const periods = operatingHours[day]
+  const periods = operatingHours.value[day]   // ✅ استخدم .value
   if (!periods) return false
 
   const fullEnabled = periods.some(p => p.type === 'full' && p.enabled)
@@ -146,7 +139,7 @@ function shouldDisableSwitch(day: DayKey, type: PeriodType): boolean {
 }
 
 function togglePeriod(day: DayKey, type: PeriodType): void {
-  const periods = operatingHours[day]
+  const periods = operatingHours.value[day]   // ✅ استخدم .value
   if (!periods) return
 
   const index = periods.findIndex((p: TimePeriod) => p.type === type)
@@ -183,7 +176,7 @@ function updateTime(day: DayKey, type: PeriodType, field: 'from' | 'to', e: Even
 
 function showTooltip(day: DayKey, type: PeriodType): void {
   const key = `${day}-${type}`
-  const periods = operatingHours[day]
+  const periods = operatingHours.value[day]   // ✅ استخدم .value
   if (!periods) return
 
   const fullEnabled = periods.some(p => p.type === 'full' && p.enabled)
@@ -203,8 +196,6 @@ function showTooltip(day: DayKey, type: PeriodType): void {
   }, 3000)
 }
 </script>
-
-
 
 <style scoped>
 /* ✅ تنسيق عام */
@@ -374,6 +365,19 @@ input:disabled + .slider:before {
   z-index: 10;
   opacity: 0;
   animation: fadeIn 0.3s forwards;
+}
+
+.switch-with-tooltip {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.info-icon {
+  cursor: pointer;
+  font-size: 1rem;
+  color: #FF7A00;
+  vertical-align: middle;
 }
 
 @keyframes fadeIn {

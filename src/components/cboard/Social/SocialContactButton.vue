@@ -35,32 +35,47 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-import { use_social_store } from '@/stores/cboard/social.ts'
+import { useI18n } from 'vue-i18n'
+import { supabase } from '@/supabase'
 import type { social_key } from '@/types/contexts/social1.ts'
+
+const { t } = useI18n()
 
 const props = defineProps<{
   position: 'bottom-center' | 'bottom-right' | 'top-right' | 'top-center' | 'none'
   colors: Record<string, string>
 }>()
 
-const socialStore = use_social_store()
 const isPopoverOpen = ref(false)
+const fields = ref<{ key: social_key; value: string; is_public: boolean }[]>([])
+const userId = ref<string>('')
 
-onMounted(() => {
-  socialStore.load()
+// ✅ تحميل بيانات المستخدم والحقول العامة من Supabase
+onMounted(async () => {
+  const { data: userData } = await supabase.auth.getUser()
+  userId.value = userData?.user?.id ?? 'anonymous'
+
+  const { data, error } = await supabase
+    .from('social_fields')
+    .select('*')
+    .eq('user_id', userId.value)
+
+  if (error) {
+    console.error('❌ خطأ في تحميل البيانات:', error.message)
+  } else if (data) {
+    fields.value = data.map((d: any) => ({
+      key: d.key,
+      value: d.value,
+      is_public: d.is_public
+    }))
+  }
 })
-
-// دالة آمنة للوصول إلى الرابط حسب المفتاح
-function getLink(key: social_key) {
-  return socialStore.fields.find(link => link.key === key)
-}
-
 
 // قائمة الروابط العامة فقط
 const filteredLinks = computed(() => {
   return socialMap
     .map(mapItem => {
-      const linkData = getLink(mapItem.key)
+      const linkData = fields.value.find(f => f.key === mapItem.key)
       if (linkData?.is_public && linkData.value) {
         return {
           ...mapItem,
@@ -105,6 +120,7 @@ const socialMap: { key: social_key; name: string; color: string; icon: string }[
   { key: 'youtube', name: 'يوتيوب', color: '#FF0000', icon: 'youtube-icon.svg' }
 ]
 </script>
+
 
 <style scoped>
 .contact-button-container {

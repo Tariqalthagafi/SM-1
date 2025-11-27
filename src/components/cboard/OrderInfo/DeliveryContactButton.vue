@@ -5,7 +5,6 @@
   @click="isOpen = !isOpen"
   :style="{ backgroundColor: props.colors.topIconsBackground }"
 >
-
       <v-icon name="fa-truck" />
     </button>
 
@@ -39,19 +38,23 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { useOrderInfoStore } from '@/stores/cboard/orderInfo1'
+import { useDeliveryMethodsStore } from '@/stores/cboard/orderInfo/deliveryMethodsStore.ts'
+import { storeToRefs } from 'pinia'   // ✅ إضافة مهمة
+
 const props = defineProps<{
   colors: Record<string, string>
 }>()
 
-const store = useOrderInfoStore()
+const store = useDeliveryMethodsStore()
+const { deliveryMethods } = storeToRefs(store)   // ✅ الآن reactive ref
 const isOpen = ref(false)
+
 function isImage(filename: string): boolean {
   return /\.(svg|png|webp)$/i.test(filename)
 }
 
 const activeMethods = computed(() =>
-  store.deliveryMethods.filter(method => method.enabled && method.name)
+  deliveryMethods.value.filter(method => method.enabled && method.name)   // ✅ استخدم .value
 )
 </script>
 

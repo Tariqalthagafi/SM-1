@@ -14,6 +14,8 @@
 import TemplateCustomizer2 from '@/components/cboard/MenuDesign/TemplateCustomizer2.vue'
 import TemplatePreview from '@/components/cboard/MenuDesign/shapesmenu/TemplatePreview.vue'
 import { useI18n } from 'vue-i18n'
+import '@/components/cboard/MenuDesign/styles/customizer.css'
+
 const { t } = useI18n()
 
 </script>

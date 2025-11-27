@@ -151,7 +151,7 @@
     "title": "Menu Sections Management",
     "count": "Number of sections: {count}",
     "editor": {
-      "title": "➕ Add New Section",
+      "title": "Add New Section",
       "placeholder": "Enter section name then add",
       "button": "Add",
       "duplicateAlert": "⚠️ Section already exists"
@@ -220,7 +220,7 @@
 "offers": {
   "title": "📦 Offers Management",
   "list": {
-    "addButton": "➕ Add New Offer",
+    "addButton": "Add New Offer",
     "edit": "✏️",
     "delete": "🗑️",
     "toggle": {
@@ -249,7 +249,7 @@
     },
     "fallback": "—",
     "actions": {
-      "save": "💾 Save",
+      "save": "Add",
       "cancel": "❌ Cancel"
     }
   }

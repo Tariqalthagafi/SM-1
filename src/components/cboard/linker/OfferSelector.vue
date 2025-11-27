@@ -8,14 +8,26 @@
 </template>
 
 <script setup lang="ts">
-import { useOffersStore } from '@/stores/cboard/offers.ts'
+import { ref, onMounted } from 'vue'
 import type { Offer } from '@/types/contexts/offers1.ts'
+import { supabase } from '@/supabase'
 import { useI18n } from 'vue-i18n'
+
 const { t } = useI18n()
-const props = defineProps<{ modelValue: string | undefined}>()
+
+const props = defineProps<{ modelValue: string | undefined }>()
 const emit = defineEmits(['update:modelValue'])
 
-const offers = useOffersStore().offers
+const offers = ref<Offer[]>([])
+
+onMounted(async () => {
+  const { data, error } = await supabase.from('offers').select('*')
+  if (error) {
+    console.error(error)
+    return
+  }
+  offers.value = data || []
+})
 
 function onChange(event: Event) {
   const value = (event.target as HTMLSelectElement).value
@@ -47,5 +59,4 @@ select:disabled {
   color: #999;
   cursor: not-allowed;
 }
-
 </style>

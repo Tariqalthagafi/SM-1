@@ -3,117 +3,129 @@
     <!-- اسم العرض -->
     <div class="form-group">
       <label>{{ t('cboard.offers.editor.fields.title') }}</label>
-      <template v-if="isView">
-        <span>{{ localOffer.title || '—' }}</span>
-      </template>
-      <template v-else>
-        <input v-model="localOffer.title" required />
-      </template>
+      <input
+        v-model="localOffer.title"
+        :readonly="readonly"
+        required
+        @focus="emit('focus')"
+        @blur="emit('blur')"
+        @input="emit('update', localOffer)"  
+      />
     </div>
 
     <!-- نوع الخصم -->
     <div class="form-group">
       <label>{{ t('cboard.offers.editor.fields.type') }}</label>
-      <template v-if="isView">
-        <span>
-          {{ localOffer.type === 'percentage' ? t('cboard.offers.editor.types.percentage') : t('cboard.offers.editor.types.unifiedPrice') }}
-        </span>
-      </template>
-      <template v-else>
-        <select v-model="localOffer.type">
-          <option value="percentage">{{ t('cboard.offers.editor.types.percentage') }}</option>
-          <option value="unifiedPrice">{{ t('cboard.offers.editor.types.unifiedPrice') }}</option>
-        </select>
-      </template>
+      <select
+        v-model="localOffer.type"
+        :disabled="readonly"
+        @focus="emit('focus')"
+        @blur="emit('blur')"
+        @change="emit('update', localOffer)"  
+      >
+        <option value="percentage">{{ t('cboard.offers.editor.types.percentage') }}</option>
+        <option value="unifiedPrice">{{ t('cboard.offers.editor.types.unifiedPrice') }}</option>
+      </select>
     </div>
 
     <!-- قيمة الخصم أو السعر الموحد -->
     <div class="form-group">
       <label>
-        {{ localOffer.type === 'percentage' ? t('cboard.offers.editor.fields.discountValue') : t('cboard.offers.editor.fields.unifiedPrice') }}
+        {{ localOffer.type === 'percentage'
+          ? t('cboard.offers.editor.fields.discountValue')
+          : t('cboard.offers.editor.fields.unifiedPrice') }}
       </label>
-      <template v-if="isView">
-        <span>
-          {{ localOffer.discount }}
-          {{ localOffer.type === 'percentage' ? '%' : 'ريال' }}
-        </span>
-      </template>
-      <template v-else>
-        <input v-model.number="localOffer.discount" type="number" min="0" />
-      </template>
+      <input
+        v-model.number="localOffer.discount"
+        type="number"
+        min="0"
+        :readonly="readonly"
+        @focus="emit('focus')"
+        @blur="emit('blur')"
+        @input="emit('update', localOffer)"  
+      />
     </div>
 
     <!-- تاريخ البداية -->
     <div class="form-group">
       <label>{{ t('cboard.offers.editor.fields.startDate') }}</label>
-      <template v-if="isView">
-        <span>{{ localOffer.start_date || '—' }}</span>
-      </template>
-      <template v-else>
-        <input v-model="localOffer.start_date" type="date" />
-      </template>
+      <input
+        v-model="localOffer.start_date"
+        type="date"
+        :readonly="readonly"
+        @focus="emit('focus')"
+        @blur="emit('blur')"
+        @change="emit('update', localOffer)" 
+      />
     </div>
 
     <!-- تاريخ النهاية -->
     <div class="form-group">
       <label>{{ t('cboard.offers.editor.fields.endDate') }}</label>
-      <template v-if="isView">
-        <span>{{ localOffer.end_date || '—' }}</span>
-      </template>
-      <template v-else>
-        <input v-model="localOffer.end_date" type="date" />
-      </template>
+      <input
+        v-model="localOffer.end_date"
+        type="date"
+        :readonly="readonly"
+        @focus="emit('focus')"
+        @blur="emit('blur')"
+        @change="emit('update', localOffer)" 
+      />
     </div>
 
     <!-- وقت البداية -->
     <div class="form-group">
       <label>{{ t('cboard.offers.editor.fields.startTime') }}</label>
-      <template v-if="isView">
-        <span>{{ localOffer.start_time || t('offers.editor.fallback') }}</span>
-      </template>
-      <template v-else>
-        <input v-model="localOffer.start_time" type="time" />
-      </template>
+      <input
+        v-model="localOffer.start_time"
+        type="time"
+        :readonly="readonly"
+        @focus="emit('focus')"
+        @blur="emit('blur')"
+        @change="emit('update', localOffer)" 
+      />
     </div>
 
     <!-- وقت النهاية -->
     <div class="form-group">
       <label>{{ t('cboard.offers.editor.fields.endTime') }}</label>
-      <template v-if="isView">
-        <span>{{ localOffer.end_time || t('offers.editor.fallback') }}</span>
-      </template>
-      <template v-else>
-        <input v-model="localOffer.end_time" type="time" />
-      </template>
-    </div>
-
-    <!-- أزرار الحفظ والإلغاء -->
-    <div class="action-buttons" v-if="!isView">
-      <button @click="emit('save', { ...localOffer })">{{ t('cboard.offers.editor.actions.save') }}</button>
-      <button @click="emit('cancel')">{{ t('cboard.offers.editor.actions.cancel') }}</button>
+      <input
+        v-model="localOffer.end_time"
+        type="time"
+        :readonly="readonly"
+        @focus="emit('focus')"
+        @blur="emit('blur')"
+        @change="emit('update', localOffer)" 
+      />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, watch, computed } from 'vue'
+import { ref, watch } from 'vue'
 import type { Offer } from '@/types/contexts/offers1.ts'
 import { useI18n } from 'vue-i18n'
+
 const { t } = useI18n()
 
 const props = defineProps<{
   edit: Offer
-  mode: 'view' | 'edit' | 'add'
+  readonly?: boolean
 }>()
-const emit = defineEmits(['save', 'cancel'])
+
+const emit = defineEmits<{
+  (e: 'focus'): void
+  (e: 'blur'): void
+  (e: 'update', offer: Offer): void
+}>()
 
 const localOffer = ref<Offer>({ ...props.edit })
-const isView = computed(() => props.mode === 'view')
 
+// ✅ تحديث القيم عند تغيير الـ props من الأب
 watch(() => props.edit, (newVal) => {
   localOffer.value = { ...newVal }
 })
 </script>
+
 
 <style scoped>
 .offer-editor {
@@ -121,13 +133,12 @@ watch(() => props.edit, (newVal) => {
   flex-wrap: wrap;
   gap: 1rem;
   padding: 0.5rem 0;
-  background-color: transparent; /* إزالة الخلفية */
-  box-shadow: none;              /* إزالة الظل */
+  background-color: transparent;
+  box-shadow: none;
   border-radius: 0;
   font-family: 'Tajawal', sans-serif;
 }
 
-/* الحقول */
 .form-group {
   display: flex;
   flex-direction: column;
@@ -151,37 +162,11 @@ watch(() => props.edit, (newVal) => {
   color: #1C1C1C;
 }
 
-/* العرض فقط */
-.form-group span {
-  font-size: 0.85rem;
-  color: #333;
-  padding: 0.4rem 0.6rem;
-  background-color: #f9f9f9;
-  border-radius: 6px;
-  border: 1px solid #E0E0E0;
-}
-
-/* أزرار الحفظ والإلغاء */
-.action-buttons {
-  display: flex;
-  flex-direction: row;
-  gap: 0.5rem;
-  align-items: center;
-  margin-top: 0.5rem;
-}
-
-.action-buttons button {
-  padding: 0.4rem 0.8rem;
-  font-size: 0.85rem;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  font-weight: 600;
-  background-color: #FF7A00;
-  color: white;
-}
-.action-buttons button:hover {
-  background-color: #e96c00;
+.form-group input[readonly],
+.form-group select:disabled {
+  background-color: #f5f5f5;
+  color: #999;
+  cursor: not-allowed;
 }
 
 </style>

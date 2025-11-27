@@ -20,16 +20,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
-import { useOrderInfoStore } from '@/stores/cboard/orderInfo1'
+import { ref, computed } from 'vue'
 import OperatingHoursEditor from '@/components/cboard/OrderInfo/OperatingHoursEditor.vue'
 import DeliveryMethodsEditor from '@/components/cboard/OrderInfo/DeliveryMethodsEditor.vue'
 import PaymentMethodsEditor from '@/components/cboard/OrderInfo/PaymentMethodsEditor.vue'
-
-const store = useOrderInfoStore()
-onMounted(() => {
-  store.load()
-})
 
 const tabs = [
   { key: 'hours', label: 'ساعات العمل', component: OperatingHoursEditor },
@@ -44,6 +38,7 @@ const activeTabComponent = computed(() => {
   return tab?.component ?? null
 })
 </script>
+
 
 <style scoped>
 .page-wrapper {

@@ -1,40 +1,75 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-import { use_social_store } from '@/stores/cboard/social.ts'
+import { ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { supabase } from '@/supabase'
+
 const { t } = useI18n()
-
-const store = use_social_store()
 const key = 'snapchat'
-
 const icon = 'snapchat-icon.svg'
 const input_type = 'text'
 
+const inputValue = ref('')
 const isEditing = ref(false)
-const inputValue = ref(store.get_field(key).value)
+const isPublic = ref(false)
+const userId = ref<string>('')
+
+// ✅ جلب بيانات المستخدم + الحقل من Supabase
+onMounted(async () => {
+  const { data: userData } = await supabase.auth.getUser()
+  userId.value = userData?.user?.id ?? 'anonymous'
+
+  const { data, error } = await supabase
+    .from('social_fields')
+    .select('*')
+    .eq('user_id', userId.value)
+    .eq('key', key)
+    .single()
+
+  if (error) {
+    console.warn('⚠️ لا توجد بيانات محفوظة بعد:', error.message)
+  }
+
+  if (data) {
+    inputValue.value = data.value ?? ''
+    isPublic.value = data.is_public ?? false
+  }
+})
 
 function on_focus() {
   isEditing.value = true
 }
 
-function on_blur() {
+async function on_blur() {
   isEditing.value = false
-  store.update_value(key, inputValue.value)
+  const payload = {
+    id: `${userId.value}:${key}`,
+    user_id: userId.value,
+    key,
+    value: inputValue.value,
+    is_public: isPublic.value
+  }
+  const { error } = await supabase.from('social_fields').upsert(payload, { onConflict: 'id' })
+  if (error) console.error('❌ خطأ في الحفظ:', error.message)
 }
 
-function toggle_visibility() {
-  store.toggle_visibility(key)
+async function toggle_visibility() {
+  isPublic.value = !isPublic.value
+  const payload = {
+    id: `${userId.value}:${key}`,
+    user_id: userId.value,
+    key,
+    value: inputValue.value,
+    is_public: isPublic.value
+  }
+  const { error } = await supabase.from('social_fields').upsert(payload, { onConflict: 'id' })
+  if (error) console.error('❌ خطأ في تحديث الإظهار:', error.message)
 }
 </script>
 
 <template>
   <div class="social-field">
     <label class="field-label">
-      <img
-        :src="`/icons/social/${icon}`"
-        :alt="`${key} icon`"
-        class="field-icon"
-      />
+      <img :src="`/icons/social/${icon}`" :alt="`${key} icon`" class="field-icon" />
       {{ t('cboard.social.fields.snapchat') }}
     </label>
 
@@ -50,17 +85,16 @@ function toggle_visibility() {
 
     <div class="visibility-toggle">
       <label class="switch">
-        <input
-          type="checkbox"
-          :checked="store.get_field(key).is_public"
-          @change="toggle_visibility"
-        />
+        <input type="checkbox" :checked="isPublic" @change="toggle_visibility" />
         <span class="slider"></span>
       </label>
-      <span class="status-label">{{ store.get_field(key).is_public ? t('cboard.social.visibility.public') : t('cboard.social.visibility.private') }}</span>
+      <span class="status-label">
+        {{ isPublic ? t('cboard.social.visibility.public') : t('cboard.social.visibility.private') }}
+      </span>
     </div>
   </div>
 </template>
+
 
 <style scoped>
 .social-field {

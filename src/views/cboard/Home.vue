@@ -2,13 +2,8 @@
 import WelcomeMessage from '@/components/cboard/Home/WelcomeMessage.vue'
 import HomeSummary from '@/components/cboard/Home/HomeSummary.vue'
 import IdentityForm from '@/components/cboard/Home/IdentityForm.vue'
-import { useHomeStore } from '@/stores/cboard/homeStore'
 import MembershipStatus from '@/components/cboard/Home/MembershipStatus.vue'
 
-const homeStore = useHomeStore()
-
-// تحميل البيانات من IndexedDB عند فتح الصفحة
-homeStore.initStore()
 </script>
 
 <template>

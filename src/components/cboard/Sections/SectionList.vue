@@ -1,18 +1,14 @@
 <template>
   <section class="section-list-card">
-    <div v-if="loading" class="loading-message">{{ t('cboard.sections.list.loading') }}</div>
-
     <draggable
-      v-else
-      v-model="sectionStore.sections"
+      v-model="sections"
       item-key="id"
       class="section-list"
       handle=".drag-handle"
     >
       <template #item="{ element: section }">
-        <div class="section-item">
-          <span class="drag-handle" :title="t('cboard.sections.list.dragTitle')">⠿</span>
-
+        <div class="section-item card-box">
+          <span class="drag-handle">⠿</span>
 
           <div class="section-name-wrapper">
             <input
@@ -23,28 +19,14 @@
               class="section-input"
               autofocus
             />
-            <div
-              v-else
-              class="section-name"
-              @click="startEdit(section)"
-              :title="t('cboard.sections.list.editTitle')"
-            >
+            <div v-else class="section-name" @click="startEdit(section)">
               {{ section.name }}
             </div>
           </div>
 
-          <button class="delete-btn" @click="confirmDeleteId = section.id" :title="t('cboard.sections.list.deleteTitle')">🗑️</button>
-
-          <div v-if="confirmDeleteId === section.id" class="modal-overlay">
-            <div class="modal-box">
-              <h2>{{ t('cboard.sections.list.modal.title') }}</h2>
-              <p>{{ t('cboard.sections.list.modal.message') }}</p>
-              <div class="modal-actions">
-                <button class="confirm-btn" @click="deleteSection(section.id)">{{ t('cboard.sections.list.modal.confirm') }}</button>
-                <button class="cancel-btn" @click="confirmDeleteId = null">{{ t('cboard.sections.list.modal.cancel') }}</button>
-              </div>
-            </div>
-          </div>
+          <button class="delete-btn" @click="deleteSection(section.id)">
+            🗑️
+          </button>
         </div>
       </template>
     </draggable>
@@ -52,23 +34,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import { useSectionStore } from '@/stores/cboard/sections'
+import { ref } from 'vue'
 import draggable from 'vuedraggable'
-import { useI18n } from 'vue-i18n'
-const { t } = useI18n()
+import { useSections } from './useSections'
 
-const sectionStore = useSectionStore()
-const loading = ref(true)
+const { sections, updateSection, deleteSection } = useSections()
 
 const editingId = ref<string | null>(null)
 const editableName = ref('')
-const confirmDeleteId = ref<string | null>(null)
-
-onMounted(async () => {
-  await sectionStore.syncFromSupabase()
-  loading.value = false
-})
 
 function startEdit(section: { id: string; name: string }) {
   editingId.value = section.id
@@ -79,25 +52,12 @@ async function saveEdit(id: string) {
   const name = editableName.value.trim()
   editingId.value = null
   if (!name) return
-
-  await sectionStore.update({
-    ...sectionStore.sections.find(s => s.id === id)!,
-    name
-  })
-}
-
-function deleteSection(id: string) {
-  sectionStore.remove(id)
-  confirmDeleteId.value = null
+  await updateSection(id, name)
 }
 </script>
 
 <style scoped>
 .section-list-card {
-  background: transparent;
-  border-radius: 0;
-  padding: 0;
-  box-shadow: none;
   display: flex;
   flex-direction: column;
   gap: 1rem;
@@ -112,18 +72,35 @@ function deleteSection(id: string) {
 }
 
 .section-list {
-  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1rem;
   padding: 0;
   margin: 0;
+}
+
+
+.card-box {
+  background-color: #fff;
+  border: 1px solid #FF7A00;
+  border-radius: 10px;
+  padding: 1rem;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 400px;
 }
 
 .section-item {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.4rem 0.6rem;
-  border-bottom: 1px solid #E0E0E0;
+  gap: 0.75rem;
   position: relative;
+  transition: box-shadow 0.2s ease;
+}
+
+.section-item:hover {
+  box-shadow: 0 4px 10px rgba(255, 122, 0, 0.1);
 }
 
 .drag-handle {
@@ -141,6 +118,12 @@ function deleteSection(id: string) {
   color: #1C1C1C;
   cursor: pointer;
   padding: 0.3rem 0.4rem;
+  border-radius: 6px;
+  transition: background-color 0.2s ease;
+}
+
+.section-name:hover {
+  background-color: #FFF3E5;
 }
 
 .section-input {

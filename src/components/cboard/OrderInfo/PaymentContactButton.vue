@@ -40,27 +40,26 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-import { useOrderInfoStore } from '@/stores/cboard/orderInfo1' // ✅ الصحيح
+import { usePaymentMethodsStore } from '@/stores/cboard/orderInfo/paymentMethodsStore.ts'
+import { storeToRefs } from 'pinia'
 
-
-
-
-const store = useOrderInfoStore()
-const isOpen = ref(false)
-
-onMounted(() => {
-  store.load() 
-  
-})
-
-const activeMethods = computed(() =>
-  store.paymentMethods.filter(method => method.enabled && method.name && method.icon)
-)
 const props = defineProps<{
   position: string
   colors: Record<string, string>
 }>()
 
+const store = usePaymentMethodsStore()
+const { paymentMethods } = storeToRefs(store) 
+const isOpen = ref(false)
+
+onMounted(async () => {
+  // تحميل من Supabase عبر الستور
+  await store.syncPaymentMethodsFromSupabase()
+})
+
+const activeMethods = computed(() =>
+  paymentMethods.value.filter(method => method.enabled && method.name && method.icon)
+)
 </script>
 
 <style scoped>

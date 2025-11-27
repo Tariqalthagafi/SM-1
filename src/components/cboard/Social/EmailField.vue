@@ -1,79 +1,112 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-import { use_social_store } from '@/stores/cboard/social.ts'
+import { ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { supabase } from '@/supabase'
+
 const { t } = useI18n()
-
-const store = use_social_store()
 const key = 'email'
-const emailPlaceholder = 'example@email.com'
-
-
 
 const icon = 'email-icon.svg'
 const input_type = 'email'
+const emailPlaceholder = 'example@email.com'
 
+const localValue = ref('')
 const isEditing = ref(false)
-const inputValue = ref(store.get_field(key).value)
+const isPublic = ref(false)
+const userId = ref<string>('')
 
-function on_input(event: Event) {
-  const val = (event.target as HTMLInputElement).value
-  store.update_value(key, val)
+// ✅ جلب بيانات المستخدم + الحقل من Supabase
+onMounted(async () => {
+  const { data: userData } = await supabase.auth.getUser()
+  userId.value = userData?.user?.id ?? 'anonymous'
+
+  const { data, error } = await supabase
+    .from('social_fields')
+    .select('*')
+    .eq('user_id', userId.value)
+    .eq('key', key)
+    .single()
+
+  if (error) {
+    console.warn('⚠️ لا توجد بيانات محفوظة بعد:', error.message)
+  }
+
+  if (data) {
+    localValue.value = data.value ?? ''
+    isPublic.value = data.is_public ?? false
+  }
+})
+
+// ✅ حفظ القيمة عند فقدان التركيز
+async function confirmEditing() {
+  isEditing.value = false
+  if (localValue.value.trim() !== '') {
+    const payload = {
+      id: `${userId.value}:${key}`,
+      user_id: userId.value,
+      key,
+      value: localValue.value,
+      is_public: isPublic.value
+    }
+    const { error } = await supabase.from('social_fields').upsert(payload, { onConflict: 'id' })
+    if (error) console.error('❌ خطأ في الحفظ:', error.message)
+    else console.log('✅ تم الحفظ في Supabase:', payload)
+  }
 }
 
-function toggle_visibility() {
-  store.toggle_visibility(key)
-}
-
-function on_focus() {
+function startEditing() {
   isEditing.value = true
 }
 
-function on_blur() {
-  isEditing.value = false
-  store.update_value(key, inputValue.value)
+// ✅ تبديل حالة الإظهار
+async function toggle_visibility() {
+  isPublic.value = !isPublic.value
+  const payload = {
+    id: `${userId.value}:${key}`,
+    user_id: userId.value,
+    key,
+    value: localValue.value,
+    is_public: isPublic.value
+  }
+  const { error } = await supabase.from('social_fields').upsert(payload, { onConflict: 'id' })
+  if (error) console.error('❌ خطأ في تحديث الإظهار:', error.message)
 }
 </script>
 
 <template>
   <div class="social-field">
     <label class="field-label">
-      <img
-        :src="`/icons/social/${icon}`"
-        :alt="`${key} icon`"
-        class="field-icon"
-      />
+      <img :src="`/icons/social/${icon}`" :alt="`${key} icon`" class="field-icon" />
       {{ t('cboard.social.fields.email') }}
-
     </label>
 
     <input
-  :type="input_type"
-  v-model="inputValue"
-  @focus="on_focus"
-  @blur="on_blur"
-  :class="{ editing: isEditing }"
-  :aria-label="t('cboard.social.fields.email')"
-  :placeholder="emailPlaceholder"
-/>
+      :type="input_type"
+      v-model="localValue"
+      @focus="startEditing"
+      @blur="confirmEditing"
+      :class="{ editing: isEditing }"
+      :aria-label="t('cboard.social.fields.email')"
+      :placeholder="emailPlaceholder"
+    />
 
     <div class="visibility-toggle">
-  <label class="switch">
-    <input
-      type="checkbox"
-      :checked="store.get_field(key).is_public"
-      @change="toggle_visibility"
-    />
-    <span class="slider"></span>
-  </label>
-  <span class="status-label">
-  {{ store.get_field(key).is_public ? t('cboard.social.visibility.public') : t('cboard.social.visibility.private') }}
-</span>
-
-</div>
-
+      <label class="switch">
+        <input
+          type="checkbox"
+          :checked="isPublic"
+          @change="toggle_visibility"
+        />
+        <span class="slider"></span>
+      </label>
+      <span class="status-label">
+        {{ isPublic ? t('cboard.social.visibility.public') : t('cboard.social.visibility.private') }}
+      </span>
+    </div>
   </div>
 </template>
+
+
 
 <style scoped>
 .social-field {

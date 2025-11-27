@@ -13,7 +13,6 @@
 import OfferList from '@/components/cboard/Offers/OfferList.vue'
 import { useI18n } from 'vue-i18n'
 const { t } = useI18n()
-
 </script>
 
 <style scoped>
@@ -47,13 +46,20 @@ const { t } = useI18n()
   margin-bottom: 0.5rem;
 }
 
-/* ✅ صف العرض */
+/* ✅ بطاقة العرض */
 .offer-row {
   display: flex;
-  align-items: center;
-  gap: 1rem;
-  padding: 0.75rem 0;
-  border-bottom: 1px solid #E0E0E0;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1rem;
+  background-color: #FFFFFF;
+  border: 1px solid #E0E0E0;
+  border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  transition: box-shadow 0.2s ease;
+}
+.offer-row:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
 /* ✅ زر الإضافة */
@@ -70,10 +76,15 @@ const { t } = useI18n()
   background-color: #e96c00;
 }
 
-/* دعم الجوال */
+/* ✅ دعم الجوال */
 @media (max-width: 768px) {
   .offers-dashboard {
     padding: 1rem;
   }
+
+  .offer-row {
+    padding: 0.75rem;
+  }
 }
 </style>
+

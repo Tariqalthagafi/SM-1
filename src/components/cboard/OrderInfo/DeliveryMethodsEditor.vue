@@ -15,7 +15,9 @@
           />
           <span v-else>{{ method.icon }}</span>
         </div>
-        <div class="method-name">{{ t(`cboard.orderInfo.deliveryMethods.methods.${method.name}`) }}</div>
+        <div class="method-name">
+          {{ t(`cboard.orderInfo.deliveryMethods.methods.${method.name}`) }}
+        </div>
 
         <label class="switch">
           <input type="checkbox" v-model="method.enabled" />
@@ -27,15 +29,15 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, toRaw, onMounted } from 'vue'
-import { useOrderInfoStore } from '@/stores/cboard/orderInfo1.ts'
-import { indexedDBService } from '@/services/indexedDBService'
+import { ref, watch, onMounted } from 'vue'
 import type { DeliveryMethod } from '@/types/contexts/orderInfo1.ts'
+import { useDeliveryMethodsStore } from '@/stores/cboard/orderInfo/deliveryMethodsStore.ts'
 import { useI18n } from 'vue-i18n'
-const { t } = useI18n()
+import { storeToRefs } from 'pinia'
 
-const store = useOrderInfoStore()
-const deliveryMethods = store.deliveryMethods
+const { t } = useI18n()
+const store = useDeliveryMethodsStore()
+const { deliveryMethods } = storeToRefs(store)
 const isReady = ref(false)
 
 function isImage(filename: string): boolean {
@@ -43,23 +45,14 @@ function isImage(filename: string): boolean {
 }
 
 onMounted(async () => {
-  // تحميل من IndexedDB
-  const saved = await indexedDBService.getOrderMethods('default')
-  const savedMap = new Map<string, boolean>(
-    (saved?.methods ?? []).map((m: DeliveryMethod) => [m.name, m.enabled])
-  )
-
-  deliveryMethods.forEach(method => {
-    method.enabled = savedMap.get(method.name) ?? method.enabled
-  })
-
+  // تحميل من Supabase عبر الستور
+  await store.syncDeliveryMethodsFromSupabase()
   isReady.value = true
 })
 
 watch(deliveryMethods, () => {
-  // حفظ محلي وسحابي
-  indexedDBService.saveOrderMethods(toRaw(deliveryMethods), 'default')
-  store.syncDeliveryMethodsToSupabase?.()
+  // حفظ إلى Supabase عند أي تغيير
+  store.syncDeliveryMethodsToSupabase()
 }, { deep: true })
 </script>
 

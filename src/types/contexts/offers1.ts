@@ -1,12 +1,16 @@
 export interface Offer {
   id: string
+  user_id: string
   title: string
   type: 'percentage' | 'unifiedPrice'
-  discount: number
-  start_date?: string
-  end_date?: string
-  start_time?: string
-  end_time?: string
+  description?: string | null        // ✅ أضف هذا
+  discount_percent?: number          // ✅ أضف هذا
+  start_date?: string | null
+  end_date?: string | null
+  start_time?: string | null
+  end_time?: string | null
   is_active: boolean
-  created_by?: string
+  created_at?: string | null         // ✅ أضف هذا
+  discount: number 
+  
 }

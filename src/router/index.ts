@@ -53,21 +53,13 @@ const routes = [
         name: 'OrderInfo',
         component: () => import('@/views/cboard/OrderInfoView.vue'),
       },
-      {
-        path: 'templates',
-        name: 'templates',
-        component: () => import('@/views/cboard/templates.vue'),
-      },
+
       {
         path: 'MenuDesign',
         name: 'MenuDesign',
         component: () => import('@/views/cboard/MenuDesign.vue'),
       },
-      {
-        path: 'MenuPreview',
-        name: 'MenuPreview',
-        component: () => import('@/views/cboard/MenuPreview.vue'),
-      },
+
       {
         path: 'settings',
         name: 'Settings',

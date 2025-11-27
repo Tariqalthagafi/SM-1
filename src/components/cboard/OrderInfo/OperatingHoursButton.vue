@@ -43,26 +43,29 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-import { indexedDBService } from '@/services/indexedDBService'
-import type { OperatingHours, TimePeriod } from '@/types/contexts/orderInfo1.ts'
+import { useOperatingHoursStore } from '@/stores/cboard/orderInfo/operatingHoursStore.ts'
+import { storeToRefs } from 'pinia'   // ✅ إضافة مهمة
+import type { TimePeriod } from '@/types/contexts/orderInfo1.ts'
+
 const props = defineProps<{
   colors: Record<string, string>
 }>()
 
 const isOpen = ref(false)
-const operatingHours = ref<OperatingHours>({})
+const store = useOperatingHoursStore()
+const { operatingHours } = storeToRefs(store)   // ✅ الآن reactive ref
 
 const allDays = ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت']
 
 onMounted(async () => {
-  const saved = await indexedDBService.getOperatingHours('default')
-  operatingHours.value = saved ?? {}
+  await store.syncOperatingHoursFromSupabase()
+  console.log('📥 Loaded operating hours:', operatingHours.value)
 })
 
 const activeDaysWithPeriods = computed(() =>
   allDays
     .map(day => {
-      const periods = operatingHours.value[day]?.filter(p => p.enabled) ?? []
+      const periods = operatingHours.value[day]?.filter(p => p.enabled) ?? []   // ✅ استخدم .value
       return periods.length ? { day, periods } : null
     })
     .filter(Boolean) as { day: string; periods: TimePeriod[] }[]

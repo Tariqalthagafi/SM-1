@@ -3,9 +3,11 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
-import { useOffersStore } from '@/stores/cboard/offers'
+import { ref, computed, onMounted } from 'vue'
+import type { Offer } from '@/types/contexts/offers1.ts'
+import { supabase } from '@/supabase'
 import { useI18n } from 'vue-i18n'
+
 const { t } = useI18n()
 
 const props = defineProps<{
@@ -13,12 +15,35 @@ const props = defineProps<{
   offerId?: string
 }>()
 
-const offersStore = useOffersStore()
+// ✅ العروض تجلب مباشرة من Supabase
+const offers = ref<Offer[]>([])
 
-// ✅ الحساب يعتمد على calculatePrice في offersStore
+onMounted(async () => {
+  const { data, error } = await supabase.from('offers').select('*')
+  if (error) {
+    console.error(error)
+    return
+  }
+  offers.value = data || []
+})
+
+// ✅ حساب السعر النهائي مباشرة
 const finalPrice = computed(() => {
-  const offer = offersStore.offers.find(o => o.id === props.offerId)
+  if (!props.offerId) return props.basePrice || 0
+
+  const offer = offers.value.find(o => o.id === props.offerId)
   if (!offer) return props.basePrice || 0
-  return offersStore.calculatePrice(props.basePrice || 0, offer)
+
+  if (!offer.is_active) return props.basePrice || 0
+
+  if (offer.type === 'percentage') {
+    return Math.round((props.basePrice || 0) * (1 - offer.discount / 100))
+  }
+
+  if (offer.type === 'unifiedPrice') {
+    return offer.discount
+  }
+
+  return props.basePrice || 0
 })
 </script>

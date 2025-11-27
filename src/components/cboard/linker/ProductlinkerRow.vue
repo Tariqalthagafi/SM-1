@@ -1,5 +1,5 @@
 <template>
-  <div class="product-section-row">
+  <div class="product-card">
     <!-- اسم المنتج -->
     <div class="field">
       <label>{{ t('cboard.linker.row.fields.productName') }}</label>
@@ -59,55 +59,61 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import type { Product } from '@/types/contexts/products1.ts'
-import type { Section } from '@/types/contexts/sections1.ts'
-import { useSectionStore } from '@/stores/cboard/sections.ts'
-import { useProductsStore } from '@/stores/cboard/products.ts'
-import { useOffersStore } from '@/stores/cboard/offers.ts'
-
 import SectionSelector from './SectionSelector.vue'
 import OfferSelector from './OfferSelector.vue'
 import PricePreview from './PricePreview.vue'
 import { useI18n } from 'vue-i18n'
+import { supabase } from '@/supabase'
+
 const { t } = useI18n()
 
 const props = defineProps<{ product: Product }>()
-
-const productsStore = useProductsStore()
-const sectionsStore = useSectionStore()
-const offersStore = useOffersStore()
 
 const localBasePrice = ref(props.product.base_price ?? 0)
 const localSelectedOfferId = ref(props.product.selected_offer_id ?? '')
 const localStatus = ref(props.product.status ?? 'visible')
 
-function handleSectionChange(newSectionId: string) {
-  const section = sectionsStore.sections.find((s: Section) => s.id === newSectionId)
-  productsStore.updateProduct(props.product.id, {
-    section_id: newSectionId,
-    section_name: section?.name ?? ''
-  })
+async function handleSectionChange(newSectionId: string) {
+  const { error } = await supabase
+    .from('products')
+    .update({ section_id: newSectionId })
+    .eq('id', props.product.id)
+
+  if (error) console.error(error)
 }
 
-function save() {
-  const offer = offersStore.offers.find(o => o.id === localSelectedOfferId.value)
-  productsStore.updateProduct(props.product.id, {
-    base_price: localBasePrice.value,
-    selected_offer_id: localSelectedOfferId.value || undefined,
-    selected_offer_title: offer?.title || '',
-    status: localStatus.value
-  })
+async function save() {
+  const { error } = await supabase
+    .from('products')
+    .update({
+      base_price: localBasePrice.value,
+      selected_offer_id: localSelectedOfferId.value || null,
+      status: localStatus.value
+    })
+    .eq('id', props.product.id)
+
+  if (error) console.error(error)
 }
 </script>
 
+
 <style scoped>
-.product-section-row {
+.product-card {
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
   gap: 1rem;
-  padding: 0.75rem 0;
-  border-bottom: 1px solid #E0E0E0;
+  padding: 1rem;
+  background-color: #FFFFFF;
+  border: 1px solid #E0E0E0;
+  border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  transition: box-shadow 0.2s ease;
   font-family: 'Tajawal', sans-serif;
+  margin-bottom: 0.75rem; /* ✅ المسافة بين البطاقات */
+}
+
+.product-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
 .field {
@@ -150,5 +156,15 @@ function save() {
   background-color: #f9f9f9;
   border-radius: 6px;
   border: 1px solid #E0E0E0;
+}
+
+/* دعم الجوال */
+@media (max-width: 768px) {
+  .product-card {
+    padding: 0.75rem;
+  }
+  .field {
+    width: 100%;
+  }
 }
 </style>

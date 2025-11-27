@@ -14,7 +14,7 @@
         <input
           type="text"
           v-model="search"
-          :placeholder="t('cboard.products.picker.placeholder')"
+          
           @focus="dropdownOpen = true"
         />
       </div>

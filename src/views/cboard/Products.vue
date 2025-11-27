@@ -1,10 +1,7 @@
 <template>
   <div class="page-wrapper">
     <div class="products-dashboard">
-      <h1 class="page-title">{{ t('cboard.products.title') }}</h1>
-      <div class="product-count">
-        {{ t('cboard.products.count', { count: productStore.products.length }) }}
-      </div>
+      <h2 class="page-title">{{ t('cboard.products.title') }}</h2>
 
       <section>
         <ProductList />
@@ -15,11 +12,11 @@
 
 <script setup lang="ts">
 import ProductList from '@/components/cboard/Products/ProductList.vue'
-import { useProductsStore } from '@/stores/cboard/products'
+import { useProducts } from '@/components/cboard/Products/useProducts'
 import { useI18n } from 'vue-i18n'
-const { t } = useI18n()
 
-const productStore = useProductsStore()
+const { t } = useI18n()
+const { products } = useProducts()
 </script>
 
 <style scoped>
@@ -46,14 +43,18 @@ const productStore = useProductsStore()
 
 .page-title {
   font-size: 1.6rem;
-  font-weight: bold;
-  margin: 0;
-  color: #FF7A00;
+  font-weight: 600;
+  color: #1C1C1C;
+  border-bottom: 1px solid #E0E0E0;
+  padding-bottom: 0.5rem;
+  margin-bottom: 0.5rem;
+  text-align: start;
 }
 
 .product-count {
   font-size: 1rem;
-  color: #1C1C1C;
+  color: #666;
+  margin-bottom: 1.5rem;
 }
 
 section {

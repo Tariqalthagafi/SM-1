@@ -1,24 +1,28 @@
 // src/stores/cboard/home/membershipStore.ts
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-import { supabase } from '@/supabase' // ✅ الاستيراد الموحد
+import { supabase } from '@/supabase'
 
 export const useMembershipStore = defineStore('membershipStore', () => {
-  const menuId = ref<string | null>(null)
+  const accountId = ref<string | null>(null)
 
-  async function loadMenuId() {
-    const { data, error } = await supabase
-      .from('home_settings')
-      .select('menu_id')
-      .eq('user_id', (await supabase.auth.getUser()).data?.user?.id)
-      .single()
-
-    if (data?.menu_id) {
-      menuId.value = data.menu_id
-    } else {
-      console.warn('لم يتم العثور على menu_id أو حدث خطأ:', error?.message)
+  // ✅ توليد رقم الحساب من أول 8 خانات من UID
+  async function loadAccountId() {
+    const { data: userData, error } = await supabase.auth.getUser()
+    if (error) {
+      console.error('❌ خطأ في جلب المستخدم:', error.message)
+      return
     }
+
+    const userId = userData?.user?.id
+    if (!userId) {
+      console.warn('⚠️ لا يوجد مستخدم مسجل')
+      return
+    }
+
+    // أخذ أول 8 خانات من الـ UUID
+    accountId.value = `menu-${userId.split('-')[0]}`
   }
 
-  return { menuId, loadMenuId }
+  return { accountId, loadAccountId }
 })

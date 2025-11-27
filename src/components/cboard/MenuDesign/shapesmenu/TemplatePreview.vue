@@ -63,6 +63,8 @@ import { useFontStore } from '@/stores/cboard/templates/fontStore'
 import { useAllergenStyleStore } from '@/stores/cboard/templates/allergenStyleStore'
 import ContactBar from '@/components/cboard/MenuPreview/ContactBar.vue'
 import { useI18n } from 'vue-i18n'
+import { supabase } from '@/supabase'
+
 const { t } = useI18n()
 
 const fontStore = useFontStore()
@@ -100,45 +102,44 @@ function applySettingsToCSS(colors: Record<string, string>) {
 
 
 // ✅ تحميل البيانات من indexedDB
-async function loadStaticData() {
-  const offers = await indexedDBService.getAll('offers')
-  const rawSections = await indexedDBService.getAll('sections')
-  const allProducts = await indexedDBService.getAll('products')
+async function loadHybridData() {
+  const { data: productsData } = await supabase.from('products').select('*')
+  const { data: sectionsData } = await supabase.from('sections').select('*')
 
-  const enrichedProducts = allProducts.map((p: any) => {
+  const offers = await indexedDBService.getAll('offers')
+
+  const enrichedProducts = (productsData ?? []).map((p: any) => {
     const offer = offers.find((o: any) => o.id === p.selectedOfferId && o.isActive)
     p.finalPrice = offer
       ? offer.type === 'percentage'
         ? Math.round((p.basePrice ?? 0) * (1 - offer.discount / 100))
         : offer.discount
       : p.basePrice ?? 0
-      
-    // ✅ إضافة تهيئة بيانات الحساسية - افتراض أن البيانات موجودة في المنتج
     p.hasAllergens = p.allergens?.length > 0
-    
     return p
   })
 
-  sections.value = rawSections
+  sections.value = sectionsData ?? []
   products.value = enrichedProducts
 
-  categories.value = rawSections.map((section: any) => ({
+  categories.value = (sectionsData ?? []).map((section: any) => ({
     id: section.id,
     name: section.name,
     products: enrichedProducts.filter((p: any) => p.sectionId === section.id)
   }))
 }
 
-// ✅ تحميل أولي
-onMounted(() => {
-  currencyStore.initCurrencyOptions()
-  // ✅ يجب تهيئة متجر الحساسية هنا
-allergenStore.initAllergenStyleOptions()
-imageShapeStore.initImageShapeOptions()
 
-  loadStaticData()
+// ✅ تحميل أولي
+onMounted(async () => {
+  currencyStore.initCurrencyOptions()
+  allergenStore.initAllergenStyleOptions()
+  imageShapeStore.initImageShapeOptions()
+
+  await loadHybridData()
   applySettingsToCSS(colorStore.colors)
 })
+
 
 // ✅ تطبيق الألوان عند أي تغيير
 watchEffect(() => {

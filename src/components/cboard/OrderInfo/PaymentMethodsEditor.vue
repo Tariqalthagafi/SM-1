@@ -1,6 +1,5 @@
 <template>
   <section class="info-section" v-if="isReady">
-  
     <div class="methods-grid">
       <div
         class="method-card"
@@ -17,8 +16,8 @@
           <span v-else>{{ method.icon }}</span>
         </div>
         <div class="method-name">
-  {{ t(`cboard.orderInfo.paymentMethods.methods.${method.name}`) }}
-</div>
+          {{ t(`cboard.orderInfo.paymentMethods.methods.${method.name}`) }}
+        </div>
 
         <label class="switch">
           <input type="checkbox" v-model="method.enabled" />
@@ -30,15 +29,15 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, toRaw, onMounted } from 'vue'
-import { useOrderInfoStore } from '@/stores/cboard/orderInfo1.ts'
-import { indexedDBService } from '@/services/indexedDBService'
+import { ref, watch, onMounted } from 'vue'
+import { usePaymentMethodsStore } from '@/stores/cboard/orderInfo/paymentMethodsStore.ts'
 import type { PaymentMethod } from '@/types/contexts/orderInfo1.ts'
+import { storeToRefs } from 'pinia'
 import { useI18n } from 'vue-i18n'
-const { t } = useI18n()
 
-const store = useOrderInfoStore()
-const paymentMethods = store.paymentMethods
+const { t } = useI18n()
+const store = usePaymentMethodsStore()
+const { paymentMethods } = storeToRefs(store)
 const isReady = ref(false)
 
 function isImage(filename: string): boolean {
@@ -46,23 +45,18 @@ function isImage(filename: string): boolean {
 }
 
 onMounted(async () => {
-  const saved = await indexedDBService.getPaymentMethods('default')
-  const savedMap = new Map<string, boolean>(
-    (saved?.methods ?? []).map((m: PaymentMethod) => [m.name, m.enabled])
-  )
-
-  paymentMethods.forEach(method => {
-    method.enabled = savedMap.get(method.name) ?? method.enabled
-  })
-
+  // تحميل من Supabase عبر الستور
+  await store.syncPaymentMethodsFromSupabase()
+  
   isReady.value = true
 })
 
 watch(paymentMethods, () => {
-  indexedDBService.savePaymentMethods(toRaw(paymentMethods), 'default')
-  store.syncPaymentMethodsToSupabase?.()
+  
+  store.syncPaymentMethodsToSupabase()
 }, { deep: true })
 </script>
+
 
 <style scoped>
 .info-section h3 {

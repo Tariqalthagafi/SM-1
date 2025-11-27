@@ -1,0 +1,51 @@
+.customizer-section {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.25rem 0;             /* ✅ حواف داخلية صغيرة */
+  border-bottom: 1px solid #eee;  /* ✅ خط سفلي خفيف */
+  background-color: transparent;  /* ✅ بدون خلفية */
+  margin: 0;                      /* ✅ بدون مسافة إضافية */
+}
+
+.customizer-label {
+  flex: 0 0 80px;                 /* ✅ عرض أصغر */
+  font-size: 0.7rem;              /* ✅ خط صغير */
+  font-weight: 500;
+  color: #555;                    /* ✅ لون رمادي أنيق */
+  margin: 0;
+}
+
+.dropdown-field {
+  flex: 0 0 120px;                /* ✅ عرض أصغر للقائمة */
+  padding: 0.2rem 0.35rem;        /* ✅ ارتفاع مضغوط */
+  font-size: 0.7rem;              /* ✅ خط صغير */
+  border: 1px solid #ccc;
+  border-radius: 3px;             /* ✅ زوايا أصغر */
+  background-color: #fff;
+  color: #1C1C1C;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.dropdown-field:focus {
+  border-color: #FF7A00;
+  box-shadow: 0 0 0 1px rgba(255, 122, 0, 0.2);
+  outline: none;
+}
+
+@media (max-width: 768px) {
+  .customizer-section {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .customizer-label {
+    flex: unset;
+    margin-bottom: 0.25rem;
+  }
+
+  .dropdown-field {
+    width: 100%;
+  }
+}

@@ -1,13 +1,24 @@
 <template>
-  <div class="product-image">
-    <button v-if="validImageUrl && !hasError" @click="show = true" class="preview-btn"> {{ t('cboard.products.preview.button') }} </button>
+  <div class="product-image-preview">
+    <!-- زر معاينة الصورة -->
+    <button
+      v-if="validImageUrl && !hasError"
+      @click="show = true"
+      class="preview-btn"
+    >
+      {{ t('cboard.products.preview.button') }}
+    </button>
 
-    <div v-if="show" class="popup" @click.self="show = false">
-      <img
-  :src="validImageUrl"
-  :alt="altText || t('cboard.products.preview.alt')"
-  @error="handleError"
-/>
+    <!-- نافذة معاينة الصورة -->
+    <div v-if="show" class="popup-overlay" @click.self="show = false">
+      <div class="popup-box">
+        <img
+          :src="validImageUrl"
+          :alt="altText || t('cboard.products.preview.alt')"
+          @error="handleError"
+        />
+        <button class="close-btn" @click="show = false">✖</button>
+      </div>
     </div>
   </div>
 </template>
@@ -33,22 +44,28 @@ function handleError() {
 </script>
 
 <style scoped>
-.product-image {
+.product-image-preview {
   display: flex;
   align-items: center;
   justify-content: flex-start;
 }
 
 .preview-btn {
-  background: #eee;
+  background-color: #FF7A00;
+  color: #fff;
   border: none;
-  padding: 6px 12px;
-  cursor: pointer;
-  border-radius: 6px;
+  padding: 0.4rem 0.8rem;
   font-size: 0.85rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+.preview-btn:hover {
+  background-color: #e96c00;
 }
 
-.popup {
+/* نافذة المعاينة */
+.popup-overlay {
   position: fixed;
   top: 0;
   left: 0;
@@ -61,10 +78,42 @@ function handleError() {
   z-index: 9999;
 }
 
-.popup img {
-  max-width: 80%;
-  max-height: 80%;
+.popup-box {
+  position: relative;
+  background: #fff;
+  padding: 1rem;
   border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  max-width: 90%;
+  max-height: 90%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.popup-box img {
+  max-width: 100%;
+  max-height: 80vh;
+  border-radius: 8px;
   box-shadow: 0 0 8px rgba(0,0,0,0.2);
+}
+
+/* زر الإغلاق */
+.close-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: #FF7A00;
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+.close-btn:hover {
+  background-color: #e96c00;
 }
 </style>

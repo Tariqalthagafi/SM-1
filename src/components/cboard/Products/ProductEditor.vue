@@ -1,11 +1,5 @@
 <template>
   <div class="product-editor-row">
-    <!-- أدوات التحكم -->
-    <div class="action-group">
-      <button class="drag-handle" :title="t('cboard.products.editor.dragTitle')">⠿</button>
-      <button class="delete-btn" @click="showConfirm = true" :title="t('cboard.products.editor.deleteTitle')">🗑️</button>
-    </div>
-
     <!-- اسم المنتج -->
     <div class="field">
       <label>{{ t('cboard.products.editor.fields.name') }}</label>
@@ -46,37 +40,52 @@
         v-model="localProduct.allergens"
         @update:modelValue="saveField('allergens')"
       />
-
     </div>
 
-    <!-- رفع صورة -->
+    <!-- رفع صورة المنتج -->
     <div class="field image-upload">
       <label>{{ t('cboard.products.editor.fields.image') }}</label>
-      <div class="upload-row">
-        <button class="upload-btn" @click="triggerUpload" :title="t('cboard.products.editor.fields.upload')">➕</button>
-        <ProductImagePreview
-          v-if="localProduct.image_url"
-          :imageUrl="localProduct.image_url"
-          :altText="localProduct.name"
-        />
 
+      <div v-if="!localProduct.image_url" class="dropzone" @dragover.prevent @drop.prevent="handleDrop" @click="triggerUpload">
+        <span class="drop-icon">📷</span>
+        <span class="drop-text">رفع صورة المنتج</span>
+        <input
+          ref="fileInput"
+          type="file"
+          accept="image/*"
+          class="hidden-input"
+          @change="handleUpload"
+        />
       </div>
-      <input
-        ref="fileInput"
-        type="file"
-        accept="image/*"
-        @change="handleUpload"
-        style="display: none"
-      />
+
+      <div v-else class="logo-preview-container">
+        <img :src="localProduct.image_url" :alt="localProduct.name" class="logo-preview" />
+        <div class="logo-actions">
+          <button type="button" @click="triggerUpload">تغيير الصورة</button>
+          <button type="button" class="remove-btn" @click="removeImage">إزالة الصورة</button>
+        </div>
+        <input
+          ref="fileInput"
+          type="file"
+          accept="image/*"
+          class="hidden-input"
+          @change="handleUpload"
+        />
+      </div>
     </div>
 
-    <!-- ✅ تأكيد الحذف -->
+    <!-- أدوات التحكم -->
+    <div class="action-group">
+      <button class="delete-btn" @click="showConfirm = true" :title="t('cboard.products.editor.deleteTitle')">🗑️</button>
+    </div>
+
+    <!-- تأكيد الحذف -->
     <div v-if="showConfirm" class="modal-overlay">
       <div class="modal-box">
         <h2>تأكيد الحذف</h2>
         <p>هل أنت متأكد من حذف هذا المنتج؟ لا يمكن التراجع بعد الحذف.</p>
         <div class="modal-actions">
-          <button class="confirm-btn" @click="deleteProduct">نعم، احذف</button>
+          <button class="confirm-btn" @click="handleDelete">نعم، احذف</button>
           <button class="cancel-btn" @click="showConfirm = false">إلغاء</button>
         </div>
       </div>
@@ -87,14 +96,14 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import type { Product } from '@/types/contexts/products1.ts'
-import ProductImagePreview from './ProductImagePreview.vue'
 import AllergensPicker from './AllergensPicker.vue'
-import { useProductsStore } from '@/stores/cboard/products.ts'
+import { useProducts } from './useProducts'
 import { useI18n } from 'vue-i18n'
+
 const { t } = useI18n()
+const { updateProduct, deleteProduct , uploadProductImage } = useProducts()
 
 const props = defineProps<{ edit: Product }>()
-const productsStore = useProductsStore()
 const emit = defineEmits(['delete'])
 
 const localProduct = ref<Product>({
@@ -119,17 +128,16 @@ async function saveField(field: keyof Product) {
     [field]: localProduct.value[field]
   }
 
-  // إذا كان الحقل هو مسببات الحساسية، أضف الحقول المساعدة
   if (field === 'allergens') {
     updated.allergens = [...(localProduct.value.allergens ?? [])]
     updated.has_allergens = updated.allergens.length > 0
   }
 
-  await productsStore.updateProduct(localProduct.value.id, updated)
+  await updateProduct(localProduct.value.id, updated)
 }
 
-function deleteProduct() {
-  productsStore.deleteProduct(localProduct.value.id)
+async function handleDelete() {
+  await deleteProduct(localProduct.value.id)
   emit('delete')
   showConfirm.value = false
 }
@@ -146,32 +154,68 @@ async function handleUpload(event: Event) {
   reader.onloadend = async () => {
     const base64 = reader.result as string
     localProduct.value.image_base64 = base64
-    saveField('image_base64')
+    await saveField('image_base64')
 
-    // ✅ رفع الصورة إلى Supabase
-    const imageUrl = await productsStore.uploadProductImage(file, localProduct.value.id)
-    localProduct.value.image_url = imageUrl
-    saveField('image_url')
+   async function handleUpload(event: Event) {
+  const file = (event.target as HTMLInputElement).files?.[0]
+  if (!file) return
+
+  const reader = new FileReader()
+  reader.onloadend = async () => {
+    const base64 = reader.result as string
+    localProduct.value.image_base64 = base64
+    await saveField('image_base64')
+
+    const imageUrl = await uploadProductImage(file, localProduct.value.id)
+    if (imageUrl) {
+      localProduct.value.image_url = imageUrl
+      await saveField('image_url')
+    }
   }
   reader.readAsDataURL(file)
 }
 
+  }
+  reader.readAsDataURL(file)
+}
+
+function handleDrop(event: DragEvent) {
+  const file = event.dataTransfer?.files?.[0]
+  if (file && file.type.startsWith('image/')) {
+    const reader = new FileReader()
+    reader.onloadend = async () => {
+      const base64 = reader.result as string
+      localProduct.value.image_base64 = base64
+      await saveField('image_base64')
+    }
+    reader.readAsDataURL(file)
+  }
+}
+
+async function removeImage() {
+  localProduct.value.image_url = ''
+  localProduct.value.image_base64 = ''
+  await saveField('image_url')
+  await saveField('image_base64')
+}
 </script>
+
+
 
 <style scoped>
 .product-editor-row {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-start;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: 1rem;
   padding: 0.5rem 0;
   font-family: 'Tajawal', sans-serif;
 }
 
 .action-group {
+  grid-column: 1 / -1;
   display: flex;
+  justify-content: flex-end;
   gap: 0.25rem;
-  align-items: center;
 }
 
 .drag-handle {
@@ -203,7 +247,7 @@ async function handleUpload(event: Event) {
 .field {
   display: flex;
   flex-direction: column;
-  width: 180px;
+  width: 100%;
 }
 
 .field label {
@@ -227,24 +271,83 @@ async function handleUpload(event: Event) {
   box-shadow: 0 0 0 2px rgba(255, 122, 0, 0.3);
 }
 
-.image-upload .upload-row {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+.image-upload {
+  grid-column: 1 / -1;
 }
 
-.upload-btn {
-  background-color: #FF7A00;
-  color: white;
-  border: none;
-  border-radius: 50%;
-  width: 32px;
-  height: 32px;
-  font-size: 1.2rem;
+/* ✅ تنسيق Dropzone لرفع الصورة */
+.dropzone {
+  width: 100px;
+  height: 50px;
+  border: 2px dashed #FF7A00;
+  border-radius: 12px;
+  padding: 0.3rem;
+  background-color: #FFF8F0;
   cursor: pointer;
+  transition: background-color 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 0.2rem;
 }
-.upload-btn:hover {
-  background-color: #e96c00;
+.dropzone:hover {
+  background-color: #fff0e0;
+}
+.drop-icon {
+  font-size: 0.9rem;
+  margin-bottom: 0.2rem;
+  color: #FF7A00;
+  line-height: 1;
+}
+.drop-text {
+  font-size: 0.65rem;
+  color: #1C1C1C;
+  text-align: center;
+  line-height: 1.1;
+  max-width: 80px;
+}
+
+/* ✅ معاينة الصورة وأزرار التحكم */
+.logo-preview-container {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+.logo-preview {
+  max-height: 60px;
+  border-radius: 8px;
+  box-shadow: none;
+}
+.logo-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.logo-actions button {
+  background-color: #FFFFFF;
+  border: 1px solid #FF7A00;
+  color: #1C1C1C;
+  padding: 0.4rem 0.8rem;
+  font-size: 0.9rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+.logo-actions button:hover {
+  background-color: #FFF3E0;
+  border-color: #FF7A00;
+  color: #FF7A00;
+}
+.logo-actions .remove-btn {
+  background-color: #F8D7DA;
+  border-color: #F5C2C7;
+  color: #842029;
+}
+
+.hidden-input {
+  display: none;
 }
 
 /* ✅ تأكيد الحذف */

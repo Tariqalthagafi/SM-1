@@ -2,57 +2,60 @@
   <section class="settings-section">
     <h2>{{ t('cboard.settings.domain.title') }}</h2>
 
+    <!-- رابط المنيو -->
     <div class="domain-info">
       <label>{{ t('cboard.settings.domain.linkLabel') }}</label>
-      <div class="domain-link">
+      <div class="domain-link-row">
         <a
-  class="domain-link"
-  :href="menuUrl"
-  target="_blank"
-  rel="noopener noreferrer"
->
-  {{ menuUrl }}
-</a>
-<button class="copy-btn" @click="copyToClipboard">{{ t('cboard.settings.domain.copyButton') }}</button>
+          class="domain-link"
+          :href="menuUrl"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          {{ menuUrl }}
+        </a>
+        <button class="copy-btn" @click="copyToClipboard">
+          {{ t('cboard.settings.domain.copyButton') }}
+        </button>
       </div>
     </div>
 
+    <!-- حالة التفعيل -->
     <div class="email-verification">
       <label>{{ t('cboard.settings.domain.statusLabel') }}</label>
       <div class="toggle-wrapper">
-  <label class="switch">
-    <input type="checkbox" v-model="isActive" />
-    <span class="slider"></span>
-  </label>
-  <span class="toggle-label">
-    {{ isActive ? t('cboard.settings.domain.active') : t('cboard.settings.domain.inactive') }}
-  </span>
-</div>
-
+        <label class="switch">
+          <input type="checkbox" v-model="isActive" />
+          <span class="slider"></span>
+        </label>
+        <span class="toggle-label">
+          {{ isActive ? t('cboard.settings.domain.active') : t('cboard.settings.domain.inactive') }}
+        </span>
+      </div>
     </div>
   </section>
 </template>
 
 <script setup lang="ts">
-import { ref, computed ,onMounted, watch} from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { indexedDBService } from '@/services/indexedDBService'
+import { supabase } from '@/supabase'   // ✅ استيراد Supabase
 import { useI18n } from 'vue-i18n'
 const { t } = useI18n()
+
 const isActive = ref(false)
+const menuId = ref<number | null>(null)
 
-function toggleLink() {
-  isActive.value = !isActive.value
-}
-
-// تحديد الرابط حسب البيئة
+// تحديد الرابط حسب البيئة + menuId من Supabase
 const menuUrl = computed(() => {
   const base =
     import.meta.env.MODE === 'development'
       ? 'http://localhost:5173'
       : 'https://client.example.com'
-  return `${base}/menu/42`
+  return menuId.value ? `${base}/menu/${menuId.value}` : `${base}/menu`
 })
 
+// نسخ الرابط
 function copyToClipboard() {
   navigator.clipboard.writeText(menuUrl.value).then(() => {
     alert(t('cboard.settings.domain.copySuccess'))
@@ -61,15 +64,30 @@ function copyToClipboard() {
   })
 }
 
+// تحميل البيانات
 onMounted(async () => {
+  // جلب حالة التفعيل من IndexedDB
   const record = await indexedDBService.get('domain', 'default')
   isActive.value = record?.isActive ?? false
+
+  // جلب بيانات المنيو من Supabase
+  const { data, error } = await supabase
+    .from('menus')
+    .select('id')
+    .eq('user_id', 42)   // ✅ عدل الشرط حسب المستخدم/المطعم
+    .single()
+
+  if (!error && data) {
+    menuId.value = data.id
+  }
 })
 
-watch(isActive, async (newValue) => {
-  await indexedDBService.put('domain', { id: 'default', isActive: newValue })
+// حفظ حالة التفعيل في IndexedDB
+watch(isActive, async (newValue, oldValue) => {
+  if (newValue !== oldValue) {
+    await indexedDBService.put('domain', { id: 'default', isActive: newValue })
+  }
 })
-
 </script>
 
 <style scoped>
@@ -103,34 +121,43 @@ label {
   margin-bottom: 1.5rem;
 }
 
-.domain-link code {
+.domain-link-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.domain-link {
   background-color: #fff6ec;
   padding: 0.6rem 1rem;
   border-radius: 8px;
-  display: inline-block;
   font-size: 0.95rem;
   color: #ff9318;
   border: 1px solid #ffd9b3;
+  text-decoration: none;
+  transition: background-color 0.2s ease;
 }
 
-.verify-btn {
-  padding: 0.6rem 1.2rem;
-  background-color: #ff9318;
+.domain-link:hover {
+  background-color: #fff0dc;
+  text-decoration: underline;
+}
+
+.copy-btn {
+  padding: 0.4rem 0.8rem;
+  font-size: 0.85rem;
+  background-color: #1C1C1C;
   color: white;
   border: none;
-  border-radius: 8px;
+  border-radius: 6px;
   cursor: pointer;
-  font-size: 1rem;
-  transition: background-color 0.3s ease;
+  transition: background-color 0.2s ease;
 }
 
-.verify-btn:hover {
-  background-color: #d86e00;
+.copy-btn:hover {
+  background-color: #000000;
 }
 
-.verify-btn:active {
-  transform: scale(0.98);
-}
 .toggle-wrapper {
   display: flex;
   align-items: center;
@@ -186,57 +213,4 @@ input:checked + .slider:before {
   font-weight: 600;
   color: #1a1a1a;
 }
-.domain-link {
-  display: inline-block;
-  background-color: #fff6ec;
-  padding: 0.6rem 1rem;
-  border-radius: 8px;
-  font-size: 0.95rem;
-  color: #ff9318;
-  border: 1px solid #ffd9b3;
-  text-decoration: none;
-  transition: background-color 0.2s ease;
-}
-
-.domain-link:hover {
-  background-color: #fff0dc;
-  text-decoration: underline;
-}
-.domain-link-row {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-}
-
-.domain-link {
-  background-color: #fff6ec;
-  padding: 0.6rem 1rem;
-  border-radius: 8px;
-  font-size: 0.95rem;
-  color: #ff9318;
-  border: 1px solid #ffd9b3;
-  text-decoration: none;
-  transition: background-color 0.2s ease;
-}
-
-.domain-link:hover {
-  background-color: #fff0dc;
-  text-decoration: underline;
-}
-
-.copy-btn {
-  padding: 0.4rem 0.8rem;
-  font-size: 0.85rem;
-  background-color: #1C1C1C;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-}
-
-.copy-btn:hover {
-  background-color: #000000;
-}
-
 </style>

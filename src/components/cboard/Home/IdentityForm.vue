@@ -5,22 +5,20 @@
       <div class="field">
         <label for="restaurantName">{{ t('cboard.home.identity.restaurantNameLabel') }}</label>
         <input
-  id="restaurantName"
-  :value="restaurantName"
-  @input="onRestaurantNameInput"
-  @focus="startEditingName"
-  @blur="confirmEditingName"
-  :class="{ editing: isEditingName }"
-  type="text"
-  :placeholder="t('cboard.home.identity.restaurantNamePlaceholder')"
-/>
-
+          id="restaurantName"
+          v-model="localRestaurantName"
+          @focus="startEditingName"
+          @blur="confirmEditingName"
+          :class="{ editing: isEditingName }"
+          type="text"
+          :placeholder="t('cboard.home.identity.restaurantNamePlaceholder')"
+        />
       </div>
 
       <!-- النشاط التجاري -->
       <div class="field">
         <label for="businessType">{{ t('cboard.home.identity.businessTypeLabel') }}</label>
-        <select id="businessType" v-model="businessType">
+        <select id="businessType" v-model="localBusinessType" @change="confirmBusinessType">
           <option disabled value="">{{ t('cboard.home.identity.businessTypePlaceholder') }}</option>
           <option value="مطعم">{{ t('cboard.home.identity.businessTypeOptions.restaurant') }}</option>
           <option value="لاونج">{{ t('cboard.home.identity.businessTypeOptions.lounge') }}</option>
@@ -32,36 +30,35 @@
       <div class="field logo-field">
         <label>{{ t('cboard.home.identity.logoLabel') }}</label>
 
-<!-- رفع الشعار أو معاينته -->
-<div v-if="!logoUrl" class="dropzone" @dragover.prevent @drop.prevent="handleDrop" @click="triggerFileInput">
-  <span class="drop-icon">📷</span>
-  <span class="drop-text">رفع الشعار</span>
-  <input
-    ref="fileInput"
-    type="file"
-    accept="image/*"
-    class="hidden-input"
-    @change="handleLogoUpload"
-  />
-</div>
+        <!-- رفع الشعار أو معاينته -->
+        <div v-if="!logoUrl" class="dropzone" @dragover.prevent @drop.prevent="handleDrop" @click="triggerFileInput">
+          <span class="drop-icon">📷</span>
+          <span class="drop-text">رفع الشعار</span>
+          <input
+            ref="fileInput"
+            type="file"
+            accept="image/*"
+            class="hidden-input"
+            @change="handleLogoUpload"
+          />
+        </div>
 
-<div v-else class="logo-preview-container">
-  <img :src="logoUrl ?? ''" alt="شعار المطعم" class="logo-preview" />
+        <div v-else class="logo-preview-container">
+          <img :src="logoUrl ?? ''" alt="شعار المطعم" class="logo-preview" />
 
-  <div class="logo-actions">
-    <button type="button" @click="triggerFileInput">{{ t('cboard.home.identity.changeLogo') }}</button>
-    <button type="button" class="remove-btn" @click="removeLogo">{{ t('cboard.home.identity.removeLogo') }}</button>
-  </div>
+          <div class="logo-actions">
+            <button type="button" @click="triggerFileInput">{{ t('cboard.home.identity.changeLogo') }}</button>
+            <button type="button" class="remove-btn" @click="removeLogo">{{ t('cboard.home.identity.removeLogo') }}</button>
+          </div>
 
-  <input
-    ref="fileInput"
-    type="file"
-    accept="image/*"
-    class="hidden-input"
-    @change="handleLogoUpload"
-  />
-</div>
-
+          <input
+            ref="fileInput"
+            type="file"
+            accept="image/*"
+            class="hidden-input"
+            @change="handleLogoUpload"
+          />
+        </div>
       </div>
     </div>
   </section>
@@ -69,39 +66,39 @@
 
 <script setup lang="ts">
 import { useIdentityStore } from '@/stores/cboard/home/identityStore'
-import { ref, onMounted, watch, computed } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-const { t } = useI18n()
 
+const { t } = useI18n()
 const identity = useIdentityStore()
 const fileInput = ref<HTMLInputElement | null>(null)
 
-const restaurantName = ref('')
+// 📝 refs محلية للتحرير
+const localRestaurantName = ref('')
+const localBusinessType = ref('')
+const logoUrl = computed(() => identity.logoUrl)
+
 const isEditingName = ref(false)
 
 onMounted(async () => {
-  await identity.loadFromIndexedDB()
-  restaurantName.value = identity.restaurantName
-  businessType.value = identity.businessType
+  await identity.initIdentity()
+  // تحميل القيم من الـ store إلى الحقول المحلية
+  localRestaurantName.value = identity.restaurantName
+  localBusinessType.value = identity.businessType
 })
 
 function startEditingName() {
   isEditingName.value = true
 }
 
-function confirmEditingName() {
+async function confirmEditingName() {
   isEditingName.value = false
-  identity.setRestaurantName(restaurantName.value)
+  await identity.setRestaurantName(localRestaurantName.value) // الحفظ عند التأمين فقط
 }
 
-const businessType = ref(identity.businessType)
-
-watch(businessType, async (val: string) => {
-  if (!val || val === '') return
-  await identity.setBusinessType(val)
-})
-
-const logoUrl = computed(() => identity.logoUrl)
+async function confirmBusinessType() {
+  await identity.setBusinessType(localBusinessType.value) // الحفظ عند تغيير الاختيار
+}
 
 function handleLogoUpload(event: Event) {
   const input = event.target as HTMLInputElement | null
@@ -119,19 +116,12 @@ function removeLogo() {
   identity.deleteLogoFromStorage()
 }
 
-function onRestaurantNameInput(event: Event) {
-  const input = event.currentTarget as HTMLInputElement
-  restaurantName.value = input.value
-}
-
 function handleDrop(event: DragEvent) {
   const file = event.dataTransfer?.files?.[0]
   if (file && file.type.startsWith('image/')) {
     identity.uploadLogoToStorage(file)
   }
 }
-
-
 </script>
 
 <style scoped>

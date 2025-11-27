@@ -16,7 +16,7 @@
 <script setup lang="ts">
 import { useRoute } from 'vue-router'
 import { ref, computed, onMounted, watchEffect, defineAsyncComponent } from 'vue'
-import { indexedDBService } from '@/services/indexedDBService'
+import { supabase } from '@/supabase'
 
 // ✅ المتاجر الموحدة
 import { useLayoutEditorStore } from '@/stores/cboard/MenuDesign/LayoutEditor'
@@ -47,7 +47,7 @@ const layoutComponent = computed(() => {
 })
 
 // ✅ حالة التفعيل والخصائص
-const isActive = ref(false)
+const isActive = ref(true)
 const layoutProps = ref({})
 
 // ✅ تحميل المتاجر
@@ -83,25 +83,32 @@ onMounted(async () => {
   applySettingsToCSS(colorStore.colors)
   watchEffect(() => applySettingsToCSS(colorStore.colors))
 
-  const domainSettings = await indexedDBService.get('domain', 'default')
-  isActive.value = domainSettings?.isActive ?? false
+  // ✅ جلب الأقسام من Supabase
+  const { data: sectionsData } = await supabase
+    .from('sections')
+    .select('*')
+    .eq('menu_id', menuId)
 
-  if (isActive.value) {
-    const products = await indexedDBService.getAll('products')
-    const sections = await indexedDBService.getAll('sections')
+  // ✅ جلب المنتجات من Supabase
+  const { data: productsData } = await supabase
+    .from('products')
+    .select('*')
+    .eq('menu_id', menuId)
 
-    layoutProps.value = {
-      products,
-      sections,
-      currencySymbol: currencyStore.displayedSymbol,
-      currencyKey: currencyStore.currencySymbol,
-      imageShape: imageShapeStore.imageShape,
-      offerStyle: offerStyleStore.offerStyle,
-      allergenIconStyle: allergenStore.allergenIconStyle
-    }
+  // ✅ تمرير البيانات للتخطيط
+  layoutProps.value = {
+    products: productsData ?? [],
+    sections: sectionsData ?? [],
+    currencySymbol: currencyStore.displayedSymbol,
+    currencyKey: currencyStore.currencySymbol,
+    imageShape: imageShapeStore.imageShape,
+    offerStyle: offerStyleStore.offerStyle,
+    allergenIconStyle: allergenStore.allergenIconStyle
   }
 })
+
 </script>
+
 
 <style scoped>
 .public-menu {

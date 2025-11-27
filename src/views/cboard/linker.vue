@@ -3,9 +3,9 @@
     <div class="linker-dashboard">
       <h2 class="page-title">{{ t('cboard.linker.title') }}</h2>
 
-      <div v-if="productsStore.products.length">
+      <div v-if="products.length">
         <ProductlinkerRow
-          v-for="product in productsStore.products"
+          v-for="product in products"
           :key="product.id"
           :product="product"
         />
@@ -19,27 +19,26 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue'
-import { useProductsStore } from '@/stores/cboard/products'
-import { useOffersStore } from '@/stores/cboard/offers'
-import { useSectionStore } from '@/stores/cboard/sections'
+import { ref, onMounted } from 'vue'
 import ProductlinkerRow from '@/components/cboard/linker/ProductlinkerRow.vue'
 import { useI18n } from 'vue-i18n'
+import { supabase } from '@/supabase'
 
 const { t } = useI18n()
-const productsStore = useProductsStore()
-const offersStore = useOffersStore()
-const sectionsStore = useSectionStore()
 
-onMounted(() => {
-  Promise.all([
-    offersStore.syncFromSupabase(),
-    sectionsStore.syncFromSupabase(),
-    productsStore.syncFromSupabase(),
-  ])
+// ✅ المنتجات تجلب مباشرة من Supabase
+const products = ref<any[]>([])
+
+onMounted(async () => {
+  const { data, error } = await supabase.from('products').select('*')
+  if (error) {
+    console.error(error)
+    return
+  }
+  products.value = data || []
 })
-
 </script>
+
 
 <style scoped>
 .page-wrapper {

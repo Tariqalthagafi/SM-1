@@ -1,11 +1,9 @@
 <template>
   <div class="page-wrapper">
     <div class="sections-dashboard">
-      <h1 class="page-title">{{ t('cboard.sections.title') }}</h1>
-      <div class="section-count">
-        {{ t('cboard.sections.count', { count: sectionStore.sections.length }) }}
-      </div>
+      <h2 class="page-title">{{ t('cboard.sections.title') }}</h2>
 
+      <!-- المكونات الفرعية هي اللي تتعامل مع Supabase -->
       <SectionEditor />
       <SectionList />
     </div>
@@ -13,18 +11,11 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue'
 import SectionEditor from '@/components/cboard/Sections/SectionEditor.vue'
 import SectionList from '@/components/cboard/Sections/SectionList.vue'
-import { useSectionStore } from '@/stores/cboard/sections'
 import { useI18n } from 'vue-i18n'
+
 const { t } = useI18n()
-
-const sectionStore = useSectionStore()
-
-onMounted(() => {
-  sectionStore.load()
-})
 </script>
 
 <style scoped>
@@ -52,22 +43,12 @@ onMounted(() => {
 }
 
 .page-title {
-  font-size: 1.8rem;
-  font-weight: bold;
-  margin-bottom: 1rem;
-  color: #FF7A00;
-}
-
-.section-count {
-  font-size: 1rem;
-  margin-bottom: 2rem;
+  font-size: 1.6rem;
+  font-weight: 600;
   color: #1C1C1C;
-}
-
-/* دعم الجوال */
-@media (max-width: 768px) {
-  .sections-dashboard {
-    padding: 1rem;
-  }
+  border-bottom: 1px solid #E0E0E0;
+  padding-bottom: 0.5rem;
+  margin-bottom: 0.5rem;
+  text-align: start;
 }
 </style>

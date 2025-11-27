@@ -9,6 +9,7 @@
         <DomainSection />
       </section>
 
+      <DomainLink />
       <!--
       <section class="settings-section">
         <UsersSection />
@@ -21,9 +22,9 @@
 
 <script setup lang="ts">
 import AccountSection from '@/components/cboard/settings/AccountSection.vue'
+import DomainLink from '@/components/cboard/settings/DomainLink.vue';
 // import UsersSection from '@/components/cboard/settings/UsersSection.vue' 
 import DomainSection from '@/components/cboard/settings/DomainSection.vue'
-
 
 </script>
 
