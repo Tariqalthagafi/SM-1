@@ -19,7 +19,7 @@ export const useColorEditorStore = defineStore('colorEditorStore', () => {
     sectionTitleText: '#222222',
     currencyIcon: '#009688',
     expiredProductIcon: '#9e9e9e',
-
+    currencyBackground: '#ffe0b2',
     
     menuPageBackground: '#ffffff',
     topIconsBackground: '#f5f5f5',
