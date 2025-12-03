@@ -39,20 +39,18 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
 import { indexedDBService } from '@/services/indexedDBService'
-import { supabase } from '@/supabase'   // ✅ استيراد Supabase
+import { supabase } from '@/supabase'
 import { useI18n } from 'vue-i18n'
 const { t } = useI18n()
 
 const isActive = ref(false)
-const menuId = ref<number | null>(null)
+const userUID = ref<string | null>(null)
 
-// تحديد الرابط حسب البيئة + menuId من Supabase
+// توليد الرابط باستخدام أول 8 رموز من UID فقط
 const menuUrl = computed(() => {
-  const base =
-    import.meta.env.MODE === 'development'
-      ? 'http://localhost:5173'
-      : 'https://client.example.com'
-  return menuId.value ? `${base}/menu/${menuId.value}` : `${base}/menu`
+  return userUID.value
+    ? `https://sm-1.vercel.app/menu/${userUID.value.substring(0, 8)}`
+    : `https://sm-1.vercel.app/menu/default`
 })
 
 // نسخ الرابط
@@ -70,15 +68,14 @@ onMounted(async () => {
   const record = await indexedDBService.get('domain', 'default')
   isActive.value = record?.isActive ?? false
 
-  // جلب بيانات المنيو من Supabase
-  const { data, error } = await supabase
-    .from('menus')
-    .select('id')
-    .eq('user_id', 42)   // ✅ عدل الشرط حسب المستخدم/المطعم
-    .single()
+  // جلب UID من Supabase (auth.users)
+  const { data, error } = await supabase.auth.getUser()
 
-  if (!error && data) {
-    menuId.value = data.id
+  if (!error && data?.user) {
+    userUID.value = data.user.id
+    console.log('UID fetched:', userUID.value)
+  } else {
+    console.error('Error fetching UID:', error)
   }
 })
 

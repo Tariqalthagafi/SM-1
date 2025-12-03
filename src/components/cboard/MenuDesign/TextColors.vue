@@ -1,7 +1,6 @@
 <template>
   <div class="text-colors">
-    <h6>{{ t('cboard.menuDesign.colorEditor.textColors.title') }}</h6>
-
+    
     <div
       class="color-row"
       v-for="(label, key) in textColorKeys"

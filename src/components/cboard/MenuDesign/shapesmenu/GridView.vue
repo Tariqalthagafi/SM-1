@@ -1,49 +1,49 @@
 // مربعات الاقسام
 <template>
   <div class="grid-view">
-    <!-- عرض الأقسام -->
-    <div v-if="!selectedCategory" class="grid-categories">
+    <!-- ✅ عرض الأقسام -->
+    <div v-if="!activeSectionId" class="grid-categories">
       <button
-        v-for="cat in props.categories"
-        :key="cat.id"
+        v-for="section in sections"
+        :key="section.id"
         class="category-box"
-        @click="selectedCategory = cat"
+        @click="activeSectionId = section.id"
         :style="{
-          backgroundColor: selectedCategoryId === cat.id
-            ? props.colors.sectionBackground
-            : props.colors.cardBackground,
-          color: selectedCategoryId === cat.id
+          backgroundColor: activeSectionId === section.id
+            ? colors.sectionBackground
+            : colors.cardBackground,
+          color: activeSectionId === section.id
             ? 'white'
-            : props.colors.titleText
+            : colors.titleText
         }"
       >
-        {{ cat.name }}
+        {{ section.name }}
       </button>
     </div>
 
-    <!-- عرض المنتجات داخل القسم -->
+    <!-- ✅ عرض المنتجات داخل القسم -->
     <div v-else class="grid-products">
-      <button class="back-btn" @click="selectedCategory = null">← عودة</button>
-      <h5 class="category-title" :style="{ color: props.colors.titleText }">
-        {{ selectedCategory?.name }}
+      <button class="back-btn" @click="activeSectionId = ''">← عودة</button>
+      <h5 class="category-title" :style="{ color: colors.titleText }">
+        {{ activeSection?.name }}
       </h5>
 
       <div class="cards-layout">
         <div
-          v-for="product in selectedCategory?.products"
+          v-for="product in filteredProducts"
           :key="product.id"
           class="card"
-          :style="{ backgroundColor: props.colors.cardBackground, color: props.colors.titleText }"
+          :style="{ backgroundColor: colors.cardBackground, color: colors.titleText }"
         >
-          <!-- ✅ صورة المنتج -->
-          <div class="card-image" v-if="props.imageShape !== 'hidden'">
+          <!-- صورة المنتج -->
+          <div class="card-image" v-if="imageShape !== 'hidden'">
             <img
               v-if="product.imageBase64"
               :src="product.imageBase64"
-              :class="['product-image', props.imageShape]"
+              :class="['product-image', imageShape]"
               alt="صورة المنتج"
             />
-            <div v-else class="product-image placeholder" :class="props.imageShape"></div>
+            <div v-else class="product-image placeholder" :class="imageShape"></div>
           </div>
 
           <div class="card-header">
@@ -59,44 +59,44 @@
           <div class="card-body">
             <div
               class="product-price"
-              :class="props.offerStyle"
-              :style="{ backgroundColor: props.colors.priceBackground, color: props.colors.priceText }"
+              :class="offerStyle"
+              :style="{ backgroundColor: colors.priceBackground, color: colors.priceText }"
             >
-              <template v-if="props.offerStyle === 'strikeOnly' && product.offerLabel">
-                <span class="old-price">{{ product.basePrice }} <span v-html="props.currencySymbol"></span></span>
-                <span class="final-price">{{ product.finalPrice }} <span v-html="props.currencySymbol"></span></span>
+              <template v-if="offerStyle === 'strikeOnly' && product.offerLabel">
+                <span class="old-price">{{ product.basePrice }} <span v-html="currencySymbol"></span></span>
+                <span class="final-price">{{ product.finalPrice }} <span v-html="currencySymbol"></span></span>
               </template>
 
-              <template v-else-if="props.offerStyle === 'strikeWithSaving' && product.offerLabel">
-                <span class="offer-label" :style="{ color: props.colors.offerLabel }">
-                  🔥 وفر {{ product.basePrice - product.finalPrice }} <span v-html="props.currencySymbol"></span>
+              <template v-else-if="offerStyle === 'strikeWithSaving' && product.offerLabel">
+                <span class="offer-label" :style="{ color: colors.offerLabel }">
+                  🔥 وفر {{ product.basePrice - product.finalPrice }} <span v-html="currencySymbol"></span>
                 </span>
-                <span class="old-price">{{ product.basePrice }} <span v-html="props.currencySymbol"></span></span>
-                <span class="final-price">{{ product.finalPrice }} <span v-html="props.currencySymbol"></span></span>
+                <span class="old-price">{{ product.basePrice }} <span v-html="currencySymbol"></span></span>
+                <span class="final-price">{{ product.finalPrice }} <span v-html="currencySymbol"></span></span>
               </template>
 
-              <template v-else-if="props.offerStyle === 'strikeWithBadge' && product.offerLabel">
-                <span class="offer-label" :style="{ color: props.colors.offerLabel }">
+              <template v-else-if="offerStyle === 'strikeWithBadge' && product.offerLabel">
+                <span class="offer-label" :style="{ color: colors.offerLabel }">
                   🔖 خصم {{ Math.round((1 - product.finalPrice / product.basePrice) * 100) }}%
                 </span>
-                <span class="old-price">{{ product.basePrice }} <span v-html="props.currencySymbol"></span></span>
-                <span class="final-price">{{ product.finalPrice }} <span v-html="props.currencySymbol"></span></span>
+                <span class="old-price">{{ product.basePrice }} <span v-html="currencySymbol"></span></span>
+                <span class="final-price">{{ product.finalPrice }} <span v-html="currencySymbol"></span></span>
               </template>
 
               <template v-else>
-                <span class="final-price">{{ product.finalPrice }} <span v-html="props.currencySymbol"></span></span>
+                <span class="final-price">{{ product.finalPrice }} <span v-html="currencySymbol"></span></span>
               </template>
             </div>
 
-            <!-- ✅ مسببات الحساسية -->
+            <!-- مسببات الحساسية -->
             <div v-if="product.hasAllergens && product.allergens?.length" class="allergens-display">
               <span
                 v-for="allergen in product.allergens"
                 :key="allergen"
                 class="allergen-icon"
-                :class="props.allergenIconStyle"
+                :class="allergenIconStyle"
               >
-                {{ getAllergenSymbol(props.allergenIconStyle ?? 'boxedA') }}
+                {{ getAllergenSymbol(allergenIconStyle ?? 'boxedA') }}
               </span>
             </div>
           </div>
@@ -114,6 +114,8 @@ interface Product {
   name: string
   basePrice: number
   finalPrice: number
+  section_id: string
+  status: string
   offerLabel?: string
   imageBase64?: string
   allergens?: string[]
@@ -122,14 +124,14 @@ interface Product {
   calories?: number
 }
 
-interface Category {
+interface Section {
   id: string
   name: string
-  products: Product[]
 }
 
 const props = defineProps<{
-  categories: Category[]
+  products: Product[]
+  sections: Section[]
   currencySymbol: string
   currencyKey: string
   imageShape: 'circle' | 'roundedSquare' | 'rectangle' | 'hidden'
@@ -138,9 +140,13 @@ const props = defineProps<{
   colors: Record<string, string>
 }>()
 
-const selectedCategory = ref<Category | null>(null)
+const activeSectionId = ref('')
 
-const selectedCategoryId = computed(() => selectedCategory.value?.id ?? '')
+const activeSection = computed(() => props.sections.find(s => s.id === activeSectionId.value) || null)
+
+const filteredProducts = computed(() =>
+  props.products.filter(p => p.section_id === activeSectionId.value && p.status === 'visible')
+)
 
 function getAllergenSymbol(style: string): string {
   switch (style) {
@@ -160,7 +166,6 @@ function getAllergenSymbol(style: string): string {
   }
 }
 </script>
-
 
 <style scoped>
 .grid-view {

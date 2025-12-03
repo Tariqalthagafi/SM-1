@@ -1,6 +1,6 @@
 <template>
   <div class="icon-colors">
-    <h6>{{ t('cboard.menuDesign.colorEditor.iconColors.title') }}</h6>
+    
 
     <div
       class="color-row"

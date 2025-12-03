@@ -94,7 +94,7 @@ interface Product {
   name: string
   basePrice: number
   finalPrice: number
-  sectionId: string
+  section_id: string
   status: string
   imageBase64?: string
   offerLabel?: string
@@ -136,7 +136,7 @@ const props = withDefaults(
 const activeSectionId = ref('')
 
 const filteredProducts = computed(() =>
-  props.products.filter((p) => p.sectionId === activeSectionId.value && p.status === 'visible')
+  props.products.filter((p) => p.section_id === activeSectionId.value && p.status === 'visible')
 )
 
 watchEffect(() => {

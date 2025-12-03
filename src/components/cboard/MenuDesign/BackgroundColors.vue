@@ -1,6 +1,6 @@
 <template>
   <div class="background-colors">
-    <h6>{{ t('cboard.menuDesign.colorEditor.backgroundColors.title') }}</h6>
+    
 
     <div
       class="color-row"

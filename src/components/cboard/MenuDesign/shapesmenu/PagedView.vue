@@ -2,26 +2,26 @@
 <template>
   <div class="paged-view">
     <div class="page-content">
-      <h5 class="category-title" :style="{ color: props.colors.titleText }">
-        {{ currentCategory.name }}
+      <h5 class="category-title" :style="{ color: colors.titleText }">
+        {{ activeSection?.name }}
       </h5>
 
       <div class="cards-layout">
         <div
-          v-for="product in currentCategory.products"
+          v-for="product in filteredProducts"
           :key="product.id"
           class="card"
-          :style="{ backgroundColor: props.colors.cardBackground, color: props.colors.titleText }"
+          :style="{ backgroundColor: colors.cardBackground, color: colors.titleText }"
         >
-          <!-- ✅ صورة المنتج -->
-          <div class="card-image" v-if="props.imageShape !== 'hidden'">
+          <!-- صورة المنتج -->
+          <div class="card-image" v-if="imageShape !== 'hidden'">
             <img
               v-if="product.imageBase64"
               :src="product.imageBase64"
-              :class="['product-image', props.imageShape]"
+              :class="['product-image', imageShape]"
               alt="صورة المنتج"
             />
-            <div v-else class="product-image placeholder" :class="props.imageShape"></div>
+            <div v-else class="product-image placeholder" :class="imageShape"></div>
           </div>
 
           <div class="card-header">
@@ -37,44 +37,44 @@
           <div class="card-body">
             <div
               class="product-price"
-              :class="props.offerStyle"
-              :style="{ backgroundColor: props.colors.priceBackground, color: props.colors.priceText }"
+              :class="offerStyle"
+              :style="{ backgroundColor: colors.priceBackground, color: colors.priceText }"
             >
-              <template v-if="props.offerStyle === 'strikeOnly' && product.offerLabel">
-                <span class="old-price">{{ product.basePrice }} <span v-html="props.currencySymbol"></span></span>
-                <span class="final-price">{{ product.finalPrice }} <span v-html="props.currencySymbol"></span></span>
+              <template v-if="offerStyle === 'strikeOnly' && product.offerLabel">
+                <span class="old-price">{{ product.basePrice }} <span v-html="currencySymbol"></span></span>
+                <span class="final-price">{{ product.finalPrice }} <span v-html="currencySymbol"></span></span>
               </template>
 
-              <template v-else-if="props.offerStyle === 'strikeWithSaving' && product.offerLabel">
-                <span class="offer-label" :style="{ color: props.colors.offerLabel }">
-                  🔥 وفر {{ product.basePrice - product.finalPrice }} <span v-html="props.currencySymbol"></span>
+              <template v-else-if="offerStyle === 'strikeWithSaving' && product.offerLabel">
+                <span class="offer-label" :style="{ color: colors.offerLabel }">
+                  🔥 وفر {{ product.basePrice - product.finalPrice }} <span v-html="currencySymbol"></span>
                 </span>
-                <span class="old-price">{{ product.basePrice }} <span v-html="props.currencySymbol"></span></span>
-                <span class="final-price">{{ product.finalPrice }} <span v-html="props.currencySymbol"></span></span>
+                <span class="old-price">{{ product.basePrice }} <span v-html="currencySymbol"></span></span>
+                <span class="final-price">{{ product.finalPrice }} <span v-html="currencySymbol"></span></span>
               </template>
 
-              <template v-else-if="props.offerStyle === 'strikeWithBadge' && product.offerLabel">
-                <span class="offer-label" :style="{ color: props.colors.offerLabel }">
+              <template v-else-if="offerStyle === 'strikeWithBadge' && product.offerLabel">
+                <span class="offer-label" :style="{ color: colors.offerLabel }">
                   🔖 خصم {{ Math.round((1 - product.finalPrice / product.basePrice) * 100) }}%
                 </span>
-                <span class="old-price">{{ product.basePrice }} <span v-html="props.currencySymbol"></span></span>
-                <span class="final-price">{{ product.finalPrice }} <span v-html="props.currencySymbol"></span></span>
+                <span class="old-price">{{ product.basePrice }} <span v-html="currencySymbol"></span></span>
+                <span class="final-price">{{ product.finalPrice }} <span v-html="currencySymbol"></span></span>
               </template>
 
               <template v-else>
-                <span class="final-price">{{ product.finalPrice }} <span v-html="props.currencySymbol"></span></span>
+                <span class="final-price">{{ product.finalPrice }} <span v-html="currencySymbol"></span></span>
               </template>
             </div>
 
-            <!-- ✅ مسببات الحساسية -->
+            <!-- مسببات الحساسية -->
             <div v-if="product.hasAllergens && product.allergens?.length" class="allergens-display">
               <span
                 v-for="allergen in product.allergens"
                 :key="allergen"
                 class="allergen-icon"
-                :class="props.allergenIconStyle"
+                :class="allergenIconStyle"
               >
-                {{ getAllergenSymbol(props.allergenIconStyle ?? 'boxedA') }}
+                {{ getAllergenSymbol(allergenIconStyle ?? 'boxedA') }}
               </span>
             </div>
           </div>
@@ -82,9 +82,10 @@
       </div>
     </div>
 
+    <!-- أزرار التنقل بين الصفحات -->
     <div class="page-controls">
       <button @click="prevPage" :disabled="index === 0">← السابق</button>
-      <button @click="nextPage" :disabled="index === props.categories.length - 1">التالي →</button>
+      <button @click="nextPage" :disabled="index === sections.length - 1">التالي →</button>
     </div>
   </div>
 </template>
@@ -97,6 +98,8 @@ interface Product {
   name: string
   basePrice: number
   finalPrice: number
+  section_id: string
+  status: string
   offerLabel?: string
   imageBase64?: string
   allergens?: string[]
@@ -105,14 +108,14 @@ interface Product {
   calories?: number
 }
 
-interface Category {
+interface Section {
   id: string
   name: string
-  products: Product[]
 }
 
 const props = defineProps<{
-  categories: Category[]
+  products: Product[]
+  sections: Section[]
   currencySymbol: string
   currencyKey: string
   imageShape: 'circle' | 'roundedSquare' | 'rectangle' | 'hidden'
@@ -122,10 +125,17 @@ const props = defineProps<{
 }>()
 
 const index = ref(0)
-const currentCategory = computed(() => props.categories[index.value])
+
+// القسم الحالي
+const activeSection = computed(() => props.sections[index.value] || null)
+
+// المنتجات الخاصة بالقسم الحالي
+const filteredProducts = computed(() =>
+  props.products.filter(p => p.section_id === activeSection.value?.id && p.status === 'visible')
+)
 
 function nextPage() {
-  if (index.value < props.categories.length - 1) index.value++
+  if (index.value < props.sections.length - 1) index.value++
 }
 
 function prevPage() {
@@ -150,8 +160,6 @@ function getAllergenSymbol(style: string): string {
   }
 }
 </script>
-
-
 
 <style scoped>
 .paged-view {

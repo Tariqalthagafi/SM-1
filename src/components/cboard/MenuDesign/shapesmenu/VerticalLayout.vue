@@ -11,7 +11,7 @@
 
       <div class="product-list">
         <div
-          v-for="product in props.products.filter(p => p.sectionId === section.id && p.status === 'visible')"
+          v-for="product in props.products.filter(p => p.section_id === section.id && p.status === 'visible')"
           :key="product.id"
           class="product-item"
           :style="{ backgroundColor: props.colors.productBackground, color: props.colors.titleText }"
@@ -94,7 +94,7 @@ const props = defineProps<{
     name: string
     basePrice: number
     finalPrice: number
-    sectionId: string
+    section_id: string
     status: string
     imageBase64?: string
     offerLabel?: string

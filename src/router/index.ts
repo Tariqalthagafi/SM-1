@@ -53,24 +53,25 @@ const routes = [
         name: 'OrderInfo',
         component: () => import('@/views/cboard/OrderInfoView.vue'),
       },
-
       {
         path: 'MenuDesign',
         name: 'MenuDesign',
         component: () => import('@/views/cboard/MenuDesign.vue'),
       },
-
       {
         path: 'settings',
         name: 'Settings',
         component: () => import('@/views/cboard/Settings.vue'),
       },
-      {
-        path: '/menu/:id',
-        name: 'MenuPublicView',
-        component: () => import('@/views/public/MenuPublicView.vue'),
-      }
     ],
+  },
+
+  // ✅ تعريف المسار العام خارج children
+  {
+    path: '/menu/:id',
+    name: 'MenuPublicView',
+    component: () => import('@/views/public/MenuPublicView.vue'),
+    props: true, // مهم حتى يوصل menuId كـ prop
   },
 ]
 
@@ -79,11 +80,11 @@ export const router = createRouter({
   routes,
 })
 
-// ✅ حماية جميع صفحات لوحة التحكم
+// ✅ حماية صفحات لوحة التحكم فقط
 router.beforeEach(async (to, from, next) => {
   const { data: { user } } = await supabase.auth.getUser()
 
-  const isProtectedRoute = to.path.startsWith('/cboard') && !to.path.startsWith('/menu')
+  const isProtectedRoute = to.path.startsWith('/cboard')
 
   if (isProtectedRoute && !user) {
     next('/') // ❌ ممنوع الدخول بدون تسجيل

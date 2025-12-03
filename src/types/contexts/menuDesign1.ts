@@ -36,6 +36,7 @@ export interface ColorSettings {
   bodyBackground: string
   productBackground: string
   priceBackground: string
+  currencyBackground: string    // ✅ جديد
 }
 
 // 🧠 إعدادات التصميم الكاملة (تجميع)
