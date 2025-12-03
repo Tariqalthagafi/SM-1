@@ -42,7 +42,7 @@ function toggleLang() {
 
 // ✅ تسجيل الدخول عبر Google
 async function loginWithGoogle() {
-  const redirectTo = `${import.meta.env.VITE_SITE_URL}/cboard`
+  const redirectTo = 'https://sm-1.vercel.app/cboard' // ✅ الرابط مباشر
 
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: 'google',
@@ -53,10 +53,11 @@ async function loginWithGoogle() {
 
   if (error) {
     console.error('❌ فشل تسجيل الدخول:', error.message)
-  } else {
+  } else if (data?.url) {
     location.replace(data.url) // ✅ بدون وميض
   }
 }
+
 
 
 
