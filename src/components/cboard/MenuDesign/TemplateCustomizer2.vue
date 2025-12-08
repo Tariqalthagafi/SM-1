@@ -23,12 +23,7 @@
 
       <!-- 🟠 تبويب التخطيط -->
       <div v-if="activeTab === 'layout'" class="layout-tab">
-
-        <!-- التخطيط -->
-        <section class="customizer-section">
-          <LayoutEditor />
-        </section>
-
+        
         <!-- الخط -->
         <section class="customizer-section">
           <ThemeFontSelector
@@ -132,7 +127,7 @@ const tabs = [
   
 ]
 
-const activeTab = ref('layout')
+const activeTab = ref('sample')
 
 const fontStore = useFontStore()
 const imageShapeStore = useImageShapeStore()

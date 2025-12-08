@@ -1,17 +1,33 @@
 <template>
-  <div class="preset-selector">
-    <label for="preset-select">
-      {{ t('cboard.menuDesign.colorEditor.presetLabel') }}
-    </label>
-    <div class="preset-row">
+  <!-- ✅ القسم الأول: النماذج الجاهزة (دائمًا فعال) -->
+  <div class="section-block">
+    <ReadyPresets class="preset-row" />
+  </div>
+
+  <!-- فاصل بين القسمين -->
+  <div class="section-divider"></div>
+
+  <!-- ✅ القسم الثاني: التخطيط + اختيار الألوان -->
+  <div class="section-block">
+    <!-- زر تعطيل/تفعيل القسم الثاني -->
+    <button @click="toggleColors" class="button-unified button-toggle">
+      {{ colorsEnabled ? 'تعطيل القسم' : 'تفعيل القسم' }}
+    </button>
+
+    <!-- التخطيط -->
+    <LayoutEditor class="preset-row" :class="{ disabled: !colorsEnabled }" />
+
+    <!-- اختيار نمط الألوان -->
+    <label for="preset-select" class="preset-label">اختيار نمط الألوان</label>
+    <div class="preset-row" :class="{ disabled: !colorsEnabled }">
       <select
         id="preset-select"
         v-model="selectedPreset"
         @change="applyPreset(selectedPreset)"
+        class="dropdown-unified"
+        :disabled="!colorsEnabled"
       >
-        <option disabled value="">
-          {{ t('cboard.menuDesign.colorEditor.presetPlaceholder') }}
-        </option>
+        <option disabled value="">اختر نمط الألوان</option>
 
         <option
           v-if="defaultPreset && colorPresets[defaultPreset]"
@@ -32,8 +48,12 @@
       </select>
 
       <!-- أزرار التحكم -->
-      <button @click="showResetConfirm = true" class="reset-button">⟳</button>
-      <button @click="showConfirm = true" class="default-button">⭐</button>
+      <button @click="resetPreset" class="button-unified button-reset" :disabled="!colorsEnabled">
+        إعادة ضبط الألوان
+      </button>
+      <button @click="setAsDefault" class="button-unified button-default" :disabled="!colorsEnabled">
+        تعيين كافتراضي
+      </button>
     </div>
   </div>
 </template>
@@ -47,14 +67,19 @@ import { indexedDBService } from '@/services/indexedDBService'
 import { colorPresets } from '@/types/contexts/colorPresets1.ts'
 import type { ColorPresetName } from '@/types/contexts/colorPresets1.ts'
 import { useColorEditorStore } from '@/stores/cboard/MenuDesign/ColorEditorStore.ts'
+import LayoutEditor from '@/components/cboard/MenuDesign/LayoutEditor.vue'
+import ReadyPresets from '@/components/cboard/MenuDesign/ReadyPresets.vue'
+import '@/components/cboard/MenuDesign/common.css'
 
 const defaultPreset = ref<ColorPresetName | null>(null)
-const showConfirm = ref(false)
-const showResetConfirm = ref(false)
 const selectedPreset = ref<ColorPresetName>('مخصص 1')
 const colorStore = useColorEditorStore()
 
+// ✅ يبدأ معطل تلقائيًا للقسم الثاني فقط
+const colorsEnabled = ref(false)
+
 async function applyPreset(name: ColorPresetName) {
+  if (!colorsEnabled.value) return
   const preset = colorPresets[name]
   if (!preset) return
   colorStore.setColors({
@@ -78,12 +103,18 @@ async function applyPreset(name: ColorPresetName) {
 }
 
 async function resetPreset() {
+  if (!colorsEnabled.value) return
   await colorStore.resetPreset(selectedPreset.value)
 }
 
 async function setAsDefault() {
+  if (!colorsEnabled.value) return
   await indexedDBService.saveSetting('activeColorPreset', selectedPreset.value)
   defaultPreset.value = selectedPreset.value
+}
+
+function toggleColors() {
+  colorsEnabled.value = !colorsEnabled.value
 }
 
 onMounted(async () => {
@@ -91,65 +122,40 @@ onMounted(async () => {
   if (saved) defaultPreset.value = saved
 })
 </script>
+
 <style scoped>
-.preset-selector {
+.section-block {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
-  font-family: 'Tajawal', sans-serif;
+  gap: 1rem;
 }
 
-/* العنوان */
-.preset-selector label {
+.section-divider {
+  border-top: 1px solid #ccc;
+  margin: 1rem 0;
+}
+
+.disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+/* زر التعطيل/التفعيل */
+.button-toggle {
+  background: #f0f0f0;
+  color: #333;
+  padding: 0.6rem 0.8rem;
+  border-radius: 6px;
+  border: none;
   font-size: 0.9rem;
   font-weight: 600;
-  color: #333;
-}
-
-/* صف الاختيار + الأزرار */
-.preset-row {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-/* القائمة المنسدلة */
-.preset-selector select {
-  flex: 1;
-  padding: 0.55rem 0.7rem;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-  font-size: 0.9rem;
-  background: #fff;
-  color: #1C1C1C;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
-}
-
-.preset-selector select:focus {
-  border-color: #FF7A00;
-  box-shadow: 0 0 0 2px rgba(255,122,0,0.2);
-  outline: none;
-}
-
-/* أزرار التحكم */
-.reset-button,
-.default-button {
-  background: none;
-  border: none;
   cursor: pointer;
-  font-size: 1.2rem;
-  color: #888;
-  padding: 0.3rem 0.4rem;
-  transition: color 0.2s ease, transform 0.2s ease;
+  text-align: center;
+  transition: background 0.2s ease, transform 0.2s ease;
 }
 
-.reset-button:hover {
-  color: #FF7A00;   /* برتقالي عند المرور */
-  transform: scale(1.1);
-}
-
-.default-button:hover {
-  color: #007bff;   /* أزرق عند المرور */
-  transform: scale(1.1);
+.button-toggle:hover {
+  background: #e0e0e0;
+  transform: scale(1.02);
 }
 </style>

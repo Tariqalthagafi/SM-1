@@ -30,13 +30,26 @@ const { t } = useI18n()
 const products = ref<any[]>([])
 
 onMounted(async () => {
-  const { data, error } = await supabase.from('products').select('*')
+  // ✅ اجلب المستخدم الحالي من Supabase Auth
+  const { data: { user }, error: userError } = await supabase.auth.getUser()
+  if (userError || !user) {
+    console.error('لم يتم العثور على المستخدم', userError)
+    return
+  }
+
+  // ✅ فلترة المنتجات حسب user_id
+  const { data, error } = await supabase
+    .from('products')
+    .select('*')
+    .eq('user_id', user.id)   // فقط المنتجات الخاصة بالمستخدم الحالي
+
   if (error) {
     console.error(error)
     return
   }
   products.value = data || []
 })
+
 </script>
 
 

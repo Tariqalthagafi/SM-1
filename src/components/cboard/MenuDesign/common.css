@@ -1,0 +1,71 @@
+/* 📁 src/components/cboard/MenuDesign/common.css */
+
+/* ستايل موحد للعناوين */
+.label-unified {
+  font-size: 0.85rem;   /* حجم خط أصغر ومتناسق */
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 0.25rem;
+  display: block;
+}
+
+/* ستايل موحد للقوائم المنسدلة */
+.dropdown-unified {
+  width: 100%;
+  padding: 0.6rem 0.8rem;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 0.85rem;       /* حجم خط أصغر */
+  font-weight: 400;
+  background: #f9f9f9;
+  color: #1C1C1C;
+  cursor: pointer;
+  transition: background 0.2s ease, box-shadow 0.2s ease;
+}
+
+.dropdown-unified:hover {
+  background: #f0f0f0;
+}
+
+.dropdown-unified:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 0 2px rgba(0,123,255,0.2);
+  outline: none;
+}
+
+/* ستايل موحد للأزرار */
+.button-unified {
+  width: 100%;
+  padding: 0.6rem 0.8rem;
+  border-radius: 6px;
+  border: none;
+  font-size: 0.85rem;       /* نفس حجم الخط */
+  font-weight: 600;
+  cursor: pointer;
+  text-align: center;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.button-unified:hover {
+  transform: scale(1.02);
+}
+
+/* زر إعادة الضبط */
+.button-reset {
+  background: #ffebe0;
+  color: #d35400;
+}
+
+.button-reset:hover {
+  background: #ffd5c2;
+}
+
+/* زر الافتراضي */
+.button-default {
+  background: #e0f0ff;
+  color: #0056b3;
+}
+
+.button-default:hover {
+  background: #cce5ff;
+}

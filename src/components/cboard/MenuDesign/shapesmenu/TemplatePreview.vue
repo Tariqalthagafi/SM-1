@@ -1,6 +1,6 @@
 <template>
   <div v-if="sections.length && products.length">
-    <h4>{{ t('cboard.menuDesign.templatePreview.title') }}</h4>
+   
     
 <ContactBar :colors="colorStore.colors" />
 
