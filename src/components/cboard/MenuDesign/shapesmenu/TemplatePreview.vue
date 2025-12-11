@@ -1,10 +1,7 @@
 <template>
   <div v-if="sections.length && products.length">
-   
-    
-<ContactBar :colors="colorStore.colors" />
+    <ContactBar :colors="colorStore.colors" />
 
-    
     <!-- ✅ عرض بالقسم التفاعلي -->
     <SectionedLayout
       v-if="layoutStore.layout === 'sectioned'"
@@ -18,27 +15,23 @@
       :allergen-icon-style="allergenIconStyle"
     />
 
-
     <!-- ✅ باقي النماذج -->
-<component
-  v-else
-  :is="layoutComponent"
-  :products="products"
-  :sections="sections"
-  :categories="categories"
-  :currency-symbol="currencySymbol"
-  :currency-key="currencyKey"
-  :image-shape="imageShape"
-  :offer-style="offerStyle"
-  :allergen-icon-style="allergenIconStyle"
-  :colors="colorStore.colors"
-/>
-
+    <component
+      v-else
+      :is="layoutComponent"
+      :products="products"
+      :sections="sections"
+      :categories="categories"
+      :currency-symbol="currencySymbol"
+      :currency-key="currencyKey"
+      :image-shape="imageShape"
+      :offer-style="offerStyle"
+      :allergen-icon-style="allergenIconStyle"
+      :colors="colorStore.colors"
+    />
   </div>
 
   <p v-else>{{ t('cboard.menuDesign.templatePreview.loading') }}</p>
-
-
 </template>
 
 <script setup lang="ts">
@@ -59,7 +52,6 @@ import GridView from './GridView.vue'
 import PagedView from './PagedView.vue'
 import { useOfferStyleStore } from '@/stores/cboard/templates/offerStyleStore'
 import { useFontStore } from '@/stores/cboard/templates/fontStore'
-// ✅ إضافة استيراد متجر الحساسية (افتراض)
 import { useAllergenStyleStore } from '@/stores/cboard/templates/allergenStyleStore'
 import ContactBar from '@/components/cboard/MenuPreview/ContactBar.vue'
 import { useI18n } from 'vue-i18n'
@@ -68,7 +60,6 @@ import { supabase } from '@/supabase'
 const { t } = useI18n()
 
 const fontStore = useFontStore()
-
 const offerStyleStore = useOfferStyleStore()
 const offerStyle = computed(() => offerStyleStore.offerStyle)
 
@@ -96,15 +87,37 @@ function applySettingsToCSS(colors: Record<string, string>) {
     root.style.setProperty(`--${key}-bg`, value)
     root.style.setProperty(`--${key}-color`, value)
   })
-  root.style.setProperty('--font-family', fontStore.fontFamily) // ✅ ديناميكي
+  root.style.setProperty('--font-family', fontStore.fontFamily)
   document.body.style.backgroundColor = colors.menuPageBackground
 }
 
-
-// ✅ تحميل البيانات من indexedDB
+// ✅ تحميل البيانات الخاصة بالمستخدم فقط
 async function loadHybridData() {
-  const { data: productsData } = await supabase.from('products').select('*')
-  const { data: sectionsData } = await supabase.from('sections').select('*')
+  const { data: { user }, error: userError } = await supabase.auth.getUser()
+  if (userError || !user) {
+    console.error('لم يتم العثور على المستخدم', userError)
+    return
+  }
+
+  const { data: productsData, error: productsError } = await supabase
+    .from('products')
+    .select('*')
+    .eq('user_id', user.id)
+
+  if (productsError) {
+    console.error(productsError)
+    return
+  }
+
+  const { data: sectionsData, error: sectionsError } = await supabase
+    .from('sections')
+    .select('*')
+    .eq('user_id', user.id)
+
+  if (sectionsError) {
+    console.error(sectionsError)
+    return
+  }
 
   const offers = await indexedDBService.getAll('offers')
 
@@ -129,7 +142,6 @@ async function loadHybridData() {
   }))
 }
 
-
 // ✅ تحميل أولي
 onMounted(async () => {
   currencyStore.initCurrencyOptions()
@@ -139,7 +151,6 @@ onMounted(async () => {
   await loadHybridData()
   applySettingsToCSS(colorStore.colors)
 })
-
 
 // ✅ تطبيق الألوان عند أي تغيير
 watchEffect(() => {
@@ -158,11 +169,6 @@ const layoutComponent = computed(() => {
     default: return GridLayout
   }
 })
-
-// ✅ تحديد ما إذا كان التخطيط يعتمد على الأقسام كـ categories
-const isCategoryLayout = computed(() =>
-  ['sidebarCategories', 'gridCategories', 'pagedCategories'].includes(layoutStore.layout)
-)
 </script>
 
 <style scoped>
@@ -171,6 +177,4 @@ h4 {
   font-family: var(--font-family);
   color: var(--titleText-color, #000);
 }
-
-
 </style>
