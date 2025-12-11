@@ -15,7 +15,7 @@ import { supabase } from '@/supabase'
 import MenuRenderer from './MenuRenderer.vue'
 import { readyPresets, type ReadyPreset } from '@/stores/cboard/MenuDesign/readyPresets.ts'
 
-const props = defineProps<{ uuid: string }>()
+const props = defineProps<{ shortId: string }>()
 
 const isActive = ref(true)
 const layout = ref<'vertical' | 'grid' | 'cards' | 'sectioned' | 'sidebar' | 'paged'>('grid')
@@ -32,34 +32,33 @@ const settings = ref({
 })
 
 onMounted(async () => {
-  // ✅ جلب النموذج الجاهز المحفوظ للمستخدم
-  const { data: { user } } = await supabase.auth.getUser()
+  // ✅ تحويل shortId إلى uuid كامل
+  const { data: menu } = await supabase
+    .from('menu_settings')
+    .select('id, ready_preset')
+    .eq('short_id', props.shortId)
+    .single()
+
+  if (!menu) return
+  const fullUuid = menu.id
   let activePreset: ReadyPreset | null = null
 
-  if (user) {
-    const { data: presetData } = await supabase
-      .from('menu_settings')
-      .select('ready_preset')
-      .eq('user_id', user.id)
-      .single()
-
-    if (presetData?.ready_preset) {
-      activePreset = readyPresets.find(p => p.id === presetData.ready_preset) ?? null
-    }
+  if (menu.ready_preset) {
+    activePreset = readyPresets.find(p => p.id === menu.ready_preset) ?? null
   }
 
   // ✅ template_settings
   const { data: templateData } = await supabase
     .from('template_settings')
     .select('layout_id, font_family, offer_style, image_shape, currency_symbol, allergen_style')
-    .eq('id', props.uuid)
+    .eq('id', fullUuid)
     .single()
 
   // ✅ color_presets
   const { data: colorData } = await supabase
     .from('color_presets')
     .select('colors')
-    .eq('id', props.uuid)
+    .eq('id', fullUuid)
     .maybeSingle()
 
   const colors = activePreset?.colors ?? colorData?.colors ?? {
@@ -87,7 +86,7 @@ onMounted(async () => {
   const { data: productsData } = await supabase
     .from('products')
     .select('*')
-    .eq('user_id', props.uuid)
+    .eq('user_id', fullUuid)
 
   products.value = productsData ?? []
 

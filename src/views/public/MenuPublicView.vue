@@ -1,6 +1,6 @@
 <template>
   <div class="public-menu">
-    <MenuDataProvider :uuid="menuId" />
+    <MenuDataProvider :shortId="menuShortId" />
   </div>
 </template>
 
@@ -10,7 +10,12 @@ import { computed } from 'vue'
 import MenuDataProvider from '@/components/public/MenuDataProvider.vue'
 
 const route = useRoute()
-const menuId = computed(() => String(route.params.id))
+
+// تأكد أن القيمة دائمًا string
+const menuShortId = computed(() => {
+  const param = route.params.shortId
+  return Array.isArray(param) ? param[0] : String(param)
+})
 </script>
 
 <style scoped>
