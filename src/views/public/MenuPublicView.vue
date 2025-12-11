@@ -1,5 +1,6 @@
 <template>
   <div class="public-menu">
+    <!-- نمرر shortId بشكل آمن -->
     <MenuDataProvider :shortId="menuShortId" />
   </div>
 </template>
@@ -11,10 +12,11 @@ import MenuDataProvider from '@/components/public/MenuDataProvider.vue'
 
 const route = useRoute()
 
-// تأكد أن القيمة دائمًا string
+// ✅ تحويل shortId إلى string آمن
 const menuShortId = computed(() => {
   const param = route.params.shortId
-  return Array.isArray(param) ? param[0] : String(param)
+  // لو كان مصفوفة نأخذ أول عنصر، لو كان undefined نرجع نص فارغ
+  return Array.isArray(param) ? param[0] : String(param ?? '')
 })
 </script>
 
