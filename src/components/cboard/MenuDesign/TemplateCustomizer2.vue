@@ -14,8 +14,6 @@
           {{ tab.label }}
         </button>
       </div>
-
-      
     </div>
 
     <!-- ✅ المحتوى -->
@@ -23,7 +21,6 @@
 
       <!-- 🟠 تبويب التخطيط -->
       <div v-if="activeTab === 'layout'" class="layout-tab">
-        
         <!-- الخط -->
         <section class="customizer-section">
           <ThemeFontSelector
@@ -91,9 +88,15 @@
         <ColorEditor />
       </div>
 
+      <!-- 🟠 تبويب النماذج الجاهزة -->
       <div v-else-if="activeTab === 'sample'">
-      <PresetSelector />
-       </div>
+        <PresetSelector />
+      </div>
+
+      <!-- 🟠 تبويب النموذج المخصص -->
+      <div v-else-if="activeTab === 'custom'">
+        <CustomTemplate />
+      </div>
 
     </div>
     <button class="publish-btn">نشر</button>
@@ -102,7 +105,6 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { onMounted } from 'vue'
 
 import LayoutEditor from './LayoutEditor.vue'
 import ColorEditor from './ColorEditor.vue'
@@ -113,6 +115,7 @@ import AllergenStyleSelector from '@/components/cboard/Templates/Selectors/Aller
 import OfferStylePicker from '@/components/cboard/Templates/Selectors/OfferStylePicker.vue'
 import ExpiredStylePicker from '@/components/cboard/Templates/Selectors/ExpiredStylePicker.vue'
 import PresetSelector from '@/components/cboard/MenuDesign/PresetSelector.vue'
+import CustomTemplate from '@/components/cboard/MenuDesign/CustomTemplate.vue' 
 
 import { useFontStore } from '@/stores/cboard/templates/fontStore.ts'
 import { useImageShapeStore } from '@/stores/cboard/templates/imageShapeStore'
@@ -122,9 +125,9 @@ import { useExpiredStyleStore } from '@/stores/cboard/templates/expiredStyleStor
 
 const tabs = [
   { key: 'sample', label: 'نموذج جاهز' },
+  { key: 'custom', label: 'نموذج مخصص' },
   { key: 'layout', label: 'الانماط' },
   { key: 'color', label: 'الالوان' },
-  
 ]
 
 const activeTab = ref('sample')
@@ -135,7 +138,6 @@ const allergenStyleStore = useAllergenStyleStore()
 const offerStyleStore = useOfferStyleStore()
 const expiredStyleStore = useExpiredStyleStore()
 </script>
-
 
 <style scoped>
 .template-customizer-2 {
