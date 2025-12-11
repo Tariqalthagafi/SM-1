@@ -13,6 +13,7 @@
 import { ref, onMounted } from 'vue'
 import { supabase } from '@/supabase'
 import MenuRenderer from './MenuRenderer.vue'
+import { readyPresets, type ReadyPreset } from '@/stores/cboard/MenuDesign/readyPresets.ts'
 
 const props = defineProps<{ uuid: string }>()
 
@@ -31,6 +32,22 @@ const settings = ref({
 })
 
 onMounted(async () => {
+  // ✅ جلب النموذج الجاهز المحفوظ للمستخدم
+  const { data: { user } } = await supabase.auth.getUser()
+  let activePreset: ReadyPreset | null = null
+
+  if (user) {
+    const { data: presetData } = await supabase
+      .from('menu_settings')
+      .select('ready_preset')
+      .eq('user_id', user.id)
+      .single()
+
+    if (presetData?.ready_preset) {
+      activePreset = readyPresets.find(p => p.id === presetData.ready_preset) ?? null
+    }
+  }
+
   // ✅ template_settings
   const { data: templateData } = await supabase
     .from('template_settings')
@@ -45,7 +62,7 @@ onMounted(async () => {
     .eq('id', props.uuid)
     .maybeSingle()
 
-  const colors = colorData?.colors ?? {
+  const colors = activePreset?.colors ?? colorData?.colors ?? {
     bodyBackground: '#ffffff',
     cardBackground: '#ffffff',
     titleText: '#000000',
@@ -63,7 +80,8 @@ onMounted(async () => {
     fontFamily: templateData?.font_family ?? 'Tajawal, sans-serif'
   }
 
-  layout.value = templateData?.layout_id ?? 'grid'
+  // ✅ لو فيه نموذج جاهز مختار نطبقه، وإلا نستخدم القيمة من template_settings
+  layout.value = activePreset?.layout ?? templateData?.layout_id ?? 'grid'
 
   // ✅ products
   const { data: productsData } = await supabase

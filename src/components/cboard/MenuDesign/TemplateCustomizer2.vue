@@ -2,7 +2,7 @@
   <div class="template-customizer-2">
     <h4>Menu Design</h4>
 
-    <!-- ✅ التابات + زر النشر -->
+    <!-- ✅ التابات الرئيسية -->
     <div class="tabs-row">
       <div class="tabs">
         <button
@@ -19,86 +19,100 @@
     <!-- ✅ المحتوى -->
     <div class="tab-content">
 
-      <!-- 🟠 تبويب التخطيط -->
-      <div v-if="activeTab === 'layout'" class="layout-tab">
-        <!-- الخط -->
-        <section class="customizer-section">
-          <ThemeFontSelector
-            :selectedFont="fontStore.fontFamily"
-            :fonts="fontStore.fontOptions"
-            @update:selectedFont="fontStore.setFont"
-          />
-        </section>
-
-        <!-- العملة -->
-        <section class="customizer-section">
-          <CurrencySelector />
-        </section>
-
-        <!-- شكل الصورة -->
-        <section class="customizer-section">
-          <ImageShapeSelector
-            :selected="imageShapeStore.imageShape"
-            :options="imageShapeStore.imageShapeOptions"
-            @update:selected="(val) => {
-              imageShapeStore.setImageShape(val)
-              imageShapeStore.saveImageShape()
-            }"
-          />
-        </section>
-
-        <!-- نمط رمز الحساسية -->
-        <section class="customizer-section">
-          <AllergenStyleSelector
-            :selected="allergenStyleStore.allergenIconStyle"
-            :options="allergenStyleStore.allergenStyleOptions"
-            @update:selected="(val) => {
-              allergenStyleStore.setAllergenStyle(val)
-              allergenStyleStore.saveAllergenStyle()
-            }"
-          />
-        </section>
-
-        <!-- نمط عرض السعر -->
-        <section class="customizer-section">
-          <OfferStylePicker
-            :selected="offerStyleStore.offerStyle"
-            :options="offerStyleStore.offerStyleOptions"
-            :originalPrice="60"
-            :newPrice="25"
-            @update:selected="offerStyleStore.setOfferStyle"
-          />
-        </section>
-
-        <!-- نمط عرض المنتجات المنتهية -->
-        <section class="customizer-section">
-          <ExpiredStylePicker
-            :selected="expiredStyleStore.expiredStyle"
-            :options="expiredStyleStore.expiredStyleOptions"
-            @update:selected="(val) => {
-              expiredStyleStore.setExpiredStyle(val)
-              expiredStyleStore.saveExpiredStyle()
-            }"
-          />
-        </section>
-      </div>
-
-      <!-- 🟠 تبويب الألوان -->
-      <div v-else-if="activeTab === 'color'">
-        <ColorEditor />
-      </div>
-
       <!-- 🟠 تبويب النماذج الجاهزة -->
-      <div v-else-if="activeTab === 'sample'">
+      <div v-if="activeTab === 'sample'">
         <PresetSelector />
       </div>
 
       <!-- 🟠 تبويب النموذج المخصص -->
       <div v-else-if="activeTab === 'custom'">
-        <CustomTemplate />
-      </div>
+        <!-- ✅ التابات الفرعية -->
+        <div class="tabs-row sub-tabs">
+          <div class="tabs">
+            <button
+              v-for="sub in subTabs"
+              :key="sub.key"
+              :class="{ active: activeSubTab === sub.key }"
+              @click="activeSubTab = sub.key"
+            >
+              {{ sub.label }}
+            </button>
+          </div>
+        </div>
 
+        <!-- ✅ محتوى التابات الفرعية -->
+        <div class="tab-content">
+          <!-- 🟠 تبويب مخصص -->
+          <div v-if="activeSubTab === 'custom'">
+            <CustomTemplate />
+          </div>
+
+          <!-- 🟠 تبويب الأنماط -->
+          <div v-else-if="activeSubTab === 'layout'" class="layout-tab">
+            <section class="customizer-section">
+              <ThemeFontSelector
+                :selectedFont="fontStore.fontFamily"
+                :fonts="fontStore.fontOptions"
+                @update:selectedFont="fontStore.setFont"
+              />
+            </section>
+
+            <section class="customizer-section">
+              <CurrencySelector />
+            </section>
+
+            <section class="customizer-section">
+              <ImageShapeSelector
+                :selected="imageShapeStore.imageShape"
+                :options="imageShapeStore.imageShapeOptions"
+                @update:selected="(val) => {
+                  imageShapeStore.setImageShape(val)
+                  imageShapeStore.saveImageShape()
+                }"
+              />
+            </section>
+
+            <section class="customizer-section">
+              <AllergenStyleSelector
+                :selected="allergenStyleStore.allergenIconStyle"
+                :options="allergenStyleStore.allergenStyleOptions"
+                @update:selected="(val) => {
+                  allergenStyleStore.setAllergenStyle(val)
+                  allergenStyleStore.saveAllergenStyle()
+                }"
+              />
+            </section>
+
+            <section class="customizer-section">
+              <OfferStylePicker
+                :selected="offerStyleStore.offerStyle"
+                :options="offerStyleStore.offerStyleOptions"
+                :originalPrice="60"
+                :newPrice="25"
+                @update:selected="offerStyleStore.setOfferStyle"
+              />
+            </section>
+
+            <section class="customizer-section">
+              <ExpiredStylePicker
+                :selected="expiredStyleStore.expiredStyle"
+                :options="expiredStyleStore.expiredStyleOptions"
+                @update:selected="(val) => {
+                  expiredStyleStore.setExpiredStyle(val)
+                  expiredStyleStore.saveExpiredStyle()
+                }"
+              />
+            </section>
+          </div>
+
+          <!-- 🟠 تبويب الألوان -->
+          <div v-else-if="activeSubTab === 'color'">
+            <ColorEditor />
+          </div>
+        </div>
+      </div>
     </div>
+
     <button class="publish-btn">نشر</button>
   </div>
 </template>
@@ -106,7 +120,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 
-import LayoutEditor from './LayoutEditor.vue'
 import ColorEditor from './ColorEditor.vue'
 import ThemeFontSelector from '@/components/cboard/Templates/Selectors/ThemeFontSelector.vue'
 import CurrencySelector from '@/components/cboard/Templates/Selectors/CurrencySelector.vue'
@@ -115,7 +128,7 @@ import AllergenStyleSelector from '@/components/cboard/Templates/Selectors/Aller
 import OfferStylePicker from '@/components/cboard/Templates/Selectors/OfferStylePicker.vue'
 import ExpiredStylePicker from '@/components/cboard/Templates/Selectors/ExpiredStylePicker.vue'
 import PresetSelector from '@/components/cboard/MenuDesign/PresetSelector.vue'
-import CustomTemplate from '@/components/cboard/MenuDesign/CustomTemplate.vue' 
+import CustomTemplate from '@/components/cboard/MenuDesign/CustomTemplate.vue'
 
 import { useFontStore } from '@/stores/cboard/templates/fontStore.ts'
 import { useImageShapeStore } from '@/stores/cboard/templates/imageShapeStore'
@@ -125,12 +138,17 @@ import { useExpiredStyleStore } from '@/stores/cboard/templates/expiredStyleStor
 
 const tabs = [
   { key: 'sample', label: 'نموذج جاهز' },
-  { key: 'custom', label: 'نموذج مخصص' },
-  { key: 'layout', label: 'الانماط' },
-  { key: 'color', label: 'الالوان' },
+  { key: 'custom', label: 'نموذج مخصص 🔒' },
+]
+
+const subTabs = [
+  { key: 'custom', label: 'مخصص' },
+  { key: 'layout', label: 'الأنماط' },
+  { key: 'color', label: 'الألوان' },
 ]
 
 const activeTab = ref('sample')
+const activeSubTab = ref('custom')
 
 const fontStore = useFontStore()
 const imageShapeStore = useImageShapeStore()

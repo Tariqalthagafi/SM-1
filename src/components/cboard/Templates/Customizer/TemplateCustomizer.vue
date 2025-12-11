@@ -49,7 +49,6 @@
   />
 </div>
 
-
     <!-- بطاقة اختيار شكل الصورة -->
 <div class="card">
   <ImageShapeSelector

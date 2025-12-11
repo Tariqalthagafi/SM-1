@@ -33,13 +33,7 @@
         </template>
       </select>
 
-      <!-- أزرار التحكم -->
-      <button @click="resetPreset" class="button-unified button-reset">
-        إعادة ضبط الألوان
-      </button>
-      <button @click="setAsDefault" class="button-unified button-default">
-        تعيين كافتراضي
-      </button>
+
     </div>
   </div>
 </template>

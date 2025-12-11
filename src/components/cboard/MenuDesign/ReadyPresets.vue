@@ -34,7 +34,7 @@ import { ref, onMounted } from 'vue'
 import { readyPresets, type ReadyPreset } from '@/stores/cboard/MenuDesign/readyPresets.ts'
 import { useLayoutEditorStore } from '@/stores/cboard/MenuDesign/LayoutEditor.ts'
 import { useColorEditorStore } from '@/stores/cboard/MenuDesign/ColorEditorStore.ts'
-import { indexedDBService } from '@/services/indexedDBService'
+import { supabase } from '@/supabase'   // ✅ خدمة Supabase
 
 // ✅ النوع مضبوط بحيث يقبل فقط معرفات النماذج أو فارغ
 const selectedReadyPreset = ref<ReadyPreset['id'] | ''>('')
@@ -53,15 +53,33 @@ function applyReadyPreset(id: ReadyPreset['id'] | '') {
 
 async function setAsDefault() {
   if (!selectedReadyPreset.value) return
-  await indexedDBService.saveSetting('activeReadyPreset', selectedReadyPreset.value)
+
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return
+
+  await supabase
+    .from('menu_settings')
+    .upsert({
+      user_id: user.id,
+      ready_preset: selectedReadyPreset.value,
+      updated_at: new Date()
+    })
+
   defaultReadyPreset.value = selectedReadyPreset.value
 }
 
 onMounted(async () => {
-  const saved = await indexedDBService.getSetting('activeReadyPreset')
-  if (saved) {
-    // تفعيل النموذج الافتراضي المحفوظ تلقائيًا
-    selectedReadyPreset.value = saved as ReadyPreset['id']
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return
+
+  const { data } = await supabase
+    .from('menu_settings')
+    .select('ready_preset')
+    .eq('user_id', user.id)
+    .single()
+
+  if (data?.ready_preset) {
+    selectedReadyPreset.value = data.ready_preset as ReadyPreset['id']
     defaultReadyPreset.value = selectedReadyPreset.value
     applyReadyPreset(selectedReadyPreset.value)
   }
