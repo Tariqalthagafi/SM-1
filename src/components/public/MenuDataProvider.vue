@@ -32,60 +32,58 @@ const settings = ref({
 })
 
 onMounted(async () => {
-  // ✅ حماية من undefined
   if (!props.shortId) {
     console.error('🚨 shortId غير موجود في props')
     return
   }
   console.log('📌 shortId المستلم:', props.shortId)
 
-  // ✅ تحويل shortId إلى uuid كامل
+  // ✅ جلب إعدادات المنيو مباشرة بالـ shortId
   const { data: menu, error: menuError } = await supabase
     .from('menu_settings')
-    .select('id, ready_preset')
+    .select('ready_preset')
     .eq('short_id', props.shortId)
     .single()
 
-  if (menuError) {
-    console.error('🚨 خطأ في menu_settings:', menuError)
-    return
-  }
-  if (!menu) {
-    console.error('🚨 لم يتم العثور على سجل في menu_settings للـ shortId:', props.shortId)
+  if (menuError || !menu) {
+    console.error('🚨 خطأ أو لا يوجد سجل في menu_settings:', menuError)
     return
   }
   console.log('📌 نتيجة menu_settings:', menu)
 
-  const fullUuid = menu.id
   let activePreset: ReadyPreset | null = null
-
   if (menu.ready_preset) {
     activePreset = readyPresets.find(p => p.id === menu.ready_preset) ?? null
     console.log('📌 ready_preset المختار:', activePreset)
   }
 
-  // ✅ تنفيذ الاستعلامات بالتوازي
-  const [templateRes, colorRes, productsRes] = await Promise.all([
+  // ✅ تنفيذ الاستعلامات مباشرة بالـ shortId
+  const [templateRes, colorRes, productsRes, sectionsRes] = await Promise.all([
     supabase.from('template_settings')
       .select('layout_id, font_family, offer_style, image_shape, currency_symbol, allergen_style')
-      .eq('id', fullUuid)
-      .single(),
+      .eq('short_id', props.shortId)
+      .maybeSingle(),
     supabase.from('color_presets')
       .select('colors')
-      .eq('id', fullUuid)
+      .eq('short_id', props.shortId)
       .maybeSingle(),
     supabase.from('products')
       .select('*')
-      .eq('user_id', fullUuid)
+      .eq('short_id', props.shortId),
+    supabase.from('sections')
+      .select('*')
+      .eq('short_id', props.shortId)
   ])
 
   console.log('📌 template_settings:', templateRes.data, '🚨 خطأ:', templateRes.error)
   console.log('📌 color_presets:', colorRes.data, '🚨 خطأ:', colorRes.error)
   console.log('📌 products:', productsRes.data?.length, '🚨 خطأ:', productsRes.error)
+  console.log('📌 sections:', sectionsRes.data?.length, '🚨 خطأ:', sectionsRes.error)
 
   const templateData = templateRes.data
   const colorData = colorRes.data
-  const productsData = productsRes.data
+  const productsData = productsRes.data ?? []
+  const sectionsData = sectionsRes.data ?? []
 
   const colors = activePreset?.colors ?? colorData?.colors ?? {
     bodyBackground: '#ffffff',
@@ -106,25 +104,21 @@ onMounted(async () => {
   }
   console.log('📌 settings النهائية:', settings.value)
 
-  // ✅ لو فيه نموذج جاهز مختار نطبقه، وإلا نستخدم القيمة من template_settings
+  // ✅ layout
   layout.value = activePreset?.layout ?? templateData?.layout_id ?? 'grid'
   console.log('📌 layout المستخدم:', layout.value)
 
   // ✅ products
-  products.value = productsData ?? []
+  products.value = productsData
   console.log('📌 عدد المنتجات:', products.value.length)
 
   // ✅ sections
-  const sectionMap = new Map<string, any>()
-  products.value.forEach(p => {
-    if (p.section_id && !sectionMap.has(p.section_id)) {
-      sectionMap.set(p.section_id, {
+  sections.value = sectionsData.length > 0
+    ? sectionsData
+    : Array.from(new Map(products.value.map(p => [p.section_id, {
         id: p.section_id,
         name: p.section_name ?? `قسم ${p.section_id}`
-      })
-    }
-  })
-  sections.value = Array.from(sectionMap.values())
-  console.log('📌 الأقسام المستخرجة:', sections.value)
+      }])).values())
+  console.log('📌 الأقسام النهائية:', sections.value)
 })
 </script>
