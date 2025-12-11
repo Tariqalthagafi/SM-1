@@ -32,6 +32,9 @@ const settings = ref({
 })
 
 onMounted(async () => {
+  // ✅ حماية من undefined
+  if (!props.shortId) return
+
   // ✅ تحويل shortId إلى uuid كامل
   const { data: menu } = await supabase
     .from('menu_settings')
@@ -47,19 +50,24 @@ onMounted(async () => {
     activePreset = readyPresets.find(p => p.id === menu.ready_preset) ?? null
   }
 
-  // ✅ template_settings
-  const { data: templateData } = await supabase
-    .from('template_settings')
-    .select('layout_id, font_family, offer_style, image_shape, currency_symbol, allergen_style')
-    .eq('id', fullUuid)
-    .single()
+  // ✅ تنفيذ الاستعلامات بالتوازي
+  const [templateRes, colorRes, productsRes] = await Promise.all([
+    supabase.from('template_settings')
+      .select('layout_id, font_family, offer_style, image_shape, currency_symbol, allergen_style')
+      .eq('id', fullUuid)
+      .single(),
+    supabase.from('color_presets')
+      .select('colors')
+      .eq('id', fullUuid)
+      .maybeSingle(),
+    supabase.from('products')
+      .select('*')
+      .eq('user_id', fullUuid)
+  ])
 
-  // ✅ color_presets
-  const { data: colorData } = await supabase
-    .from('color_presets')
-    .select('colors')
-    .eq('id', fullUuid)
-    .maybeSingle()
+  const templateData = templateRes.data
+  const colorData = colorRes.data
+  const productsData = productsRes.data
 
   const colors = activePreset?.colors ?? colorData?.colors ?? {
     bodyBackground: '#ffffff',
@@ -83,11 +91,6 @@ onMounted(async () => {
   layout.value = activePreset?.layout ?? templateData?.layout_id ?? 'grid'
 
   // ✅ products
-  const { data: productsData } = await supabase
-    .from('products')
-    .select('*')
-    .eq('user_id', fullUuid)
-
   products.value = productsData ?? []
 
   // ✅ sections

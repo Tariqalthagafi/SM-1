@@ -68,11 +68,11 @@ const routes = [
 
   // ✅ تعريف المسار العام خارج children
   {
-    path: '/menu/:id',
-    name: 'MenuPublicView',
-    component: () => import('@/views/public/MenuPublicView.vue'),
-    props: true, // مهم حتى يوصل menuId كـ prop
-  },
+  path: '/menu/:shortId',
+  name: 'MenuPublicView',
+  component: () => import('@/views/public/MenuPublicView.vue'),
+  props: true,
+},
 ]
 
 export const router = createRouter({
