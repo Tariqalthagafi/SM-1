@@ -33,21 +33,35 @@ const settings = ref({
 
 onMounted(async () => {
   // ✅ حماية من undefined
-  if (!props.shortId) return
+  if (!props.shortId) {
+    console.error('🚨 shortId غير موجود في props')
+    return
+  }
+  console.log('📌 shortId المستلم:', props.shortId)
 
   // ✅ تحويل shortId إلى uuid كامل
-  const { data: menu } = await supabase
+  const { data: menu, error: menuError } = await supabase
     .from('menu_settings')
     .select('id, ready_preset')
     .eq('short_id', props.shortId)
     .single()
 
-  if (!menu) return
+  if (menuError) {
+    console.error('🚨 خطأ في menu_settings:', menuError)
+    return
+  }
+  if (!menu) {
+    console.error('🚨 لم يتم العثور على سجل في menu_settings للـ shortId:', props.shortId)
+    return
+  }
+  console.log('📌 نتيجة menu_settings:', menu)
+
   const fullUuid = menu.id
   let activePreset: ReadyPreset | null = null
 
   if (menu.ready_preset) {
     activePreset = readyPresets.find(p => p.id === menu.ready_preset) ?? null
+    console.log('📌 ready_preset المختار:', activePreset)
   }
 
   // ✅ تنفيذ الاستعلامات بالتوازي
@@ -64,6 +78,10 @@ onMounted(async () => {
       .select('*')
       .eq('user_id', fullUuid)
   ])
+
+  console.log('📌 template_settings:', templateRes.data, '🚨 خطأ:', templateRes.error)
+  console.log('📌 color_presets:', colorRes.data, '🚨 خطأ:', colorRes.error)
+  console.log('📌 products:', productsRes.data?.length, '🚨 خطأ:', productsRes.error)
 
   const templateData = templateRes.data
   const colorData = colorRes.data
@@ -86,12 +104,15 @@ onMounted(async () => {
     colors,
     fontFamily: templateData?.font_family ?? 'Tajawal, sans-serif'
   }
+  console.log('📌 settings النهائية:', settings.value)
 
   // ✅ لو فيه نموذج جاهز مختار نطبقه، وإلا نستخدم القيمة من template_settings
   layout.value = activePreset?.layout ?? templateData?.layout_id ?? 'grid'
+  console.log('📌 layout المستخدم:', layout.value)
 
   // ✅ products
   products.value = productsData ?? []
+  console.log('📌 عدد المنتجات:', products.value.length)
 
   // ✅ sections
   const sectionMap = new Map<string, any>()
@@ -104,5 +125,6 @@ onMounted(async () => {
     }
   })
   sections.value = Array.from(sectionMap.values())
+  console.log('📌 الأقسام المستخرجة:', sections.value)
 })
 </script>
