@@ -5,39 +5,8 @@
     <header class="explorer-header">
       <div class="logo-text">أداة المنيو</div>
 
-      <!-- 🔘 أزرار الفلاتر -->
-      <div class="filter-buttons">
-
-        <div
-          v-for="option in filterOptions"
-          :key="option.value"
-          class="filter-wrapper"
-        >
-          <!-- الزر الرئيسي -->
-          <button
-            :class="['filter-btn', { active: selectedFilters.includes(option.value) }]"
-            @click="toggleFilter(option.value)"
-          >
-            {{ option.label }}
-          </button>
-
-          <!-- الفلاتر الفرعية -->
-          <div
-            v-if="option.children && selectedFilters.includes(option.value)"
-            class="sub-filters"
-          >
-            <button
-              v-for="child in option.children"
-              :key="child.value"
-              :class="['sub-filter-btn', { active: selectedSubFilters.includes(child.value) }]"
-              @click="toggleSubFilter(child.value)"
-            >
-              {{ child.label }}
-            </button>
-          </div>
-        </div>
-
-      </div>
+      <!-- 🔘 مكوّن الفلاتر -->
+      <FiltersPanel @update:filters="applyFilters" />
     </header>
 
     <!-- 🟦 شبكة المنيوهات -->
@@ -72,10 +41,9 @@
 
         <!-- ⭐ التقييم -->
         <div class="rating">
-  <span class="single-star">★</span>
-  <span class="rating-number">{{ menu.rating }} ({{ menu.reviews }} مراجعة)</span>
-</div>
-
+          <span class="single-star">★</span>
+          <span class="rating-number">{{ menu.rating }} ({{ menu.reviews }} مراجعة)</span>
+        </div>
 
         <!-- الوسوم -->
         <div class="menu-tags">
@@ -97,9 +65,10 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
+import FiltersPanel from './FiltersPanel.vue'
 
 /* -----------------------------------
-   🔘 بيانات وهمية للمطاعم (Mock Data)
+   🔘 بيانات المطاعم
 ----------------------------------- */
 const menus = ref([
   {
@@ -205,82 +174,45 @@ const menus = ref([
 ])
 
 /* -----------------------------------
-   🔘 خيارات الفلاتر
+   🔘 الفلاتر القادمة من FiltersPanel
 ----------------------------------- */
-const filterOptions = [
-  { label: 'الأقرب لي', value: 'near' },
+const selectedMain = ref<string[]>([])
+const selectedSub = ref<string[]>([])
 
-  {
-    label: 'المدينة',
-    value: 'city',
-    children: [
-      { label: 'الرياض', value: 'riyadh' },
-      { label: 'جدة', value: 'jeddah' },
-      { label: 'الدمام', value: 'dammam' },
-    ]
-  },
-
-  { label: 'مشويات', value: 'grill' },
-  { label: 'شعبيات', value: 'local' }
-]
-
-/* -----------------------------------
-   🔘 الفلاتر المختارة
------------------------------------ */
-const selectedFilters = ref<string[]>([])
-const selectedSubFilters = ref<string[]>([])
-
-/* -----------------------------------
-   🔘 تفعيل/تعطيل الفلتر الرئيسي
------------------------------------ */
-function toggleFilter(value: string) {
-  if (selectedFilters.value.includes(value)) {
-    selectedFilters.value = selectedFilters.value.filter(v => v !== value)
-    selectedSubFilters.value = [] // حذف الفلاتر الفرعية عند الإلغاء
-  } else {
-    selectedFilters.value.push(value)
-  }
+function applyFilters(filters: any) {
+  selectedMain.value = filters.main
+  selectedSub.value = filters.sub
 }
 
 /* -----------------------------------
-   🔘 تفعيل/تعطيل الفلتر الفرعي
------------------------------------ */
-function toggleSubFilter(value: string) {
-  if (selectedSubFilters.value.includes(value)) {
-    selectedSubFilters.value = selectedSubFilters.value.filter(v => v !== value)
-  } else {
-    selectedSubFilters.value.push(value)
-  }
-}
-
-/* -----------------------------------
-   🔍 فلترة النتائج حسب الاختيارات
+   🔍 فلترة النتائج
 ----------------------------------- */
 const filteredMenus = computed(() => {
   let list = menus.value
 
-  // فلتر حسب التصنيف (مشويات / شعبيات)
-  if (selectedFilters.value.includes('grill')) {
+  // فلتر حسب التصنيف
+  if (selectedMain.value.includes('grill')) {
     list = list.filter(m => m.category === 'grill')
   }
 
-  if (selectedFilters.value.includes('local')) {
+  if (selectedMain.value.includes('local')) {
     list = list.filter(m => m.category === 'local')
   }
 
-  // فلتر حسب المدينة (الفلاتر الفرعية)
-  if (selectedFilters.value.includes('city') && selectedSubFilters.value.length) {
-    list = list.filter(m => selectedSubFilters.value.includes(m.city))
+  // فلتر حسب المدينة
+  if (selectedMain.value.includes('city') && selectedSub.value.length) {
+    list = list.filter(m => selectedSub.value.includes(m.city))
   }
 
-  // الأقرب لي (placeholder)
-  if (selectedFilters.value.includes('near')) {
+  // الأقرب لي
+  if (selectedMain.value.includes('near')) {
     list = list.filter(m => m.city === 'riyadh')
   }
 
   return list
 })
 </script>
+
 
 <style scoped>
 .explorer-page {
