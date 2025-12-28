@@ -110,7 +110,7 @@ async function toggle_visibility() {
 
 <style scoped>
 .social-field {
-  background-color: #f9f9f9;
+  background-color: #ffffff;
   border: 1px solid #ddd;
   padding: 1.25rem;
   border-radius: 10px;
@@ -200,7 +200,7 @@ input.editing {
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: #ccc;
+  background-color: #fffdfd;
   transition: 0.4s;
   border-radius: 24px;
 }

@@ -68,6 +68,12 @@ const routes = [
 
   // ✅ تعريف المسار العام خارج children
   {
+  path: '/menu',
+  name: 'MenuExplorer',
+  component: () => import('@/components/public/MenuExplorer/MenuExplorerPage.vue'),
+},
+
+  {
   path: '/menu/:shortId',
   name: 'MenuPublicView',
   component: () => import('@/views/public/MenuPublicView.vue'),

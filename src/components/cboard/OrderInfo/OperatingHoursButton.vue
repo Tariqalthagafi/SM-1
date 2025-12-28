@@ -1,11 +1,10 @@
 <template>
-  <div class="contact-button-container none">
+  <div class="contact-button-container none" ref="containerRef">
     <button
-  class="main-contact-btn"
-  @click="isOpen = !isOpen"
-  :style="{ backgroundColor: props.colors.topIconsBackground }"
->
-
+      class="main-contact-btn"
+      @click="togglePopover"
+      :style="{ backgroundColor: props.colors.topIconsBackground }"
+    >
       <img src="/icons/operationstime/hours.svg" alt="ساعات التشغيل" class="svg-icon" />
     </button>
 
@@ -42,30 +41,45 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import { useOperatingHoursStore } from '@/stores/cboard/orderInfo/operatingHoursStore.ts'
-import { storeToRefs } from 'pinia'   // ✅ إضافة مهمة
+import { storeToRefs } from 'pinia'
 import type { TimePeriod } from '@/types/contexts/orderInfo1.ts'
 
-const props = defineProps<{
-  colors: Record<string, string>
-}>()
+const props = defineProps<{ colors: Record<string, string> }>()
 
 const isOpen = ref(false)
+const containerRef = ref<HTMLElement | null>(null)
+
+function togglePopover() {
+  isOpen.value = !isOpen.value
+}
+
+function handleClickOutside(event: MouseEvent) {
+  if (containerRef.value && !containerRef.value.contains(event.target as Node)) {
+    isOpen.value = false
+  }
+}
+
+onMounted(() => {
+  document.addEventListener('click', handleClickOutside)
+  store.syncOperatingHoursFromSupabase().then(() => {
+    console.log('📥 Loaded operating hours:', operatingHours.value)
+  })
+})
+onBeforeUnmount(() => {
+  document.removeEventListener('click', handleClickOutside)
+})
+
 const store = useOperatingHoursStore()
-const { operatingHours } = storeToRefs(store)   // ✅ الآن reactive ref
+const { operatingHours } = storeToRefs(store)
 
 const allDays = ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت']
-
-onMounted(async () => {
-  await store.syncOperatingHoursFromSupabase()
-  console.log('📥 Loaded operating hours:', operatingHours.value)
-})
 
 const activeDaysWithPeriods = computed(() =>
   allDays
     .map(day => {
-      const periods = operatingHours.value[day]?.filter(p => p.enabled) ?? []   // ✅ استخدم .value
+      const periods = operatingHours.value[day]?.filter(p => p.enabled) ?? []
       return periods.length ? { day, periods } : null
     })
     .filter(Boolean) as { day: string; periods: TimePeriod[] }[]

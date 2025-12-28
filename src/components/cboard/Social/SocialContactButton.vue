@@ -1,13 +1,15 @@
 <template>
-  <div class="contact-button-container none">
+  <div class="contact-button-container none" ref="containerRef">
+    <!-- زر الأيقونة -->
     <button
       class="main-contact-btn"
-      @click="isPopoverOpen = !isPopoverOpen"
+      @click="togglePopover"
       :style="{ backgroundColor: props.colors.topIconsBackground }"
     >
       <v-icon name="fa-phone" />
     </button>
 
+    <!-- النافذة المنبثقة -->
     <div v-if="isPopoverOpen" class="contact-popover">
       <h6 class="popover-title">تواصل معنا</h6>
       <div class="social-links">
@@ -34,7 +36,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { supabase } from '@/supabase'
 import type { social_key } from '@/types/contexts/social1.ts'
@@ -47,10 +49,31 @@ const props = defineProps<{
 }>()
 
 const isPopoverOpen = ref(false)
+const containerRef = ref<HTMLElement | null>(null)
+
+// ✅ فتح/إغلاق النافذة
+function togglePopover() {
+  isPopoverOpen.value = !isPopoverOpen.value
+}
+
+// ✅ إغلاق عند الضغط خارج العنصر
+function handleClickOutside(event: MouseEvent) {
+  if (containerRef.value && !containerRef.value.contains(event.target as Node)) {
+    isPopoverOpen.value = false
+  }
+}
+
+onMounted(() => {
+  document.addEventListener('click', handleClickOutside)
+})
+onBeforeUnmount(() => {
+  document.removeEventListener('click', handleClickOutside)
+})
+
+// ✅ تحميل بيانات المستخدم
 const fields = ref<{ key: social_key; value: string; is_public: boolean }[]>([])
 const userId = ref<string>('')
 
-// ✅ تحميل بيانات المستخدم والحقول العامة من Supabase
 onMounted(async () => {
   const { data: userData } = await supabase.auth.getUser()
   userId.value = userData?.user?.id ?? 'anonymous'
@@ -71,7 +94,7 @@ onMounted(async () => {
   }
 })
 
-// قائمة الروابط العامة فقط
+// ✅ قائمة الروابط العامة فقط
 const filteredLinks = computed(() => {
   return socialMap
     .map(mapItem => {
@@ -87,25 +110,19 @@ const filteredLinks = computed(() => {
     .filter((link): link is { key: social_key; name: string; color: string; icon: string; value: string } => link !== null)
 })
 
-// توليد الرابط المناسب حسب نوع الخدمة
+// ✅ توليد الرابط المناسب
 function getLinkUrl(key: social_key, value: string): string {
   switch (key) {
-    case 'phone':
-      return `tel:${value}`
-    case 'whatsapp':
-      return `https://wa.me/${value.replace(/[^0-9]/g, '')}`
-    case 'email':
-      return `mailto:${value}`
-    case 'location':
-      return value.startsWith('http') ? value : `https://maps.google.com/?q=${encodeURIComponent(value)}`
-    case 'website':
-      return value.startsWith('http') ? value : `https://${value}`
-    default:
-      return value
+    case 'phone': return `tel:${value}`
+    case 'whatsapp': return `https://wa.me/${value.replace(/[^0-9]/g, '')}`
+    case 'email': return `mailto:${value}`
+    case 'location': return value.startsWith('http') ? value : `https://maps.google.com/?q=${encodeURIComponent(value)}`
+    case 'website': return value.startsWith('http') ? value : `https://${value}`
+    default: return value
   }
 }
 
-// تعريف المنصات المدعومة
+// ✅ المنصات المدعومة
 const socialMap: { key: social_key; name: string; color: string; icon: string }[] = [
   { key: 'phone', name: 'اتصال هاتفي', color: '#34A853', icon: 'mobile-icon.svg' },
   { key: 'whatsapp', name: 'واتساب', color: '#25D366', icon: 'whatsapp-icon.svg' },
@@ -121,10 +138,9 @@ const socialMap: { key: social_key; name: string; color: string; icon: string }[
 ]
 </script>
 
-
 <style scoped>
 .contact-button-container {
-  position: static;
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -162,6 +178,7 @@ const socialMap: { key: social_key; name: string; color: string; icon: string }[
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
   padding: 10px;
   animation: pop-in 0.3s ease-out;
+  z-index: 100;
 }
 
 .popover-title {
@@ -204,23 +221,15 @@ const socialMap: { key: social_key; name: string; color: string; icon: string }[
   box-shadow: 0 0 4px rgba(0, 0, 0, 0.05);
 }
 
-.icon-wrapper :deep(.v-icon) {
-  font-size: 1.25rem;
-}
-
-@keyframes pop-in {
-  from { transform: scale(0.8); opacity: 0; }
-  to { transform: scale(1); opacity: 1; }
-}
-
-.contact-button-container.none {
-  position: static;
-}
-
 .svg-icon {
   width: 24px;
   height: 24px;
   object-fit: contain;
   display: block;
+}
+
+@keyframes pop-in {
+  from { transform: scale(0.8); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
 }
 </style>

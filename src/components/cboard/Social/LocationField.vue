@@ -97,7 +97,7 @@ async function toggle_visibility() {
 
 <style scoped>
 .social-field {
-  background-color: #f9f9f9;
+  background-color: #ffffff;
   border: 1px solid #ddd;
   padding: 1.25rem;
   border-radius: 10px;

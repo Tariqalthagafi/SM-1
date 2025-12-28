@@ -42,7 +42,7 @@ function toggleLang() {
 
 // ✅ تسجيل الدخول عبر Google
 async function loginWithGoogle() {
-  const redirectTo = 'https://sm-1.vercel.app/cboard' // ✅ الرابط مباشر
+  const redirectTo = 'http://localhost:5173/cboard' // ✅ الرابط مباشر
 
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: 'google',

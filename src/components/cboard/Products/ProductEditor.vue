@@ -246,18 +246,21 @@ async function removeImage() {
 
 .field {
   display: flex;
-  flex-direction: column;
-  width: 100%;
+  flex-direction: row; /* بدل column */
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .field label {
+  width: 100px; /* عرض ثابت */
   font-weight: bold;
   font-size: 0.85rem;
-  margin-bottom: 0.25rem;
   color: #1C1C1C;
+  margin-bottom: 0; /* إزالة المسافة */
 }
 
 .field input {
+  flex: 1; /* ياخذ باقي المساحة */
   padding: 0.4rem 0.6rem;
   border: 1px solid #E0E0E0;
   border-radius: 6px;
@@ -265,6 +268,7 @@ async function removeImage() {
   font-size: 0.85rem;
   color: #1C1C1C;
 }
+
 .field input:focus {
   outline: none;
   border-color: #FF7A00;

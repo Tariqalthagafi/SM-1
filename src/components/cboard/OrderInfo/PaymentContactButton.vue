@@ -1,13 +1,12 @@
 <template>
-  <div class="contact-button-container none">
-   <button
-  class="main-contact-btn"
-  @click="isOpen = !isOpen"
-  :style="{ backgroundColor: props.colors.topIconsBackground }"
->
-  <v-icon name="fa-credit-card" />
-</button>
-
+  <div class="contact-button-container none" ref="containerRef">
+    <button
+      class="main-contact-btn"
+      @click="togglePopover"
+      :style="{ backgroundColor: props.colors.topIconsBackground }"
+    >
+      <v-icon name="fa-credit-card" />
+    </button>
 
     <div v-if="isOpen" class="contact-popover">
       <h6 class="popover-title">طرق الدفع</h6>
@@ -21,14 +20,13 @@
           @click="isOpen = false"
         >
           <span class="icon-wrapper white-bg">
-<img
-  v-if="method.icon.endsWith('.svg')"
-  :src="`/icons/payments/${method.icon}`"
-  class="svg-icon"
-  :alt="method.name"
-/>
-<span v-else class="text-icon">{{ method.icon || '💳' }}</span>
-
+            <img
+              v-if="method.icon.endsWith('.svg')"
+              :src="`/icons/payments/${method.icon}`"
+              class="svg-icon"
+              :alt="method.name"
+            />
+            <span v-else class="text-icon">{{ method.icon || '💳' }}</span>
           </span>
         </div>
       </div>
@@ -39,7 +37,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import { usePaymentMethodsStore } from '@/stores/cboard/orderInfo/paymentMethodsStore.ts'
 import { storeToRefs } from 'pinia'
 
@@ -49,12 +47,27 @@ const props = defineProps<{
 }>()
 
 const store = usePaymentMethodsStore()
-const { paymentMethods } = storeToRefs(store) 
+const { paymentMethods } = storeToRefs(store)
+
 const isOpen = ref(false)
+const containerRef = ref<HTMLElement | null>(null)
+
+function togglePopover() {
+  isOpen.value = !isOpen.value
+}
+
+function handleClickOutside(event: MouseEvent) {
+  if (containerRef.value && !containerRef.value.contains(event.target as Node)) {
+    isOpen.value = false
+  }
+}
 
 onMounted(async () => {
-  // تحميل من Supabase عبر الستور
   await store.syncPaymentMethodsFromSupabase()
+  document.addEventListener('click', handleClickOutside)
+})
+onBeforeUnmount(() => {
+  document.removeEventListener('click', handleClickOutside)
 })
 
 const activeMethods = computed(() =>
@@ -150,8 +163,16 @@ const activeMethods = computed(() =>
   box-shadow: 0 0 4px rgba(0, 0, 0, 0.05);
 }
 
-.icon-wrapper :deep(.v-icon) {
-  font-size: 1.25rem;
+.text-icon {
+  font-size: 1.2rem;
+  color: #FF7A00;
+  font-weight: bold;
+}
+
+.svg-icon {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
 }
 
 .empty-message {
@@ -165,15 +186,4 @@ const activeMethods = computed(() =>
   from { transform: scale(0.8); opacity: 0; }
   to { transform: scale(1); opacity: 1; }
 }
-.text-icon {
-  font-size: 1.2rem;
-  color: #FF7A00;
-  font-weight: bold;
-}
-.svg-icon {
-  width: 28px;
-  height: 28px;
-  object-fit: contain;
-}
-
 </style>

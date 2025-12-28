@@ -1,10 +1,10 @@
 <template>
-  <div class="contact-button-container none">
+  <div class="contact-button-container none" ref="containerRef">
     <button
-  class="main-contact-btn"
-  @click="isOpen = !isOpen"
-  :style="{ backgroundColor: props.colors.topIconsBackground }"
->
+      class="main-contact-btn"
+      @click="togglePopover"
+      :style="{ backgroundColor: props.colors.topIconsBackground }"
+    >
       <v-icon name="fa-truck" />
     </button>
 
@@ -20,13 +20,13 @@
           @click="isOpen = false"
         >
           <span class="icon-wrapper white-bg">
-<img
-  v-if="isImage(method.icon)"
-  :src="`/icons/delivery/${method.icon}`"
-  class="svg-icon"
-  :alt="method.name"
-/>
-<span v-else class="text-icon">{{ method.icon || '🚚' }}</span>
+            <img
+              v-if="isImage(method.icon)"
+              :src="`/icons/delivery/${method.icon}`"
+              class="svg-icon"
+              :alt="method.name"
+            />
+            <span v-else class="text-icon">{{ method.icon || '🚚' }}</span>
           </span>
         </div>
       </div>
@@ -37,24 +37,41 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import { useDeliveryMethodsStore } from '@/stores/cboard/orderInfo/deliveryMethodsStore.ts'
-import { storeToRefs } from 'pinia'   // ✅ إضافة مهمة
+import { storeToRefs } from 'pinia'
 
-const props = defineProps<{
-  colors: Record<string, string>
-}>()
+const props = defineProps<{ colors: Record<string, string> }>()
 
 const store = useDeliveryMethodsStore()
-const { deliveryMethods } = storeToRefs(store)   // ✅ الآن reactive ref
+const { deliveryMethods } = storeToRefs(store)
+
 const isOpen = ref(false)
+const containerRef = ref<HTMLElement | null>(null)
+
+function togglePopover() {
+  isOpen.value = !isOpen.value
+}
+
+function handleClickOutside(event: MouseEvent) {
+  if (containerRef.value && !containerRef.value.contains(event.target as Node)) {
+    isOpen.value = false
+  }
+}
+
+onMounted(() => {
+  document.addEventListener('click', handleClickOutside)
+})
+onBeforeUnmount(() => {
+  document.removeEventListener('click', handleClickOutside)
+})
 
 function isImage(filename: string): boolean {
   return /\.(svg|png|webp)$/i.test(filename)
 }
 
 const activeMethods = computed(() =>
-  deliveryMethods.value.filter(method => method.enabled && method.name)   // ✅ استخدم .value
+  deliveryMethods.value.filter(method => method.enabled && method.name)
 )
 </script>
 
