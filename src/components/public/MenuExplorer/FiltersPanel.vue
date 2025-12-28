@@ -94,8 +94,8 @@ const filterOptions = [
         { label: 'الريان', value: 'rayyan' },
       ]
     },
-    { label: 'مكة', value: 'makkah', districts: [] },
-    { label: 'المدينة', value: 'madinah', districts: [] },
+    { label: 'مكة', value: 'makkah' },
+    { label: 'المدينة', value: 'madinah' },
   ]
 },
 
